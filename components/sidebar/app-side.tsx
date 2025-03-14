@@ -53,12 +53,12 @@ const data = {
     },
     {
       title: "Profile",
-      url: "dashboard/profile",
+      url: "/dashboard/profile",
       icon: CircleUserRound,
     },
     {
       title: "Subscription Plans",
-      url: "/dashboard/subscription-plans",
+      url: "/dashboard/subscriptions",
       icon: CreditCard,
     },
   ],
