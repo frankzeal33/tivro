@@ -115,7 +115,7 @@ const Page = () => {
                                     placeholder="Enter phone number"
                                     value={value}
                                     defaultCountry="NG"
-                                    onChange={setValue}
+                                    onChange={() => setValue}
                                     className='border p-2 rounded-md text-sm focus:outline-0 w-full'
                                 />
                             </div>
