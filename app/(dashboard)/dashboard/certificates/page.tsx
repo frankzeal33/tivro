@@ -112,7 +112,7 @@ const certificates: Payment = [
       }
   ]
 
-const page = () => {
+const Page = () => {
 
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
@@ -240,4 +240,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

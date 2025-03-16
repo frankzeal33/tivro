@@ -21,7 +21,7 @@ import {
   } from "@/components/ui/accordion"
 import { Status } from '@/components/Status'
 
-const page = () => {
+const Page = () => {
     const status = 'passed'
   return (
     <div className='my-container space-y-4'>
@@ -170,4 +170,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

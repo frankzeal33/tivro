@@ -66,7 +66,7 @@ const requests = [
     }
 ]
 
-const page = () => {
+const Page = () => {
     const status = 'passed'
   return (
     <div className='my-container space-y-4'>
@@ -258,4 +258,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

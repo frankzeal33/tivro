@@ -61,7 +61,7 @@ const certificates   = [
     },
   ]
 
-const page = () => {
+const Page = () => {
 
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
@@ -167,4 +167,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

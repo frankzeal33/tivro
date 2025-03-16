@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-const page = () => {
+const Page = () => {
     const [value, setValue] = useState()
 
     const router = useRouter()
@@ -102,4 +102,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

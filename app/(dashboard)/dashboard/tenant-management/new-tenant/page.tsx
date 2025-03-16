@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/popover"
 import { IoIosInformationCircle } from "react-icons/io";
 
-const page = () => {
+const Page = () => {
     const [value, setValue] = useState()
     const [date, setDate] = useState<Date>()
 
@@ -206,4 +206,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

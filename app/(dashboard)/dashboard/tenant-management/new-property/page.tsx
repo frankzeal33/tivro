@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/tabs"
 import { Textarea } from '@/components/ui/textarea'
 
-const page = () => {
+const Page = () => {
     const [value, setValue] = useState()
     const [date, setDate] = useState<Date>()
     const [activeTab, setActiveTab] = useState("Property information");
@@ -206,4 +206,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
