@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import React, { FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, useState } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +37,7 @@ import { PiSealCheckFill } from "react-icons/pi";
 
 const page = () => {
     const [value, setValue] = useState()
-    const [date, setDate] = React.useState<Date>()
+    const [date, setDate] = useState<Date>()
     const [activeTab, setActiveTab] = useState("Personal information");
     const [open, setOpen] = useState(false);
     const router = useRouter()
@@ -58,7 +58,7 @@ const page = () => {
 
     const [fileName, setFileName] = useState<string | null>(null);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       setFileName(file ? file.name : "No file selected");
     };

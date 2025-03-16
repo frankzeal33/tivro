@@ -32,16 +32,15 @@ import {
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-import { Status } from '@/components/Status'
 import { Separator } from '@/components/ui/separator'
 import { SubscriptionStatus } from '@/components/SubscriptionStatus'
 import { ContainerTitle } from '@/components/ContainerTitle'
 import { cn } from '@/lib/utils'
 import NotFound from '@/components/NotFound'
+import { useState } from 'react'
 
 const frameworks = [
     {
@@ -93,8 +92,8 @@ const certificates = [
 
 const page = () => {
 
-    const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
+    const [open, setOpen] = useState(false)
+    const [value, setValue] = useState("")
 
   return (
     <div className='my-container space-y-4'>

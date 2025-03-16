@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { FormEvent, useState } from 'react'
+import { FormEvent, useState } from 'react'
 import PhoneInput from 'react-phone-number-input'
 import {
   AlertDialog,

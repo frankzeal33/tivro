@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
-import React, { FormEvent, useState } from 'react'
+import { FormEvent, useState } from 'react'
 import PhoneInput from 'react-phone-number-input'
 import {
   AlertDialog,
@@ -40,7 +40,7 @@ import { IoIosInformationCircle } from "react-icons/io";
 
 const page = () => {
     const [value, setValue] = useState()
-    const [date, setDate] = React.useState<Date>()
+    const [date, setDate] = useState<Date>()
 
     const router = useRouter()
     

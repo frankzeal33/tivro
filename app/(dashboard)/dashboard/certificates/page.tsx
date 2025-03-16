@@ -1,6 +1,5 @@
 "use client"
 import Title from '@/components/Title'
-import React from 'react'
 import {
   Table,
   TableBody,
@@ -33,12 +32,12 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { Status } from '@/components/Status'
 import NotFound from '@/components/NotFound'
+import { useState } from 'react'
 
 
 const frameworks = [
@@ -115,8 +114,8 @@ const certificates: Payment = [
 
 const page = () => {
 
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
 
   return (
     <div className='my-container'>

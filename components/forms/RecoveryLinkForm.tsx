@@ -21,11 +21,11 @@ export function RecoveryLinkForm({
         </p>
       </div>
       <div className="grid gap-6">
-        <a href="/">
+        <Link href="/">
             <Button type="button" className="w-full">
                  Go to mail
             </Button>
-        </a>
+        </Link>
       </div>
     </form>
   )
