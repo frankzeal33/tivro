@@ -35,7 +35,7 @@ import PhoneInputWithCountrySelect from 'react-phone-number-input'
 import { PiSealCheckFill } from "react-icons/pi";
 
 const Page = () => {
-    const [value, setValue] = useState('')
+    const [value, setValue] = useState<any>()
     const [date, setDate] = useState<Date>()
     const [activeTab, setActiveTab] = useState("Personal information");
     const [open, setOpen] = useState(false);
@@ -115,7 +115,7 @@ const Page = () => {
                                     placeholder="Enter phone number"
                                     value={value}
                                     defaultCountry="NG"
-                                    onChange={(e) => setValue(e)}
+                                    onChange={setValue}
                                     className='border p-2 rounded-md text-sm focus:outline-0 w-full'
                                 />
                             </div>
