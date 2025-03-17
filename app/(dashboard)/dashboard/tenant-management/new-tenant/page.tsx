@@ -39,7 +39,7 @@ import {
 import { IoIosInformationCircle } from "react-icons/io";
 
 const Page = () => {
-    const [value, setValue] = useState()
+    const [value, setValue] = useState<string | undefined>(undefined)
     const [date, setDate] = useState<Date>()
 
     const router = useRouter()
@@ -94,7 +94,7 @@ const Page = () => {
                                 placeholder="Enter phone number"
                                 value={value}
                                 defaultCountry="NG"
-                                onChange={setValue}
+                                onChange={phone => setValue(phone)}
                                 className='border p-2 rounded-md text-sm focus:outline-0 w-full'
                             />
                         </div>
