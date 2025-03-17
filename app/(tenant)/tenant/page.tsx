@@ -17,7 +17,7 @@ import {
 const Page = () => {
   return (
     <div className="tenant-container">
-        <div className={cn("flex flex-col gap-6 h-full items-center justify-center")}>
+        <div className={cn("flex flex-col gap-6 items-center justify-center")}>
           <Card className="shadow-none max-w-96">
             <CardHeader className="text-center">
               <Avatar className='size-16 mx-auto'>
@@ -42,7 +42,7 @@ const Page = () => {
                     </div>
                     <div className="text-center text-sm">
                       Didn’t receive a code?{" "}
-                      <Button className="p-0" variant={'link'}>
+                      <Button className="p-0 text-primary" variant={'link'}>
                         Resend
                       </Button>
                     </div>
