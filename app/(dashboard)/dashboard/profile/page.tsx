@@ -35,7 +35,7 @@ import PhoneInputWithCountrySelect from 'react-phone-number-input'
 import { PiSealCheckFill } from "react-icons/pi";
 
 const Page = () => {
-    const [value, setValue] = useState<any>()
+    const [value, setValue] = useState<string | undefined>()
     const [date, setDate] = useState<Date>()
     const [activeTab, setActiveTab] = useState("Personal information");
     const [open, setOpen] = useState(false);
