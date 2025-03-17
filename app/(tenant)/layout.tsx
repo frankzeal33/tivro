@@ -1,8 +1,8 @@
 import { ThemeProvider } from "@/components/theme-provider"
 
 import { AppSidebar } from "@/components/sidebar/app-side"
-import { SiteHeader } from "@/components/sidebar/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SiteHeader } from "@/components/tenant-header/site-header";
 
 export default function  RootLayout({
   children,

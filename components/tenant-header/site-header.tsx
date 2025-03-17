@@ -1,7 +1,6 @@
 "use client"
  
 import * as React from "react"
-import { Bell, Check, ChevronDown, Power, SidebarIcon } from "lucide-react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
  
@@ -12,26 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
  
-import { cn } from "@/lib/utils"
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
-import Link from "next/link"
 import { BsFillLightningChargeFill } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
 
@@ -88,60 +69,6 @@ export function SiteHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <div className="hidden md:flex">
-            <Link href={'/'}>
-              <Button variant="secondary" className="size-[2.5rem] rounded-full relative cursor-pointer">
-                <Bell size={28}/>
-                <div className="size-2 bg-red-500 rounded-full absolute top-0 right-1"/>
-              </Button>
-            </Link>
-          </div>
-
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild className="hidden md:flex">
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-[190px] h-[2.5rem] justify-between rounded-full cursor-pointer border-0 bg-muted"
-              > 
-                <Avatar className="-mx-2">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
-                  <AvatarFallback className="bg-white">CN</AvatarFallback>
-                </Avatar>
-                Ojiego Franklin
-                <ChevronDown className="opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandList>
-                  <CommandGroup>
-                    {dropdown.map((item) => (
-                      <Link href={item.value} key={item.value}>
-                        <CommandItem
-                            value={item.value}
-                            onSelect={(currentValue) => {
-                              setValue(currentValue === value ? "" : currentValue)
-                              setOpen(false)
-                            }}
-                          >
-                            {item.label}
-                            <Check
-                              className={cn(
-                                "ml-auto",
-                                value === item.value ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                      </Link>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
 
           <Button
             className="h-8 w-8 md:hidden bg-muted"

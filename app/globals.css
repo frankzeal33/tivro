@@ -136,6 +136,10 @@
   .my-container{
     @apply lg:max-w-[80%] mx-auto;
   }
+
+  .tenant-container{
+    @apply lg:max-w-[80%] min-h-[calc(100svh-7rem)] bg-light w-full rounded-2xl border mx-auto;
+  }
 }
 
 .PhoneInputInput{
