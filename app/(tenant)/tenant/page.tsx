@@ -6,6 +6,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
+  CardFooter,
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -25,8 +26,8 @@ const Page = () => {
   return (
     <div className="tenant-container">
         <div className={cn("flex flex-col gap-6 items-center justify-center")}>
-          <Card className="shadow-none max-w-96">
-            <CardHeader className="text-center">
+          <Card className="shadow-none max-w-96 p-0">
+            <CardHeader className="text-center px-4 pt-4">
               <Avatar className='size-16 mx-auto'>
                   <AvatarImage src={'/photo.png'} alt="Tenant" />
               </Avatar>
@@ -35,8 +36,8 @@ const Page = () => {
                 Enter verification code sent to your email address
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form>
+            <form>
+              <CardContent className="px-4 pb-4">
                 <div>
                   <div className="grid gap-3">
                     <div>
@@ -58,15 +59,16 @@ const Page = () => {
                         <p className='text-muted-foreground text-xs md:text-sm'>Once you begin the verification process, ensure you complete it in one go, as all information is saved as you progress.</p>  
                       </div>
                     </div>
-                    
-                    <Button type="submit" className="w-full" onClick={handleSubmit}>
-                      Begin Verification
-                    </Button>
                   </div>
-                  
                 </div>
-              </form>
-            </CardContent>
+              </CardContent>
+              <CardFooter className="p-4 border-t">
+                <Button type="submit" className="w-full"  onClick={handleSubmit}>
+                  Begin Verification
+                </Button>
+              </CardFooter>
+            </form>
+            
           </Card>
       </div>
     </div>

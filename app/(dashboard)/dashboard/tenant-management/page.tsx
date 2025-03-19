@@ -183,8 +183,8 @@ export default function Page() {
           <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
             <div className="flex items-center justify-between gap-1 mt-7 mb-3">
               <TabsList className="grid grid-cols-2 bg-light border p-0 shadow-none w-[200px]">
-                  <TabsTrigger value="Tenants" className='rounded-r-none data-[state=active]:bg-primary data-[state=active]:text-light'>Tenants</TabsTrigger>
-                  <TabsTrigger value="Properties" className='rounded-l-none data-[state=active]:bg-primary data-[state=active]:text-light'>Properties</TabsTrigger>
+                  <TabsTrigger value="Tenants" className='rounded-r-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'>Tenants</TabsTrigger>
+                  <TabsTrigger value="Properties" className='rounded-l-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'>Properties</TabsTrigger>
               </TabsList>
               <SearchForm/>
             </div>

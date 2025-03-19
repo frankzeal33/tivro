@@ -2,11 +2,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  Card
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,67 +10,120 @@ import {
   Avatar,
   AvatarImage,
 } from "@/components/ui/avatar"
+import { useEffect, useState } from "react"
+import RequestDetails from "@/components/tenant-forms/RequestDetails"
+import IdentityCheck from "@/components/tenant-forms/IdentityCheck"
+import CreditCheck from "@/components/tenant-forms/CreditCheck"
+import EmploymentCheck from "@/components/tenant-forms/EmploymentCheck"
+import VerifyApartment from "@/components/tenant-forms/VerifyApartment"
+import Certificates from "@/components/tenant-forms/Certificates"
+import { Progress } from "@/components/ui/progress"
+
+
+const runSections = [
+  {
+    section: "Begin tenant verification",
+    desc: "Confirm request details",
+    completed: true,
+    iscurrentForm: false
+  },
+  {
+    section: "identity-check",
+    desc: "",
+    completed: false,
+    iscurrentForm: true
+  },
+  {
+    section: "credit-check",
+    desc: "",
+    completed: false,
+    iscurrentForm: false
+  },
+  {
+    section: "employment-check",
+    desc: "",
+    completed: false,
+    iscurrentForm: false
+  },
+  {
+    section: "verify-apartment",
+    desc: "",
+    completed: false,
+    iscurrentForm: false
+  },
+  {
+    section: "certificates",
+    desc: "",
+    completed: false,
+    iscurrentForm: false
+  }
+];
 
 const Page = () => {
+
+  
+  const [currentSection, setCurrentSection] = useState('');
+  const [sections, setSections] = useState<any>([])
+
+  useEffect(() => {
+    setSections(runSections)
+    setCurrentSection(runSections[0].section)
+  }, [runSections])
+  
+
+  const handleSectionChange = (section: string) => {
+    setCurrentSection(section);
+  };
+
+  const renderStages = () => {
+    switch (currentSection) {
+      case "Begin tenant verification":
+        return <RequestDetails />;
+      case "identity-check":
+        return <IdentityCheck />;
+      case "credit-check":
+        return <CreditCheck />;
+      case "employment-check":
+        return <EmploymentCheck />;
+      case "verify-apartment":
+        return <VerifyApartment />;
+      case "certificates":
+        return <Certificates />;
+    }
+  };
+
   return (
     <div className="tenant-container">
-        <div className={cn("grid md:grid-cols-2 gap-6 items-start justify-center")}>
-          <Card className="shadow-none max-w-80 p-4">
-            <div className="flex gap-2">
-                <div className="flex flex-col items-center">
-                    <div className="size-6 rounded-full border border-primary flex items-center justify-center bg-primary">
-                        <div className="size-2 rounded-full bg-light"></div>
-                    </div>
-                    <div className="h-10 w-0.5 bg-muted-foreground"></div>
-                </div>
-                <div>
-                    <h3 className="font-medium text-primary">Begin tenant verification</h3>
-                    <p className="text-xs text-muted-foreground">Confirm request details</p>
-                </div>
-            </div>
-          </Card>
-          <Card className="shadow-none max-w-96">
-            <CardHeader className="text-center">
-              <Avatar className='size-16 mx-auto'>
-                  <AvatarImage src={'/photo.png'} alt="Tenant" />
-              </Avatar>
-              <CardTitle className="text-lg">Complete Tenant Verification</CardTitle>
-              <CardDescription>
-                Enter verification code sent to your email address
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form>
-                <div>
-                  <div className="grid gap-3">
-                    <div>
-                      <Input
-                        type="number"
-                        placeholder="Enter code"
-                        required
-                        className="text-center"
-                      />
-                    </div>
-                    <div className="text-center text-sm">
-                      Didn’t receive a code?{" "}
-                      <Button className="p-0 text-primary" variant={'link'}>
-                        Resend
-                      </Button>
-                    </div>
-                    <div>
-                      <div className='w-full flex bg-muted gap-1 border border-l-primary border-l-6 rounded-md p-2'>
-                        <p className='text-muted-foreground text-xs md:text-sm'>Once you begin the verification process, ensure you complete it in one go, as all information is saved as you progress.</p>  
+        <div className="fixed w-full p-4 bg-light border-b top-[4rem] right-0 left-0 lg:hidden">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <p className="text-ring">Step 1/6</p>
+            <h4>Begin tenant verification</h4>
+          </div>
+          <Progress value={33} className="w-full" />
+        </div>
+        <div className={cn("grid lg:grid-cols-2 gap-6 items-start justify-center")}>
+          <Card className="hidden lg:flex flex-col shadow-none max-w-80 p-4 gap-1">
+            {sections.map((item: any, index: number) => (
+                <div className="flex gap-2" key={index}>
+                  <div className="flex flex-col gap-0.5 items-center">
+                    <div className={`size-8 rounded-full flex items-center justify-center ${item.iscurrentForm && 'bg-primary/10'}`}>
+                      <div className={`size-6 rounded-full border-2 flex items-center justify-center ${item.iscurrentForm ? 'bg-primary border-primary' : item.completed ? 'bg-light border-primary' : 'bg-light border-gray'}`}>
+                          <div className={`size-2 rounded-full  ${item.iscurrentForm ? 'bg-light' : item.completed ? 'bg-primary' : 'bg-gray'}`}></div>
                       </div>
                     </div>
-                    
-                    <Button type="submit" className="w-full">
-                      Begin Verification
-                    </Button>
+                    {index !== sections.length -1 && (
+                      <div className={`h-10 w-0.5 ${item.completed ? 'bg-primary' : 'bg-gray'}`}></div>
+                    )}
                   </div>
-                  
+                  <div>
+                      <h3 className={`font-medium text-base ${item.iscurrentForm ? 'text-primary' : item.completed ? 'text-primary' : 'text-disabled'}`}>{item.section}</h3>
+                      <p className={`text-sm font-light ${item.completed ? 'text-accent-foreground' : 'text-disabled'}`}>{item.desc}</p>
+                  </div>
                 </div>
-              </form>
-            </CardContent>
+            ))}
+          </Card>
+          <Card className="shadow-none max-w-96 p-0">
+            {renderStages()}
           </Card>
       </div>
     </div>

@@ -47,7 +47,9 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --color-light: var(--light);
+  --color-disabled: var(--disabled);
   --color-background-light: var(--bg-light);
+  --color-gray: var(--gray);
 }
 
 :root {
@@ -86,6 +88,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --light: #fff;
   --bg-light: #EDEDED;
+  --disabled: #A0A0A0;
+  --gray: #E0E0E0
 }
 
 .dark {
@@ -138,7 +142,7 @@
   }
 
   .tenant-container{
-    @apply lg:max-w-[80%] min-h-[calc(100svh-7rem)] bg-light w-full rounded-2xl border mx-auto p-4 flex flex-col items-center justify-center;
+    @apply lg:max-w-[80%] min-h-[calc(100svh-7rem)] bg-light w-full rounded-2xl border mx-auto px-8 py-14 flex flex-col items-center justify-center;
   }
 }
 

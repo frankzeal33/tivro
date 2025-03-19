@@ -1,7 +1,7 @@
 "use client"
  
 import * as React from "react"
-import { Moon, Sun } from "lucide-react"
+import { ArrowUpRight, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
  
 import {
@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 import { BsFillLightningChargeFill } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
+import Link from "next/link"
+import Image from "next/image"
 
 const dropdown = [
   {
@@ -44,8 +46,8 @@ export function SiteHeader() {
       <div className="flex h-[4rem] w-full items-center gap-2 px-4">
         <div>
           <div className="flex items-center">
-            <BsFillLightningChargeFill size={26} className="text-primary"/>
-            <h2 className="font-bold text-2xl text-primary">Tivro</h2>
+            <Image src={"/tivro.png"} width={30} height={100} alt="Tivro"/>
+            <h2 className="font-bold text-2xl">IVRO</h2>
           </div>
         </div>
         <div className="w-full sm:ml-auto flex items-center justify-end gap-2" >
@@ -69,6 +71,10 @@ export function SiteHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <Link href={'/'}>
+            <Button>Visit website<ArrowUpRight className="size-5"/></Button>
+          </Link>
 
           <Button
             className="h-8 w-8 md:hidden bg-muted"
