@@ -1,3 +1,4 @@
+"use client"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -8,13 +9,19 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Avatar,
   AvatarImage,
 } from "@/components/ui/avatar"
+import { useRouter } from "next/navigation"
 
 const Page = () => {
+
+  const router = useRouter()
+  const handleSubmit = () => {
+    router.push('/tenant/start-verification')
+  }
+
   return (
     <div className="tenant-container">
         <div className={cn("flex flex-col gap-6 items-center justify-center")}>
@@ -52,7 +59,7 @@ const Page = () => {
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full" onClick={handleSubmit}>
                       Begin Verification
                     </Button>
                   </div>
