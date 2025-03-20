@@ -189,9 +189,9 @@ const Page = () => {
                                     <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
                                         <span>You are about to add a new property. Please ensure that the details you’ve provided are correct before proceeding. </span>
                                     </AlertDialogDescription>
-                                    <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
-                                        <AlertDialogCancel className='w-[50%] bg-light'>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction className='w-[50%]'>Proceed</AlertDialogAction>
+                                    <AlertDialogFooter className='flex items-center flex-row justify-between w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                                        <AlertDialogCancel className='w-[47%] bg-light'>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction className='w-[47%]'>Proceed</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>

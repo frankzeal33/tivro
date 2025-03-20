@@ -68,13 +68,13 @@ const Page = () => {
 
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-3 bg-light border p-0 shadow-none">
-                <TabsTrigger value="Personal information" className='rounded-r-none bg-background'>Personal information</TabsTrigger>
-                <TabsTrigger value="Change email" className='rounded-none bg-background'>Change email</TabsTrigger>
-                <TabsTrigger value="Change password" className='rounded-l-none bg-background'>Change password</TabsTrigger>
+                <TabsTrigger value="Personal information" className='rounded-r-none bg-background text-xs md:text-sm'>Personal info</TabsTrigger>
+                <TabsTrigger value="Change email" className='rounded-none bg-background text-xs md:text-sm'>Change email</TabsTrigger>
+                <TabsTrigger value="Change password" className='rounded-l-none bg-background text-xs md:text-sm'>Change password</TabsTrigger>
             </TabsList>
             <TabsContent value="Personal information">
                 <Card className='w-full shadow-none mt-4 p-4'>
-                    <div className='flex gap-4 items-center'>
+                    <div className='flex gap-4 flex-col md:flex-row items-start md:items-center'>
                         <div className='relative'>
                             <Avatar className='size-32'>
                                 <AvatarImage src={'/photo.png'} alt="@shadcn" />

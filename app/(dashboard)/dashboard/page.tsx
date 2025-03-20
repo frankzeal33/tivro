@@ -32,8 +32,7 @@ import {
 } from "@/components/ui/card"
 import {
   Avatar,
-  AvatarFallback,
-  AvatarImage,
+  AvatarFallback
 } from "@/components/ui/avatar"
 import NotFound from "@/components/NotFound"
 import { useRouter } from "next/navigation"
@@ -133,7 +132,7 @@ export default function Page() {
                   <AlertDialogTrigger asChild>
                     <Button>Subscribe</Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-2xl p-0 gap-0 min-w-[90%] lg:min-w-[70%] overflow-y-scroll">
+                  <AlertDialogContent className="rounded-2xl p-0 gap-0 min-w-[90%] lg:min-w-[70%] max-h-[96vh] overflow-y-scroll">
                     <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
                       <AlertDialogTitle className="text-base">Subscribe to a package</AlertDialogTitle>
                       <AlertDialogCancel className="bg-background-light border-0 shadow-none size-8 rounded-full">
@@ -283,8 +282,7 @@ export default function Page() {
                         <TableCell className='capitalize'>
                           <div className="flex items-center">
                             <Avatar className="-mx-2">
-                              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
-                              <AvatarFallback className="bg-white">CN</AvatarFallback>
+                              <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div className="ml-3">
                               {request.fullName}

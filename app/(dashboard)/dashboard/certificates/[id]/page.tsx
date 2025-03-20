@@ -25,7 +25,7 @@ const Page = () => {
     const status = 'passed'
   return (
     <div className='my-container space-y-4'>
-        <div  className='flex items-end justify-between gap-2'>
+        <div  className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
             <div>
                 <Link href={'/dashboard/certificates'} className="text-sm mb-6 flex gap-1 items-center">
                     <ArrowLeft size={16} className="text-normal"/>
@@ -34,14 +34,14 @@ const Page = () => {
                 <h2 className='font-bold text-2xl'>Issued certificate</h2>
                 <p className='text-muted-foreground'>22 Sep 2024, 10:15 AM</p>
             </div>
-            <Button>
+            <Button className='w-fit'>
                 <BsFillLightningChargeFill size={26} className="text-primary-foreground"/>
                 Download
             </Button>
         </div>
 
         <div className='bg-light p-4 rounded-2xl border space-y-4'>
-            <Card className='shadow-none'>
+            <Card className='shadow-none p-4'>
                 <CardContent>               
                     <div className='flex flex-col gap-4 items-center justify-center'>
                         <Avatar className='size-32'>
@@ -50,8 +50,8 @@ const Page = () => {
                         </Avatar>
                         <div className='flex flex-col items-center gap-2'>
                             <p className="text-2xl font-medium leading-none">Ojiego Franklin</p>
-                            <div className='flex items-center gap-1'>
-                                <p className="text-base text-muted-foreground">Certificate of verification presented by</p>
+                            <div className='flex items-center flex-wrap justify-center gap-1'>
+                                <p className="text-base text-center text-muted-foreground">Certificate of verification presented by</p>
                                 <div className="flex items-center">
                                     <Image src={'/tivro.png'} width={16} height={20} alt=""/>
                                     <h2 className="font-bold text-base">ivro</h2>

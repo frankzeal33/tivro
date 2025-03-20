@@ -112,7 +112,7 @@ const Page = () => {
                         <h4 className="text-sm leading-none">One-time plan</h4>
                         
                     </div>
-                    <div className="flex h-10 items-center space-x-4 text-sm mt-5">
+                    <div className="flex h-10 items-start md:items-center space-x-4 text-sm my-7">
                         <div>
                             <div className='mb-1'>Amount</div>
                             <p className="text-sm text-muted-foreground">₦10,000</p>
