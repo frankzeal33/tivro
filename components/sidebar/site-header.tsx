@@ -90,7 +90,7 @@ export function SiteHeader() {
           </DropdownMenu>
 
           <div className="hidden md:flex">
-            <Link href={'/'}>
+            <Link href={'/dashboard/messages'}>
               <Button variant="secondary" className="size-[2.5rem] rounded-full relative cursor-pointer">
                 <Bell size={28}/>
                 <div className="size-2 bg-red-500 rounded-full absolute top-0 right-1"/>
