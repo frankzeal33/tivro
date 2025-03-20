@@ -4,12 +4,12 @@ import React, {
     useEffect,
     useState,
   } from "react";
-  const GlobalContext = createContext();
+  const GlobalContext = createContext(null);
   
   export const GlobalContextProvider = ({ children }: {children: any}) => {
   
     // input state
-    const [jobTitle, setJobTitle] = useState("");
+    const [jobTitle, setJobTitle] = useState(null);
 
   
     return (
