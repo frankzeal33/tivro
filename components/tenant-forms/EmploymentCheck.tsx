@@ -78,7 +78,7 @@ return (
                   <div className="grid gap-6">
                     <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
                       <TabsList className="grid grid-cols-3 bg-light border p-0 shadow-none mb-5">
-                          <TabsTrigger value="Employment status" className='rounded-r-none bg-background text-xs p-2'>Employment status</TabsTrigger>
+                          <TabsTrigger value="Employment status" className='rounded-r-none bg-background text-xs p-2'>Employment</TabsTrigger>
                           <TabsTrigger value="Company details" className='rounded-none bg-background text-xs p-2'>Company details</TabsTrigger>
                           <TabsTrigger value="Uploads" className='rounded-l-none bg-background text-xs p-2'>Uploads</TabsTrigger>
                       </TabsList>
