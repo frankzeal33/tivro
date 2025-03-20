@@ -144,7 +144,7 @@ export function SiteHeader() {
           </Popover>
 
           <Button
-            className="h-9 w-9 lg:hidden bg-muted"
+            className="h-9 w-9 md:hidden bg-muted"
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
