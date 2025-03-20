@@ -2,25 +2,38 @@ import {
   CardContent,
  
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import FormCardHeader from "./FormCardHeader"
 import { Label } from "../ui/label"
 import FormCardFooter from "./FormCardFooter"
+import { useGlobalContext } from "@/context/GlobalContext"
+import { FormEvent } from "react"
 
 const  CreditCheck = () => {
+
+    const {
+        setCurrentSection,
+        otp,
+        employmentInfo,
+        formProgress,
+        setFormProgress,
+        setEmploymentInfo,
+        setOtp
+    } = useGlobalContext();
+  
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      setCurrentSection("employment-check")
+      setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
+      setOtp({...otp, completed: true,  iscurrentForm: false})
+      setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
+    }
+
 return (
   <div className="shadow-none max-w-96">
           <FormCardHeader title="OTP verification" desc="An OTP has been sent to your BVN linked phone number. Kindly enter it below to proceed."/>
-          <form className="flex flex-col gap-6">
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
               <CardContent className="px-4 py-2">
                   <div className="grid gap-1">
                     <div className='grid gap-3'>

@@ -9,12 +9,33 @@ import FormCardHeader from "./FormCardHeader"
 import { Label } from "../ui/label"
 import FormCardFooter from "./FormCardFooter"
 import Image from "next/image"
+import { useGlobalContext } from "@/context/GlobalContext"
+import { FormEvent } from "react"
 
 const  VerifyApartment = () => {
+
+  const {
+    setCurrentSection,
+    apartmentInspection,
+    setApartmentInspection,
+    setFormProgress,
+    formProgress,
+    certificate,
+    setCertificate,
+  } = useGlobalContext();
+    
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setCurrentSection("certificates")
+    setFormProgress({...formProgress, fraction: "6/6",  percent: 100})
+    setApartmentInspection({...apartmentInspection, completed: true,  iscurrentForm: false})
+    setCertificate({...certificate,  completed: true, iscurrentForm: true})
+  }
+
 return (
   <div className="shadow-none max-w-96">
           <FormCardHeader title="Apartment inspection" desc="Confirm apartment information provided before"/>
-          <form className="flex flex-col gap-6">
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
               <CardContent className="px-4 py-2">
                   <div className="grid gap-6">
                       <div className='grid gap-6'>

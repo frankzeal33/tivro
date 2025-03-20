@@ -63,9 +63,9 @@ const Page = () => {
         <ContainerTitle title='Add a new tenant' desc='Provide the tenant’s details to proceed' goBack='/dashboard/tenant-management'/>
 
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-2 bg-light border p-0 shadow-none w-[400px]">
-                <TabsTrigger value="Property information" className='rounded-r-none bg-background'>Property information</TabsTrigger>
-                <TabsTrigger value="Maintenance information" className='rounded-l-none bg-background'>Maintenance information</TabsTrigger>
+            <TabsList className="grid grid-cols-2 bg-light border p-0 shadow-none">
+                <TabsTrigger value="Property information" className='rounded-r-none bg-background text-xs md:text-sm'>Property information</TabsTrigger>
+                <TabsTrigger value="Maintenance information" className='rounded-l-none bg-background text-xs md:text-sm'>Maintenance information</TabsTrigger>
             </TabsList>
             <TabsContent value="Property information">
                 <Card className='w-full shadow-none mt-4 p-4'>

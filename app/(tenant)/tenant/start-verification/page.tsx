@@ -11,57 +11,55 @@ import EmploymentCheck from "@/components/tenant-forms/EmploymentCheck"
 import VerifyApartment from "@/components/tenant-forms/VerifyApartment"
 import Certificates from "@/components/tenant-forms/Certificates"
 import { Progress } from "@/components/ui/progress"
+import { useGlobalContext } from "@/context/GlobalContext"
 
-
-const runSections = [
-  {
-    section: "Begin tenant verification",
-    desc: "Confirm request details",
-    completed: true,
-    iscurrentForm: false
-  },
-  {
-    section: "Identity check",
-    desc: "Provide your identity details",
-    completed: false,
-    iscurrentForm: true
-  },
-  {
-    section: "credit-check",
-    desc: "",
-    completed: false,
-    iscurrentForm: false
-  },
-  {
-    section: "employment-check",
-    desc: "",
-    completed: false,
-    iscurrentForm: false
-  },
-  {
-    section: "verify-apartment",
-    desc: "",
-    completed: false,
-    iscurrentForm: false
-  },
-  {
-    section: "certificates",
-    desc: "",
-    completed: false,
-    iscurrentForm: false
-  }
-];
+const sections = [
+    {
+      section: "Begin tenant verification",
+      desc: "Confirm request details"
+    },
+    {
+      section: "Identity check",
+      desc: "Provide your identity details"
+    },
+    {
+      section: "credit-check",
+      desc: "Provide OTP verification code"
+    },
+    {
+      section: "employment-check",
+      desc: "Provide employment information"
+    },
+    {
+      section: "verify-apartment",
+      desc: "Provide residential information"
+    },
+    {
+      section: "certificates",
+      desc: "Tenant verification complete"
+    }
+  ];
 
 const Page = () => {
 
-  
-  const [currentSection, setCurrentSection] = useState('');
-  const [sections, setSections] = useState<any>([])
-
-  useEffect(() => {
-    setSections(runSections)
-    setCurrentSection(runSections[3].section)
-  }, [runSections])
+  const {
+    requestDetails,
+    identityCheck, 
+    otp,
+    employmentInfo,
+    apartmentInspection, 
+    currentSection,
+    setCurrentSection,
+    certificate,
+    formProgress,
+    setFormProgress,
+    setApartmentInspection,
+    setEmploymentInfo,
+    setOtp,
+    setIdentityCheck,
+    setRequestDetails,
+    handleRequestDetailsChange
+  } = useGlobalContext();
   
 
   const handleSectionChange = (section: string) => {
@@ -85,32 +83,134 @@ const Page = () => {
     }
   };
 
+  const firstCircleColor = (section: string) => {
+    switch (section) {
+      case "Begin tenant verification":
+        return requestDetails.iscurrentForm && "bg-primary/10"
+      case "Identity check":
+        return identityCheck.iscurrentForm && "bg-primary/10"
+      case "credit-check":
+        return otp.completed || otp.iscurrentForm && "bg-primary/10"
+      case "employment-check":
+        return employmentInfo.iscurrentForm && "bg-primary/10"
+      case "verify-apartment":
+        return apartmentInspection.iscurrentForm && "bg-primary/10"
+      case "certificates":
+        return certificate.iscurrentForm && "bg-primary/10"
+    }
+  };
+
+  const secondCircleColor = (section: string) => {
+    switch (section) {
+      case "Begin tenant verification":
+        return requestDetails.iscurrentForm ? "bg-primary border-primary" : requestDetails.completed ? "bg-light border-primary" : "bg-light border-gray"
+      case "Identity check":
+        return identityCheck.iscurrentForm ? "bg-primary border-primary" : identityCheck.completed ? "bg-light border-primary" : "bg-light border-gray"
+      case "credit-check":
+        return otp.iscurrentForm ? "bg-primary border-primary" : otp.completed ? "bg-light border-primary" : "bg-light border-gray"
+      case "employment-check":
+        return employmentInfo.iscurrentForm ? "bg-primary border-primary" : employmentInfo.completed ? "bg-light border-primary" : "bg-light border-gray"
+      case "verify-apartment":
+        return apartmentInspection.iscurrentForm ? "bg-primary border-primary" : apartmentInspection.completed ? "bg-light border-primary" : "bg-light border-gray"
+      case "certificates":
+        return certificate.iscurrentForm ? "bg-primary border-primary" : certificate.completed ? "bg-light border-primary" : "bg-light border-gray"
+    }
+  };
+
+  const thirdCircleColor = (section: string) => {
+    switch (section) {
+      case "Begin tenant verification":
+        return requestDetails.iscurrentForm ? "bg-light" : requestDetails.completed ? "bg-primary" : "bg-gray"
+      case "Identity check":
+        return identityCheck.iscurrentForm ? "bg-light" : identityCheck.completed ? "bg-primary" : "bg-gray"
+      case "credit-check":
+        return otp.iscurrentForm ? "bg-light" : otp.completed ? "bg-primary" : "bg-gray"
+      case "employment-check":
+        return employmentInfo.iscurrentForm ? "bg-light" : employmentInfo.completed ? "bg-primary" : "bg-gray"
+      case "verify-apartment":
+        return apartmentInspection.iscurrentForm ? "bg-light" : apartmentInspection.completed ? "bg-primary" : "bg-gray"
+      case "certificates":
+        return certificate.iscurrentForm ? "bg-light" : certificate.completed ? "bg-primary" : "bg-gray"
+    }
+  };
+
+  const lineColor = (section: string) => {
+    switch (section) {
+      case "Begin tenant verification":
+        return requestDetails.completed ? "bg-primary" : "bg-gray"
+      case "Identity check":
+        return identityCheck.completed ? "bg-primary" : "bg-gray"
+      case "credit-check":
+        return otp.completed ? "bg-primary" : "bg-gray"
+      case "employment-check":
+        return employmentInfo.completed ? "bg-primary" : "bg-gray"
+      case "verify-apartment":
+        return apartmentInspection.completed ? "bg-primary" : "bg-gray"
+      case "certificates":
+        return certificate.completed ? "bg-primary" : "bg-gray"
+    }
+  };
+
+  const titleColor = (section: string) => {
+    switch (section) {
+      case "Begin tenant verification":
+        return requestDetails.completed || requestDetails.iscurrentForm ? "text-primary" : "text-disabled"
+      case "Identity check":
+        return identityCheck.completed || identityCheck.iscurrentForm ? "text-primary" : "text-disabled"
+      case "credit-check":
+        return otp.completed || otp.iscurrentForm ? "text-primary" : "text-disabled"
+      case "employment-check":
+        return employmentInfo.completed || employmentInfo.iscurrentForm ? "text-primary" : "text-disabled"
+      case "verify-apartment":
+        return apartmentInspection.completed || apartmentInspection.iscurrentForm ? "text-primary" : "text-disabled"
+      case "certificates":
+        return certificate.completed || certificate.iscurrentForm ? "text-primary" : "text-disabled"
+    }
+  };
+
+  const descColor = (section: string) => {
+    switch (section) {
+      case "Begin tenant verification":
+        return requestDetails.completed || requestDetails.iscurrentForm ? "text-accent-foreground" : "text-disabled"
+      case "Identity check":
+        return identityCheck.completed || identityCheck.iscurrentForm ? "text-accent-foreground" : "text-disabled"
+      case "credit-check":
+        return otp.completed || otp.iscurrentForm ? "text-accent-foreground" : "text-disabled"
+      case "employment-check":
+        return employmentInfo.completed || employmentInfo.iscurrentForm ? "text-accent-foreground" : "text-disabled"
+      case "verify-apartment":
+        return apartmentInspection.completed || apartmentInspection.iscurrentForm ? "text-accent-foreground" : "text-disabled"
+      case "certificates":
+        return certificate.completed || certificate.iscurrentForm ? "text-accent-foreground" : "text-disabled"
+    }
+  };
+
   return (
     <div className="tenant-container">
         <div className="fixed w-full p-4 bg-light border-b top-[4rem] right-0 left-0 lg:hidden">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <p className="text-ring">Step 1/6</p>
-            <h4>Begin tenant verification</h4>
+            <p className="text-ring">Step {formProgress.fraction}</p>
+            <h4>{currentSection}</h4>
           </div>
-          <Progress value={33} className="w-full" />
+          <Progress value={formProgress.percent} className="w-full" />
         </div>
         <div className={cn("grid lg:grid-cols-2 gap-3 lg:gap-6 items-start justify-center")}>
           <Card className="hidden lg:flex flex-col shadow-none max-w-80 p-4 gap-1">
             {sections.map((item: any, index: number) => (
                 <div className="flex gap-2" key={index}>
                   <div className="flex flex-col gap-0.5 items-center">
-                    <div className={`size-8 rounded-full flex items-center justify-center ${item.iscurrentForm && 'bg-primary/10'}`}>
-                      <div className={`size-6 rounded-full border-2 flex items-center justify-center ${item.iscurrentForm ? 'bg-primary border-primary' : item.completed ? 'bg-light border-primary' : 'bg-light border-gray'}`}>
-                          <div className={`size-2 rounded-full  ${item.iscurrentForm ? 'bg-light' : item.completed ? 'bg-primary' : 'bg-gray'}`}></div>
+                    <div className={`size-8 rounded-full flex items-center justify-center ${firstCircleColor(item.section)}`}>
+                      <div className={`size-6 rounded-full border-2 flex items-center justify-center ${secondCircleColor(item.section)}`}>
+                          <div className={`size-2 rounded-full  ${thirdCircleColor(item.section)}`}></div>
                       </div>
                     </div>
                     {index !== sections.length -1 && (
-                      <div className={`h-10 w-0.5 ${item.completed ? 'bg-primary' : 'bg-gray'}`}></div>
+                      <div className={`h-10 w-0.5 ${lineColor(item.section)}`}></div>
                     )}
                   </div>
                   <div>
-                      <h3 className={`font-medium text-base ${item.iscurrentForm ? 'text-primary' : item.completed ? 'text-primary' : 'text-disabled'}`}>{item.section}</h3>
-                      <p className={`text-sm font-light ${item.completed ? 'text-accent-foreground' : 'text-disabled'}`}>{item.desc}</p>
+                      <h3 className={`font-medium text-base ${titleColor(item.section)}`}>{item.section}</h3>
+                      <p className={`text-sm font-light ${descColor(item.section)}`}>{item.desc}</p>
                   </div>
                 </div>
             ))}

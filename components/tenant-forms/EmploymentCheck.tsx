@@ -23,8 +23,19 @@ import {
 } from "@/components/ui/tabs"
 import { useState } from "react"
 import { Button } from "../ui/button"
+import { useGlobalContext } from "@/context/GlobalContext"
 
 const  EmploymentCheck = () => {
+
+   const {
+      setCurrentSection,
+      apartmentInspection,
+      setApartmentInspection,
+      formProgress,
+      setFormProgress,
+      employmentInfo,
+      setEmploymentInfo,
+  } = useGlobalContext();
 
   const [activeTab, setActiveTab] = useState("Employment status");
 
@@ -33,7 +44,12 @@ const  EmploymentCheck = () => {
       if(activeTab === 'Company details'){
         setActiveTab("Uploads")
       }else if(activeTab === 'Uploads'){
-        //go to verify apartment
+
+        setCurrentSection("verify-apartment")
+        setFormProgress({...formProgress, fraction: "5/6",  percent: 90})
+        setEmploymentInfo({...employmentInfo, completed: true,  iscurrentForm: false})
+        setApartmentInspection({...apartmentInspection,  iscurrentForm: true})
+
       }else{
         setActiveTab("Employment status")
       }

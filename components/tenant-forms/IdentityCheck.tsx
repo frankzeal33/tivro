@@ -15,12 +15,34 @@ import { Button } from "../ui/button"
 import FormCardHeader from "./FormCardHeader"
 import { Label } from "../ui/label"
 import FormCardFooter from "./FormCardFooter"
+import { useGlobalContext } from "@/context/GlobalContext"
+import { FormEvent } from "react"
 
 const  IdentityCheck = () => {
+
+  const {
+      setCurrentSection,
+      otp,
+      identityCheck,
+      setIdentityCheck,
+      formProgress,
+      setFormProgress,
+      setOtp
+  } = useGlobalContext();
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setCurrentSection("credit-check")
+    setFormProgress(51)
+    setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
+    setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
+    setOtp({...otp,  iscurrentForm: true})
+  }
+  
 return (
   <div className="shadow-none max-w-96">
           <FormCardHeader title="Identity check" desc="We request a user’s Bank Verification Number (BVN) for verification, credit check and security purposes."/>
-          <form className="flex flex-col gap-6">
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
               <CardContent className="px-4 py-2">
                   <div className="grid gap-6">
                       <div className='grid gap-6'>

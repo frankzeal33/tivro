@@ -1,16 +1,10 @@
 import {
-  Card,
   CardContent,
- 
 } from "@/components/ui/card"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
 import FormCardHeader from "./FormCardHeader"
-import { Label } from "../ui/label"
-import FormCardFooter from "./FormCardFooter"
-import Image from "next/image"
 
 const  Certificates = () => {
+
 return (
   <div className="shadow-none max-w-96">
           <FormCardHeader title="You’ve come to the end" desc="Congratulations, you have completed this verification."/>

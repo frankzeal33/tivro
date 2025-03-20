@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import 'react-phone-number-input/style.css'
+import { GlobalContextProvider } from "@/context/GlobalContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,7 +24,9 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased`}
       >
-        {children}
+        <GlobalContextProvider>
+          {children}
+        </GlobalContextProvider>
       </body>
     </html>
   );

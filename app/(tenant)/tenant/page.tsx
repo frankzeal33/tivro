@@ -15,16 +15,18 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { useRouter } from "next/navigation"
+import { FormEvent } from "react"
 
 const Page = () => {
 
   const router = useRouter()
-  const handleSubmit = () => {
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
     router.push('/tenant/start-verification')
   }
 
   return (
-    <div className="tenant-container">
+    <div className="tenant-container -mt-[4.5rem] lg:mt-0">
         <div className={cn("flex flex-col gap-6 items-center justify-center")}>
           <Card className="shadow-none max-w-96 p-0">
             <CardHeader className="text-center px-4 pt-4">
@@ -36,7 +38,7 @@ const Page = () => {
                 Enter verification code sent to your email address
               </CardDescription>
             </CardHeader>
-            <form>
+            <form onSubmit={handleSubmit}>
               <CardContent className="px-4 pb-4">
                 <div>
                   <div className="grid gap-3">
@@ -63,7 +65,7 @@ const Page = () => {
                 </div>
               </CardContent>
               <CardFooter className="p-4 border-t">
-                <Button type="submit" className="w-full"  onClick={handleSubmit}>
+                <Button type="submit" className="w-full">
                   Begin Verification
                 </Button>
               </CardFooter>

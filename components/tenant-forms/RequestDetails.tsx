@@ -1,21 +1,39 @@
 import {
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardFooter,
-    CardTitle,
+    CardContent
   } from "@/components/ui/card"
 import { Input } from "../ui/input"
-import { Button } from "../ui/button"
 import FormCardHeader from "./FormCardHeader"
 import { Label } from "../ui/label"
 import FormCardFooter from "./FormCardFooter"
+import { FormEvent, FormEventHandler } from "react"
+import { useGlobalContext } from "@/context/GlobalContext"
 
 const RequestDetails = () => {
+
+    const {
+        requestDetails,
+        setCurrentSection,
+        identityCheck,
+        setIdentityCheck,
+        setRequestDetails,
+        formProgress,
+        setFormProgress,
+        handleRequestDetailsChange
+    } = useGlobalContext();
+
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setCurrentSection("Identity check")
+        setFormProgress({...formProgress, fraction: "2/6",  percent: 34})
+        setRequestDetails({...requestDetails, completed: true,  iscurrentForm: false})
+        setIdentityCheck({...identityCheck,  iscurrentForm: true})
+
+    }
+
   return (
     <div className="shadow-none max-w-96">
             <FormCardHeader title="Confirm request details" desc="Please verify that these details match your information to proceed with the verification."/>
-            <form className="flex flex-col gap-6">
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
                 <CardContent className="px-4 py-2">
                     <div className="grid gap-6">
                         <div className='grid gap-2 md:grid-cols-2'>

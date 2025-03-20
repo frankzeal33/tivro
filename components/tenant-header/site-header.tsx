@@ -10,28 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
- 
+
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
-import { BsFillLightningChargeFill } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
 import Link from "next/link"
 import Image from "next/image"
-
-const dropdown = [
-  {
-    value: "profile",
-    label: "Profile",
-  },
-  {
-    value: "messages",
-    label: "Messages",
-  },
-  {
-    value: "logout",
-    label: "logout",
-  }
-]
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar()
@@ -46,7 +30,7 @@ export function SiteHeader() {
       <div className="flex h-[4rem] w-full items-center gap-2 px-4">
         <div>
           <div className="flex items-center">
-            <Image src={"/tivro.png"} width={30} height={90} alt="Tivro"/>
+            <Image src={"/tivro.png"} width={30} height={90} className="size-6" alt="Tivro"/>
             <h2 className="font-bold text-2xl">IVRO</h2>
           </div>
         </div>
@@ -72,17 +56,17 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Link href={'/'}>
+          <Link href={'/'} className="hidden md:block">
             <Button>Visit website<ArrowUpRight className="size-5"/></Button>
           </Link>
 
           <Button
-            className="h-8 w-8 md:hidden bg-muted"
+            className="h-9 w-9 md:hidden bg-muted"
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
           >
-            <BiMenuAltRight size={24}/>
+            <BiMenuAltRight className="size-7"/>
           </Button>
         </div>
       </div>
