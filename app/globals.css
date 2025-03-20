@@ -144,7 +144,7 @@
   }
 
   .tenant-container{
-    @apply lg:max-w-[80%] min-h-14 lg:min-h-[calc(100svh-8rem)] bg-light w-full rounded-2xl border mx-auto px-8 py-14 flex flex-col items-center justify-center;
+    @apply lg:max-w-[80%] min-h-14 lg:min-h-[calc(100svh-8rem)] bg-light w-full rounded-2xl border mx-auto px-4 md:px-8 py-4 md:py-14 flex flex-col items-center justify-center;
   }
 }
 
