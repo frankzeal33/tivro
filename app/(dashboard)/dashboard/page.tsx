@@ -132,7 +132,7 @@ export default function Page() {
                   <AlertDialogTrigger asChild>
                     <Button>Subscribe</Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-2xl p-0 gap-0 min-w-[90%] lg:min-w-[70%] max-h-[75vh] overflow-y-scroll">
+                  <AlertDialogContent className="rounded-2xl p-0 gap-0 min-w-[90%] lg:min-w-[70%] max-h-[75vh] overflow-y-auto">
                     <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
                       <AlertDialogTitle className="text-base">Subscribe to a package</AlertDialogTitle>
                       <AlertDialogCancel className="bg-background-light border-0 shadow-none size-8 rounded-full">
