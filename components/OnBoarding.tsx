@@ -8,7 +8,12 @@ export default function OnBoarding({formComponent, image}: {formComponent: React
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex gap-2 max-w-sm w-full items-center mx-auto">
           <Link href={'/'} className="flex items-center gap-2 font-medium">
-              <Image src={'/logo.png'} width={100} height={70} alt="" className="w-fit"/>
+              <div>
+                <div className="flex items-center gap-0.5">
+                  <Image src={"/tivro.png"} width={20} height={100} alt="Tivro"/>
+                  <h2 className="font-bold text-xl">ivro</h2>
+                </div>
+              </div>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">

@@ -50,6 +50,7 @@
   --color-disabled: var(--disabled);
   --color-background-light: var(--bg-light);
   --color-gray: var(--gray);
+  --color-negative: var(--negative);
 }
 
 :root {
@@ -89,7 +90,8 @@
   --light: #fff;
   --bg-light: #EDEDED;
   --disabled: #A0A0A0;
-  --gray: #E0E0E0
+  --gray: #E0E0E0;
+  --negative: #F23C57
 }
 
 .dark {
@@ -142,7 +144,7 @@
   }
 
   .tenant-container{
-    @apply lg:max-w-[80%] min-h-[calc(100svh-7rem)] bg-light w-full rounded-2xl border mx-auto px-8 py-14 flex flex-col items-center justify-center;
+    @apply lg:max-w-[80%] min-h-14 lg:min-h-[calc(100svh-8rem)] bg-light w-full rounded-2xl border mx-auto px-8 py-14 flex flex-col items-center justify-center;
   }
 }
 

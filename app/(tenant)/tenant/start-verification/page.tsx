@@ -1,15 +1,8 @@
 "use client"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
   Card
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Avatar,
-  AvatarImage,
-} from "@/components/ui/avatar"
 import { useEffect, useState } from "react"
 import RequestDetails from "@/components/tenant-forms/RequestDetails"
 import IdentityCheck from "@/components/tenant-forms/IdentityCheck"
@@ -28,8 +21,8 @@ const runSections = [
     iscurrentForm: false
   },
   {
-    section: "identity-check",
-    desc: "",
+    section: "Identity check",
+    desc: "Provide your identity details",
     completed: false,
     iscurrentForm: true
   },
@@ -67,7 +60,7 @@ const Page = () => {
 
   useEffect(() => {
     setSections(runSections)
-    setCurrentSection(runSections[0].section)
+    setCurrentSection(runSections[3].section)
   }, [runSections])
   
 
@@ -79,7 +72,7 @@ const Page = () => {
     switch (currentSection) {
       case "Begin tenant verification":
         return <RequestDetails />;
-      case "identity-check":
+      case "Identity check":
         return <IdentityCheck />;
       case "credit-check":
         return <CreditCheck />;
@@ -101,7 +94,7 @@ const Page = () => {
           </div>
           <Progress value={33} className="w-full" />
         </div>
-        <div className={cn("grid lg:grid-cols-2 gap-6 items-start justify-center")}>
+        <div className={cn("grid lg:grid-cols-2 gap-3 lg:gap-6 items-start justify-center")}>
           <Card className="hidden lg:flex flex-col shadow-none max-w-80 p-4 gap-1">
             {sections.map((item: any, index: number) => (
                 <div className="flex gap-2" key={index}>
@@ -122,7 +115,7 @@ const Page = () => {
                 </div>
             ))}
           </Card>
-          <Card className="shadow-none max-w-96 p-0">
+          <Card className="shadow-none w-full max-w-[26rem] p-0">
             {renderStages()}
           </Card>
       </div>
