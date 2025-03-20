@@ -36,7 +36,7 @@ const RequestDetails = () => {
             <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
                 <CardContent className="px-4 py-2">
                     <div className="grid gap-6">
-                        <div className='grid gap-2 md:grid-cols-2'>
+                        <div className='grid gap-6 md:gap-2 md:grid-cols-2'>
                             <div className="grid gap-2">
                                 <Label htmlFor="firstname">First name</Label>
                                 <Input id="firstname" type="text" placeholder="Enter first name here" required />
