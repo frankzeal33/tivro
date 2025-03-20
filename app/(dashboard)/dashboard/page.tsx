@@ -133,7 +133,7 @@ export default function Page() {
                   <AlertDialogTrigger asChild>
                     <Button>Subscribe</Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="rounded-2xl p-0 gap-0 min-w-[70%]">
+                  <AlertDialogContent className="rounded-2xl p-0 gap-0 min-w-[90%] lg:min-w-[70%] overflow-y-scroll">
                     <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
                       <AlertDialogTitle className="text-base">Subscribe to a package</AlertDialogTitle>
                       <AlertDialogCancel className="bg-background-light border-0 shadow-none size-8 rounded-full">
@@ -142,9 +142,9 @@ export default function Page() {
                     </AlertDialogHeader>
                     <div>
                       <div className="bg-light p-4 shadow dark:border rounded-b-2xl">
-                        <div className="grid grid-cols-3">
+                        <div className="grid md:grid-cols-3">
                           {data.map((item, index) => (
-                            <div key={index} className={`flex flex-col gap-4 p-4 ${index === 0 ? 'border rounded-l-2xl' : index === 1 ? 'border-y' : 'border rounded-r-2xl'}`}>
+                            <div key={index} className={`flex flex-col gap-4 p-4 ${index === 0 ? 'border rounded-t-2xl md:rounded-l-2xl' : index === 1 ? 'border-x md:border-y' : 'border border-b-2xl md:rounded-r-2xl'}`}>
                               <div className="flex flex-col gap-1">
                                 <div className="size-12 rounded-full bg-muted flex items-center justify-center">
                                   <HiBadgeCheck size={30} className="text-primary"/>
@@ -195,7 +195,7 @@ export default function Page() {
 
                               <div className="space-y-2">
                                 {item.features.map((feature, index) => (
-                                  <div key={index} className="flex gap-1 items-center">
+                                  <div key={index} className="flex gap-1 items-start">
                                     <FaCircleCheck className="text-primary"/>
                                     <span className="text-xs">{feature}</span>
                                   </div>
