@@ -33,15 +33,15 @@ export function RegisterForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="firstname">First Name</Label>
-          <Input id="firstname" type="text" placeholder="Enter your first name here" required />
+          <Input id="firstname" type="text" placeholder="Enter first name here" required />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="lastname">Last Name</Label>
-          <Input id="lastname" type="text" placeholder="Enter your last name here" required />
+          <Input id="lastname" type="text" placeholder="Enter last name here" required />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter email address" required />
+          <Input id="email" type="email" placeholder="Enter email address here" required />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
