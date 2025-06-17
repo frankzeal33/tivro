@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ToastContainer } from 'react-toastify';
 import "./globals.css";
 import 'react-phone-number-input/style.css'
 import { GlobalContextProvider } from "@/context/GlobalContext";
@@ -27,6 +28,17 @@ export default function RootLayout({
         <GlobalContextProvider>
           {children}
         </GlobalContextProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored" // This helps add background colors to types
+        />
       </body>
     </html>
   );

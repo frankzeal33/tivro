@@ -34,6 +34,8 @@ import { useSidebar } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { BsFillLightningChargeFill } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
+import { useAuthStore } from "@/store/AuthStore"
+import { useRouter } from "next/navigation"
 
 const dropdown = [
   {
@@ -56,7 +58,23 @@ export function SiteHeader() {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
 
+  const userInfo = useAuthStore((state) => state.clearUserInfo);
+
+  const router = useRouter();
+
   const { setTheme } = useTheme()
+
+  const handleNav = (route: string) => {
+    if(route === "profile"){
+      router.push("/dashboard/profile");
+    } else if(route === "messages"){
+      router.push("/dashboard/messages");
+    } else {
+      userInfo()
+      localStorage.removeItem("auth-store");
+      router.replace("/login");
+    }
+  }
 
   return (
     <header className="flex sticky top-0 z-50 w-full items-center border-b bg-light">
@@ -119,7 +137,7 @@ export function SiteHeader() {
                 <CommandList>
                   <CommandGroup>
                     {dropdown.map((item) => (
-                      <Link href={item.value} key={item.value}>
+                      <button className="w-full" type="button" onClick={() => handleNav(item.value)} key={item.value}>
                         <CommandItem
                             value={item.value}
                             onSelect={(currentValue) => {
@@ -135,7 +153,7 @@ export function SiteHeader() {
                               )}
                             />
                           </CommandItem>
-                      </Link>
+                      </button>
                     ))}
                   </CommandGroup>
                 </CommandList>

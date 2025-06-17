@@ -3,11 +3,20 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "../ui/checkbox"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { FormEvent } from "react"
+import { FormEvent, useEffect, useState } from "react"
+import { z } from "zod"
+import { debounce } from "lodash"
+import { axiosClient } from "@/GlobalApi"
+import { toast } from "react-toastify"
+
+const emailSchema = z.object({
+  email: z.string().email("Invalid email address")
+})
+
+type EmailFormValues = z.infer<typeof emailSchema>
 
 export function ResetPasswordForm({
   className,
@@ -15,11 +24,72 @@ export function ResetPasswordForm({
 }: React.ComponentPropsWithoutRef<"form">) {
 
   const router = useRouter()
+    const [errors, setErrors] = useState<Partial<Record<keyof EmailFormValues, string>>>({})
+    const [touched, setTouched] = useState<Partial<Record<keyof EmailFormValues, boolean>>>({})
+    const [form, setForm] = useState<EmailFormValues>({
+      email: ''
+    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+      // Debounced validation
+      const validateForm = debounce((updatedForm: EmailFormValues) => {
+        const result = emailSchema.safeParse(updatedForm)
+        if (!result.success) {
+          const fieldErrors: typeof errors = {}
+          result.error.errors.forEach((err) => {
+            const field = err.path[0] as keyof EmailFormValues
+            fieldErrors[field] = err.message
+          })
+          setErrors(fieldErrors)
+        } else {
+          setErrors({})
+        }
+      }, 300)
+
+    useEffect(() => {
+      validateForm(form)
+      return () => validateForm.cancel()
+    }, [form])
     
     const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault()
-    
-    router.push('/reset-password/recovery-link')
+      e.preventDefault()
+
+      const result = emailSchema.safeParse(form)
+
+      if (!result.success) {
+        const fieldErrors: typeof errors = {}
+        result.error.errors.forEach((err) => {
+          const field = err.path[0] as keyof EmailFormValues
+          fieldErrors[field] = err.message
+        })
+        setErrors(fieldErrors)
+        setTouched({
+          email: true
+        })
+        return
+      }
+
+      setErrors({})
+
+      try {
+      
+        setIsSubmitting(true)
+        
+        const response = await axiosClient.post("/forgot/password/", form)
+        console.log("email=",response.data)
+        toast.success(response.data.message);
+        router.push('/reset-password/recovery-link')
+        setForm({
+          email: ''
+        })
+  
+      } catch (error: any) {
+        toast.error(error.response?.data?.message);
+  
+      } finally {
+        setIsSubmitting(false)
+      } 
+  
     }
 
   return (
@@ -37,10 +107,13 @@ export function ResetPasswordForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter email address" required />
+          <Input id="email" type="email" value={form.email} onChange={(e: any) => setForm({ ...form, email: e.target.value})} onBlur={() => setTouched((prev) => ({ ...prev, email: true }))} placeholder="Enter email address" />
+          {touched.email && errors.email && (
+            <p className="text-xs text-red-500">{errors.email}</p>
+          )}
         </div>
-        <Button type="submit" className="w-full">
-          Send recovery link
+        <Button loading={isSubmitting} disabled={isSubmitting} type="submit" className="w-full">
+          {isSubmitting ? "Sending Link..." : "Send recovery link"}
         </Button>
       </div>
     </form>

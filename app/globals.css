@@ -153,3 +153,30 @@
   border: none !important; /* Optional: Removes any border */
   box-shadow: none !important;
 }
+
+/* Custom styles for react-toastify */
+.Toastify__toast--info {
+  background: #3498db; /* Blue */
+  color: white;
+}
+
+.Toastify__toast--error {
+  background: #e74c3c; /* Red */
+  color: white;
+}
+
+.Toastify__toast--warning {
+  background: #f1c40f; /* Yellow */
+  color: black;
+}
+
+.Toastify__toast--success {
+  background: #2ecc71; /* Green */
+  color: white;
+}
+
+/* Optional: adjust the close button color */
+.Toastify__close-button {
+  color: white;
+}
+

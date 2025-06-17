@@ -37,7 +37,10 @@ import {
 } from "@/components/ui/select"
 import { Status } from '@/components/Status'
 import NotFound from '@/components/NotFound'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Loading } from '@/components/Loading'
+import { axiosClient } from '@/GlobalApi'
+import { toast } from 'react-toastify'
 
 
 const frameworks = [
@@ -59,118 +62,158 @@ const frameworks = [
   }
 ]
 
-type Payment = {
-    id: number;
-    fullname: string;
-    address: string;
-    date: string;
-    status: "pending" | "ongoing" | "passed" | "failed"
+type CertType = {
+  id: number;
+  address: string;
+  status: "pending" | "ongoing" | "passed" | "failed"
+  first_name: string;
+  last_name: string;
+  created_at: string;
 }[]
 
-const certificates: Payment = [
-    {
-      id: 1,
-      fullname: "ojiego franklin",
-      address: "3 Ernest orachiri close",
-      date: "22 Sep 2024, 10:15 AM",
-      status: 'ongoing'
-    },
-    {
-        id: 2,
-        fullname: "ojiego franklin",
-        address: "3 Ernest orachiri close",
-        date: "22 Sep 2024, 10:15 AM",
-        status: 'pending'
-    },
-    {
-        id: 3,
-        fullname: "ojiego franklin",
-        address: "3 Ernest orachiri close",
-        date: "22 Sep 2024, 10:15 AM",
-        status: 'passed'
-    },
-    {
-        id: 4,
-        fullname: "ojiego franklin",
-        address: "3 Ernest orachiri close",
-        date: "22 Sep 2024, 10:15 AM",
-        status: 'failed'
-    },
-    {
-        id: 5,
-        fullname: "ojiego franklin",
-        address: "3 Ernest orachiri close",
-        date: "22 Sep 2024, 10:15 AM",
-        status: 'ongoing'
-      },
-      {
-          id: 6,
-          fullname: "ojiego franklin",
-          address: "3 Ernest orachiri close",
-          date: "22 Sep 2024, 10:15 AM",
-          status: 'pending'
-      }
-  ]
+// const certificates:  CertType = [
+//     {
+//       id: 1,
+//       fullname: "ojiego franklin",
+//       address: "3 Ernest orachiri close",
+//       date: "22 Sep 2024, 10:15 AM",
+//       status: 'ongoing'
+//     },
+//     {
+//         id: 2,
+//         fullname: "ojiego franklin",
+//         address: "3 Ernest orachiri close",
+//         date: "22 Sep 2024, 10:15 AM",
+//         status: 'pending'
+//     },
+//     {
+//         id: 3,
+//         fullname: "ojiego franklin",
+//         address: "3 Ernest orachiri close",
+//         date: "22 Sep 2024, 10:15 AM",
+//         status: 'passed'
+//     },
+//     {
+//         id: 4,
+//         fullname: "ojiego franklin",
+//         address: "3 Ernest orachiri close",
+//         date: "22 Sep 2024, 10:15 AM",
+//         status: 'failed'
+//     },
+//     {
+//         id: 5,
+//         fullname: "ojiego franklin",
+//         address: "3 Ernest orachiri close",
+//         date: "22 Sep 2024, 10:15 AM",
+//         status: 'ongoing'
+//       },
+//       {
+//           id: 6,
+//           fullname: "ojiego franklin",
+//           address: "3 Ernest orachiri close",
+//           date: "22 Sep 2024, 10:15 AM",
+//           status: 'pending'
+//       }
+//   ]
 
 const Page = () => {
 
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
+  const [loadingPage, setLoadingPage] = useState(false)
+  const [certificates, setCeretificates] = useState<CertType>([
+    {
+      id: 0,
+      address: "3 Ernest orachiri close",
+      status: "pending",
+      first_name: "ojiego",
+      last_name: "franklin",
+      created_at: "2025-06-16T11:08:44.226Z"
+    }
+  ])
+
+  const getCert = async () => {
+    
+      try {
+  
+        setLoadingPage(true)
+        
+        const response = await axiosClient.get("/certificate/list/")
+        setCeretificates(response.data || [])
+        console.log(response.data)
+  
+      } catch (error: any) {
+        toast.error(error.response?.data?.message);
+      } finally {
+        setLoadingPage(false)
+      } 
+    }
+  
+    useEffect(() => {
+      getCert()
+    }, [])
 
   return (
     <div className='my-container'>
         <Title title='Certificates' desc='Manage tenant certification here'/>
 
-        <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
+        {loadingPage ? (
+          <Loading/>
+        ) : (
+           <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted">
                   <TableHead className="rounded-tl-xl capitalize">Full name</TableHead>
                   <TableHead className='capitalize'>Address</TableHead>
                   <TableHead className='capitalize'>Date created</TableHead>
-                  <TableHead className='capitalize'>
-                    <Popover open={open} onOpenChange={setOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={open}
-                          className="border-0 shadow-none justify-between"
-                        >
-                          Status
-                          <ChevronsUpDown className="opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search status..." />
-                          <CommandList>
-                            <CommandEmpty>No status found.</CommandEmpty>
-                            <CommandGroup>
-                              {frameworks.map((framework) => (
-                                <CommandItem
-                                  key={framework.value}
-                                  value={framework.value}
-                                  onSelect={(currentValue) => {
-                                    setValue(currentValue === value ? "" : currentValue)
-                                    setOpen(false)
-                                  }}
-                                >
-                                  {framework.label}
-                                  <Check
-                                    className={cn(
-                                      "ml-auto",
-                                      value === framework.value ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </TableHead>
+                  {certificates.length === 0 ? (
+                    <TableHead className='capitalize'>Status</TableHead>
+                  ) : (
+                     <TableHead className='capitalize'>
+                      <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={open}
+                            className="border-0 shadow-none justify-between"
+                          >
+                            Status
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search status..." />
+                            <CommandList>
+                              <CommandEmpty>No status found.</CommandEmpty>
+                              <CommandGroup>
+                                {frameworks.map((framework) => (
+                                  <CommandItem
+                                    key={framework.value}
+                                    value={framework.value}
+                                    onSelect={(currentValue) => {
+                                      setValue(currentValue === value ? "" : currentValue)
+                                      setOpen(false)
+                                    }}
+                                  >
+                                    {framework.label}
+                                    <Check
+                                      className={cn(
+                                        "ml-auto",
+                                        value === framework.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </TableHead>
+                  )}
                   <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -235,7 +278,8 @@ const Page = () => {
             </div>
               )
             }
-        </div>
+          </div>
+        )}
     </div>
   )
 }

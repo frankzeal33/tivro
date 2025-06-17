@@ -4,10 +4,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "../ui/checkbox"
-import { Eye } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-import { FormEvent } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { z } from "zod"
+import { debounce } from "lodash"
+import { toast } from "react-toastify"
+import { axiosClient } from "@/GlobalApi"
+import { useAuthStore } from "@/store/AuthStore"
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Invalid Password"),
+})
+
+type LoginFormValues = z.infer<typeof loginSchema>
 
 export function LoginForm({
   className,
@@ -16,11 +28,87 @@ export function LoginForm({
 
   
     const router = useRouter()
+     const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({})
+      const [touched, setTouched] = useState<Partial<Record<keyof LoginFormValues, boolean>>>({})
+    const [form, setForm] = useState<LoginFormValues>({
+      email: '',
+      password: ''
+    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+     const [showPassword, setShowPassword] = useState(false)
+     
+     const userInfo = useAuthStore((state) => state.setUserInfo)
+
+    // Debounced validation
+      const validateForm = debounce((updatedForm: LoginFormValues) => {
+        const result = loginSchema.safeParse(updatedForm)
+        if (!result.success) {
+          const fieldErrors: typeof errors = {}
+          result.error.errors.forEach((err) => {
+            const field = err.path[0] as keyof LoginFormValues
+            fieldErrors[field] = err.message
+          })
+          setErrors(fieldErrors)
+        } else {
+          setErrors({})
+        }
+      }, 300)
+
+    useEffect(() => {
+      validateForm(form)
+      return () => validateForm.cancel()
+    }, [form])
   
     const handleSubmit = async (e: FormEvent) => {
       e.preventDefault()
       
-      router.push('/dashboard')
+      const result = loginSchema.safeParse(form)
+
+      if (!result.success) {
+        const fieldErrors: typeof errors = {}
+        result.error.errors.forEach((err) => {
+          const field = err.path[0] as keyof LoginFormValues
+          fieldErrors[field] = err.message
+        })
+        setErrors(fieldErrors)
+        setTouched({
+          email: true,
+          password: true,
+        })
+        return
+      }
+
+      setErrors({})
+
+        try {
+
+        setIsSubmitting(true)
+        
+        const response = await axiosClient.post("/login/", form)
+        toast.success(response.data.message);
+
+        userInfo({
+          access: response.data.access,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          profile_image: response.data.profile_image,
+          refresh: response.data.refresh
+        });
+
+        toast.success("Login Succcessful")
+        router.replace("/dashboard")
+        setForm({
+          email: '',
+          password: ''
+        })
+
+      } catch (error: any) {
+        toast.error(error.response?.data?.error);
+
+      } finally {
+        setIsSubmitting(false)
+      } 
+      
     }
 
   return (
@@ -34,34 +122,46 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter email address" required />
+          <Input id="email" type="email" value={form.email} onChange={(e: any) => setForm({ ...form, email: e.target.value})} onBlur={() => setTouched((prev) => ({ ...prev, email: true }))} placeholder="Enter email address here" />
+          {touched.email && errors.email && (
+            <p className="text-xs text-red-500">{errors.email}</p>
+          )}
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
           <div className="relative">
-            <Input id="password" type="password" placeholder="*********************" className="pr-12" required />
-            <Eye className="text-ring absolute top-1.5 right-3 bg-light"/>
+            <Input id="password" type={showPassword ? "text" : "password"} value={form.password} onChange={(e: any) => setForm({ ...form, password: e.target.value})} onBlur={() => setTouched((prev) => ({ ...prev, password: true }))} placeholder="*********************" className="pr-12" />
+            <button
+              type="button"
+              className="absolute top-2 right-3 text-ring"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
+          {touched.password && errors.password && (
+            <p className="text-xs text-red-500">{errors.password}</p>
+          )}
         </div>
-        <div className="flex items-center -mt-3">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2 -mt-3">
+          <div className="flex items-center space-x-1">
             <Checkbox id="terms" />
             <label
               htmlFor="terms"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Remember me
             </label>
           </div>
           <Link
             href="/reset-password"
-            className="ml-auto text-sm underline-offset-4 text-primary font-medium underline hover:no-underline"
+            className="ml-auto text-xs underline-offset-4 text-primary text-right font-medium underline hover:no-underline"
           >
             Forgot your password?
           </Link>
         </div>
-        <Button type="submit" className="w-full">
-          Sign In
+        <Button loading={isSubmitting} disabled={isSubmitting} type="submit" className="w-full">
+          {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
       </div>
       <div className="text-sm">

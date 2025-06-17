@@ -17,15 +17,15 @@ export function RecoveryLinkForm({
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold">Recovery link sent!</h1>
         <p className="text-balance text-sm font-normal">
-            We sent a mail to your email preferred address. Kindly click on the link to verify your account. 
+            We sent a mail to your email preferred address. Kindly click on the link or button in your mail to verify your account. 
         </p>
       </div>
       <div className="grid gap-6">
-        <Link href="/">
-            <Button type="button" className="w-full">
-                 Go to mail
-            </Button>
-        </Link>
+        <a href="mailto:">
+          <Button type="button" className="w-full">
+                Go to mail
+          </Button>
+        </a>
       </div>
     </form>
   )
