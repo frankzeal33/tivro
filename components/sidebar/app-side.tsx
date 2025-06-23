@@ -65,11 +65,6 @@ const data = {
 
   navFooter: [
     {
-      title: "FAQs",
-      url: "#",
-      icon: CircleHelp,
-    },
-    {
       title: "Logout",
       url: "#",
       icon: LogOut,

@@ -19,16 +19,99 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { z } from 'zod'
+import { toast } from 'react-toastify'
+import { axiosClient } from '@/GlobalApi'
+
+const requestSchema = z.object({
+  first_name: z.string().min(1, "first name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z
+  .string()
+  .regex(/^\d+$/, "Phone number must contain only digits")
+  .refine((val) => {
+    if (val.startsWith("0")) return val.length === 11;
+    return val.length === 10;
+  }, {
+    message: "Phone number must be 11 digits if it starts with 0, otherwise 10 digits",
+  })
+  .transform((val) => (val.startsWith("0") ? val.slice(1) : val)),
+  address: z.string().min(1, "Address is required"),
+});
+
+type RequestFormValues = z.infer<typeof requestSchema>
 
 const Page = () => {
-     const [value, setValue] = useState<string | undefined>(undefined)
+
+    const [open, setOpen] = useState(false)
+    const [value, setValue] = useState<string | undefined>(undefined)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [form, setForm] = useState({
+        first_name: "",
+        last_name: "",
+        phone: "",
+        email: "",
+        address: ""
+    })
 
     const router = useRouter()
     
+    const openModal = () => {
+        const result = requestSchema.safeParse(form)
+        
+        if (!result.success) {
+            const fieldErrors: Partial<Record<keyof RequestFormValues, string>> = {};
+            result.error.errors.forEach((err) => {
+                const field = err.path[0] as keyof RequestFormValues
+                fieldErrors[field] = err.message
+            })
+            toast.error(Object.values(fieldErrors)[0]);
+            return
+        }
+
+        setOpen(true)
+    }
+
     const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    
-    router.push('/register/verify-email')
+        e.preventDefault()
+        
+       const result = requestSchema.safeParse(form)
+               
+        if (!result.success) {
+            const fieldErrors: Partial<Record<keyof RequestFormValues, string>> = {};
+            result.error.errors.forEach((err) => {
+                const field = err.path[0] as keyof RequestFormValues
+                fieldErrors[field] = err.message
+            })
+            toast.error(Object.values(fieldErrors)[0]);
+            return
+        }
+            
+        try {
+
+            setIsSubmitting(true)
+            
+            const result = await axiosClient.post("/request/verification/", form)
+            toast.success(result.data.message);
+
+            setForm({
+                first_name: "",
+                last_name: "",
+                phone: "",
+                email: "",
+                address: ""
+            })
+
+            // toast.success("New Tenant Added Successfully")
+            setOpen(false)
+
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail);
+
+        } finally {
+            setIsSubmitting(false)
+        } 
     }
 
   return (
@@ -50,38 +133,37 @@ const Page = () => {
                     <div className='grid gap-6 md:grid-cols-2'>
                         <div className="grid gap-2">
                             <Label htmlFor="firstname">First name</Label>
-                            <Input id="firstname" type="text" placeholder="Enter your name here" required />
+                            <Input id="firstname" type="text" value={form.first_name} onChange={(e: any) => setForm({ ...form, first_name: e.target.value})} placeholder="Enter your first name here" />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="lastname">Last name</Label>
-                            <Input id="lastname" type="text" placeholder="Enter your name here" required />
+                            <Input id="lastname" type="text" value={form.last_name} onChange={(e: any) => setForm({ ...form, last_name: e.target.value})} placeholder="Enter your last name here" />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email address</Label>
-                            <Input id="email" type="email" placeholder="Enter email address" required />
+                            <Input id="email" type="email" value={form.email} onChange={(e: any) => setForm({ ...form, email: e.target.value})} placeholder="Enter email address" />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="phone">Phone no.</Label>
-                            <PhoneInput
+                            <Input id="phone" type="number" value={form.phone} onChange={(e: any) => setForm({ ...form, phone: e.target.value})} placeholder="Enter phone no." />
+                            {/* <PhoneInput
                                 placeholder="Enter phone number"
                                 value={value}
                                 defaultCountry="NG"
                                 onChange={phone => setValue(phone)}
                                 className='border p-2 rounded-md text-sm focus:outline-0 w-full'
-                            />
+                            /> */}
                         </div>
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="phone">Home address</Label>
-                        <Input id="phone" type="text" placeholder="Enter your name here" required />
+                        <Label htmlFor="Home address">Home address</Label>
+                        <Input id="Home address" type="text" value={form.address} onChange={(e: any) => setForm({ ...form, address: e.target.value})} placeholder="Enter your name here" />
                     </div>
                     
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                        <Button type="submit" className='max-w-48'>
+                    <AlertDialog open={open} onOpenChange={setOpen}>
+                        <Button type="button" onClick={openModal} className='max-w-48'>
                             Request Verification
                         </Button>
-                        </AlertDialogTrigger>
                         <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
                             <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
                                 <AlertDialogTitle className="text-sm">Confirm verification request</AlertDialogTitle>
@@ -91,7 +173,9 @@ const Page = () => {
                             </AlertDialogDescription>
                             <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
                                 <AlertDialogCancel className='w-[50%] bg-light'>Cancel</AlertDialogCancel>
-                                <AlertDialogAction className='w-[50%]'>Proceed</AlertDialogAction>
+                                <Button loading={isSubmitting} disabled={isSubmitting} onClick={handleSubmit} type="button" className='w-[50%]'>
+                                    {isSubmitting ? "Requesting..." : "Proceed"}
+                                </Button>
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>

@@ -1,6 +1,6 @@
 "use client"
 import Title from '@/components/Title'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Table,
   TableBody,
@@ -36,35 +36,46 @@ import {
 } from "@/components/ui/select"
 import { Status } from '@/components/Status'
 import NotFound from '@/components/NotFound'
+import { axiosClient } from '@/GlobalApi'
+import { toast } from 'react-toastify'
+import { format } from 'date-fns'
+import ReduceTextLength from '@/utils/ReduceTextLength'
 
-const certificates   = [
-    {
-      id: 1,
-      title: "New verification request",
-      message: "You created a verification request for Gbenga",
-      dateRecieved: "14 Aug 2024, 3:34 PM",
-      seen: true
-    },
-    {
-        id: 1,
-        title: "New verification request",
-        message: "You created a verification request for Gbenga",
-        dateRecieved: "14 Aug 2024, 3:34 PM",
-        seen: false
-    },
-    {
-        id: 1,
-        title: "New verification request",
-        message: "You created a verification request for Gbenga",
-        dateRecieved: "14 Aug 2024, 3:34 PM",
-        seen: false
-    },
-  ]
+type messageType = {
+    id: number;
+    title: string;
+    body: string;
+    status: boolean;
+    created_at: string;
+}[]
 
 const Page = () => {
 
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  const [messages, setMessages] = useState<messageType>([])
+  const [count, setCount] = useState(0)
+
+   const getMessages = async () => {
+    
+      try {
+  
+        setLoadingMessages(true)
+        
+        const response = await axiosClient.get("/notification/")
+        setMessages(response.data?.items || [])
+        setCount(response.data?.count || 0)
+  
+      } catch (error: any) {
+        toast.error(error.response?.data?.message);
+      } finally {
+        setLoadingMessages(false)
+      } 
+    }
+  
+    useEffect(() => {
+      getMessages()
+    }, [])
+
 
   return (
     <div className='my-container'>
@@ -72,7 +83,7 @@ const Page = () => {
 
         <div className='bg-light p-4 rounded-2xl border'>
             <div className='flex items-center gap-2 mb-6'>
-                <p className="text-lg font-medium leading-none">Messages(1)</p>
+                <p className="text-lg font-medium leading-none">Messages({count})</p>
             </div>
 
             <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
@@ -80,38 +91,35 @@ const Page = () => {
                 <TableHeader>
                     <TableRow className="bg-muted">
                         <TableHead className="rounded-tl-xl capitalize">Title</TableHead>
-                        <TableHead className='capitalize'>Message</TableHead>
+                        <TableHead className='capitalize text-ellipsis line-clamp-1'>Message</TableHead>
                         <TableHead className='capitalize'>Date received</TableHead>
                         <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 {
-                certificates.length !== 0 &&
+                messages.length !== 0 &&
                     (
                     <TableBody>
-                        {certificates.map((cert, index) => (
-                        <TableRow key={index}>
-                            <TableCell className={`capitalize ${cert.seen && 'font-semibold'}`}>{cert.title}</TableCell>
-                            <TableCell className={`capitalize ${cert.seen && 'font-semibold'}`}>{cert.message}</TableCell>
-                            <TableCell className={`capitalize ${cert.seen && 'font-semibold'}`}>{cert.dateRecieved}</TableCell>
+                        {messages.map((message, index) => (
+                        <TableRow key={message?.id}>
+                            <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{message?.title}</TableCell>
+                            <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{ReduceTextLength(message?.body, 20)}</TableCell>
+                            <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{format(new Date(message?.created_at), "dd MMM yyyy HH:mm a")}</TableCell>
                             <TableCell className='capitalize text-center bg-muted/30'>
                                
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant={`${cert.seen ? 'default' : 'ghost'}`}>View</Button>
+                                        <Button variant={`${message?.status ? 'default' : 'ghost'}`}>View</Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="rounded-2xl p-0 w-[300px] md:w-[600px] gap-0">
-                                        <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
-                                            <AlertDialogTitle className="text-sm">New Verification Request 🎉</AlertDialogTitle>
+                                    <AlertDialogContent className="rounded-2xl p-0 w-[300px] md:w-[600px] max-h-[95%] overflow-y-auto gap-0">
+                                        <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-4">
+                                            <AlertDialogTitle className="text-sm">{message?.title} 🎉</AlertDialogTitle>
                                             <AlertDialogCancel className="bg-background-light border-0 shadow-none size-8 rounded-full">
                                                 <X className="size-6"/>
                                             </AlertDialogCancel>
                                         </AlertDialogHeader>
-                                        <AlertDialogDescription className="bg-light px-4 rounded-b-2xl py-6 flex flex-col items-center justify-center gap-3">
-                                            You have successfully created a verification request for Reginald Pepple. Please visit your overview page to track the status of this request. 
-                                            If your proposed tenant has not received the notification, you can resend the request at no additional cost. Our system ensures that all verification requests are processed promptly, but if you encounter any issues, feel free to reach out to our support team.
-                                            We appreciate your trust in Tivro Africa and remain committed to providing a seamless experience for your verification needs.
-                                            Best regards,Tivro Africa Team
+                                        <AlertDialogDescription className="bg-light px-4 rounded-b-2xl py-6 text-justify flex flex-col gap-3">
+                                            {message?.body}
                                         </AlertDialogDescription>
                                     </AlertDialogContent>
                                 </AlertDialog>
@@ -124,14 +132,14 @@ const Page = () => {
                 
                 </Table>
 
-                {certificates.length === 0 &&
+                {messages.length === 0 &&
                 <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
                     <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any tenants yet'/>
                 </div>
                 }
 
                 {
-                certificates.length !== 0 &&
+                messages.length !== 0 &&
                 (
                     <div className='flex gap-2 items-center justify-between w-full my-2'>
                     <div className='flex gap-2 items-center justify-between'>

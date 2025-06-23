@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useRouter } from 'next/navigation'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import {
   AlertDialog,
@@ -77,11 +76,9 @@ type NewEmailFormValues = z.infer<typeof newEmailSchema>
 type NewPasswordFormValues = z.infer<typeof newPasswordSchema>
 
 const Page = () => {
-    const [value, setValue] = useState<string | undefined>(undefined)
-    const [date, setDate] = useState<Date>()
+
     const [activeTab, setActiveTab] = useState("Personal information");
     const [open, setOpen] = useState(false);
-    const router = useRouter()
 
     const [isGetting, setIsGetting] = useState(false)
     const [profile, setProfile] = useState<profileType>({
@@ -227,7 +224,7 @@ const Page = () => {
             })
     
         } catch (error: any) {
-            toast.error(error.response?.data?.message);
+            toast.error(error.response?.data?.message || error.response?.data?.error);
     
         } finally {
             setIsSubmittingEmail(false)
@@ -332,11 +329,11 @@ const Page = () => {
                                 <div className='grid gap-6 md:grid-cols-2'>
                                     <div className="grid gap-2">
                                         <Label htmlFor="firstname">First name</Label>
-                                        <Input id="firstname" value={profile.first_name} type="text" onChange={(e: any) => setProfile({ ...profile, first_name: e.target.value})} placeholder="Enter first name here" required />
+                                        <Input id="firstname" value={profile.first_name} type="text" onChange={(e: any) => setProfile({ ...profile, first_name: e.target.value})} placeholder="Enter first name here" />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="lastname">Last name</Label>
-                                        <Input id="lastname" value={profile.last_name} type="text" onChange={(e: any) => setProfile({ ...profile, last_name: e.target.value})} placeholder="Enter last name here" required />
+                                        <Input id="lastname" value={profile.last_name} type="text" onChange={(e: any) => setProfile({ ...profile, last_name: e.target.value})} placeholder="Enter last name here" />
                                     </div>
                                 </div>
                                 <div className="grid gap-2">
@@ -345,7 +342,7 @@ const Page = () => {
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="phone">Phone no.</Label>
-                                    <Input id="phone" value={profile.phone} type="number" onChange={(e: any) => setProfile({ ...profile, phone: e.target.value})} placeholder="Enter Phone no." required />
+                                    <Input id="phone" value={profile.phone} type="number" onChange={(e: any) => setProfile({ ...profile, phone: e.target.value})} placeholder="Enter Phone no." />
                                     {/* <PhoneInputWithCountrySelect
                                         placeholder="Enter phone number"
                                         value={"+" + profile.phone}

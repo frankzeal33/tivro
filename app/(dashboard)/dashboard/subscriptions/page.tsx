@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BsFillLightningChargeFill } from 'react-icons/bs'
 import {
     Table,
@@ -36,11 +36,16 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import { Separator } from '@/components/ui/separator'
-import { SubscriptionStatus } from '@/components/SubscriptionStatus'
 import { ContainerTitle } from '@/components/ContainerTitle'
 import { cn } from '@/lib/utils'
 import NotFound from '@/components/NotFound'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
+import { axiosClient } from '@/GlobalApi'
+import { format } from 'date-fns'
+import { SubscriptionStatus } from '@/components/SubscriptionStatus'
+import displayCurrency from '@/utils/displayCurrency'
+import { Loading } from '@/components/Loading'
 
 const frameworks = [
     {
@@ -61,75 +66,108 @@ const frameworks = [
     }
   ]
 
+type planType = {
+    Number_of_verification: number;
+    status: string;
+    plan: string;
+    date: string;
+    amount: number
+}
 
-const certificates = [
-    {
-      id: 1,
-      transaction: "Paystack",
-      plan: "one-time",
-      datePurchased: "22 Sep 2024, 10:15 AM",
-      amount: 20000,
-      status: 'successful'
-    },
-    {
-        id: 1,
-        transaction: "Paystack",
-        plan: "one-time",
-        datePurchased: "22 Sep 2024, 10:15 AM",
-        amount: 20000,
-        status: 'failed'
-    },
-    {
-        id: 1,
-        transaction: "Paystack",
-        plan: "one-time",
-        datePurchased: "22 Sep 2024, 10:15 AM",
-        amount: 20000,
-        status: 'pending'
-    },
-  ]
-
+type historyType = {
+    payment_gateway: string;
+    plan: string;
+    status: string;
+    amount: number;
+    created_at: string;
+}[]
 
 const Page = () => {
 
     const [open, setOpen] = useState(false)
     const [value, setValue] = useState("")
+    const [loadingSubscription, setLoadingSubscription] = useState(false)
+    const [loadingPlan, setLoadingPlan] = useState(false)
+    const [subscriptionPlan, setSubscriptionPlan] = useState<planType>()
+    const [subHistory, setSubHistory] = useState<historyType>([])
+
+    const getPlan = async () => {
+    
+        try {
+        
+            setLoadingPlan(true)
+            
+            const response = await axiosClient.get("/user/subscription/plans/")
+            setSubscriptionPlan(response.data || {})
+    
+        } catch (error: any) {
+            toast.error(error.response?.data?.message);
+        } finally {
+            setLoadingPlan(false)
+        } 
+    }
+
+    const getSubscription = async () => {
+    
+        try {
+        
+            setLoadingSubscription(true)
+            
+            const response = await axiosClient.get("/transaction/list/")
+            setSubHistory(response.data || [])
+    
+        } catch (error: any) {
+            toast.error(error.response?.data?.message);
+        } finally {
+            setLoadingSubscription(false)
+        } 
+    }
+    
+    useEffect(() => {
+        getPlan()
+        getSubscription()
+    }, [])
 
   return (
     <div className='my-container space-y-4'>
         <ContainerTitle title='Subscriptions' desc='Manage your Tivro subscriptions'/>
 
         <div className='bg-light p-4 rounded-2xl border space-y-4'>
-            <div>
-                <div className='flex gap-1 items-center justify-between'>
-                    <div className='rounded-full size-10 bg-primary/20 flex items-center justify-center'>
-                        <BsFillLightningChargeFill size={26} className="text-primary"/>
-                    </div>
-                    <Button>Upgrade plan</Button>
+            {loadingSubscription ? (
+                <div className='flex flex-col items-center justify-center min-h-[20vh] w-full'>
+                    <Loading/>
                 </div>
-                <div className='flex flex-col mt-2'>
-                    <div className="space-y-1">
-                        <h4 className="text-sm leading-none">One-time plan</h4>
-                        
+            ) : (
+                <div>
+                    <div className='flex gap-1 items-center justify-between'>
+                        <div className='rounded-full size-10 bg-primary/20 flex items-center justify-center'>
+                            <BsFillLightningChargeFill size={26} className="text-primary"/>
+                        </div>
+                        <Button>Upgrade plan</Button>
                     </div>
-                    <div className="flex h-10 items-start md:items-center space-x-4 text-sm my-7">
-                        <div>
-                            <div className='mb-1'>Amount</div>
-                            <p className="text-sm text-muted-foreground">₦10,000</p>
+                    <div className='flex flex-col mt-2'>
+                        <div className="space-y-1">
+                            <h4 className="text-sm leading-none">{subscriptionPlan?.plan}</h4>
+                            
                         </div>
-                        <Separator orientation="vertical" />
-                        <div>
-                            <div className='mb-1'>Date issued</div>
-                            <p className="text-sm text-muted-foreground">26th Nov, 2024</p>
-                        </div>
-                        <Separator orientation="vertical" />
-                        <div>
-                            <div className='mb-1'>Subscription status</div>
-                            <SubscriptionStatus status='active'/>
+                        <div className="flex h-10 items-start md:items-center space-x-4 text-sm my-7">
+                            <div>
+                                <div className='mb-1'>Amount</div>
+                                <p className="text-sm text-muted-foreground">{displayCurrency(Number(subscriptionPlan?.amount), "NGN")}</p>
+                            </div>
+                            <div>
+                                <div className='mb-1'>Date issued</div>
+                                <p className="text-sm text-muted-foreground">{subscriptionPlan?.date && format(new Date(subscriptionPlan?.date), "dd MMM yyyy")}</p>
+                            </div>
+                            <Separator orientation="vertical" />
+                            <div>
+                                <div className='mb-1'>Subscription status</div>
+                                <SubscriptionStatus status={subscriptionPlan?.status || "N/A"}/>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
 
         <div className='bg-light p-4 rounded-2xl border'>
@@ -191,17 +229,17 @@ const Page = () => {
                             </TableRow>
                         </TableHeader>
                         {
-                        certificates.length !== 0 &&
+                        subHistory.length !== 0 &&
                             (
                             <TableBody>
-                                {certificates.map((cert, index) => (
+                                {subHistory.map((history, index) => (
                                 <TableRow key={index}>
-                                    <TableCell className="capitalize">{cert.transaction}</TableCell>
-                                    <TableCell className='capitalize'>{cert.plan}</TableCell>
-                                    <TableCell className='capitalize'>{cert.datePurchased}</TableCell>
-                                    <TableCell className='capitalize'>₦{cert.amount}</TableCell>
+                                    <TableCell className="capitalize">{history?.payment_gateway}</TableCell>
+                                    <TableCell className='capitalize'>{history?.plan}</TableCell>
+                                    <TableCell className='capitalize'>{format(new Date(history?.created_at), "dd MMM yyyy HH:mm a")}</TableCell>
+                                    <TableCell className='capitalize'>₦{history?.amount}</TableCell>
                                     <TableCell className='capitalize'>
-                                    <SubscriptionStatus status={cert.status}/>
+                                    <SubscriptionStatus status={history?.status}/>
                                     </TableCell>
                                 </TableRow>
                                 ))}
@@ -211,14 +249,20 @@ const Page = () => {
                         
                     </Table>
 
-                    {certificates.length === 0 &&
+                    {subHistory.length === 0 && !loadingSubscription &&
                     <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
                         <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any tenants yet'/>
                     </div>
                     }
 
+                    {loadingSubscription &&
+                        <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+                            <Loading/>
+                        </div>
+                    }
+
                     {
-                    certificates.length !== 0 &&
+                    subHistory.length !== 0 && !loadingSubscription &&
                     (
                         <div className='flex gap-2 items-center justify-between w-full my-2'>
                         <div className='flex gap-2 items-center justify-between'>

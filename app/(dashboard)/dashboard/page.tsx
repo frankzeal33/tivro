@@ -97,11 +97,19 @@ type plansType = {
   features: string[];
 }
 
+type overviewType = {
+  Number_of_verification: number;
+  Total_verification_requested: number;
+  completed_verification: number;
+  plan: string
+  status: string
+}
+
 export default function Page() {
 
   const router = useRouter()
   const [subscription, setSubscription ] = useState(false)
-  const [choosenSub, setChoosenSub] = useState<plansType>({})
+  const [choosenSub, setChoosenSub] = useState<Partial<plansType>>({})
   const [openSubModal, setOpenSubModal] = useState(false);
   const [couponCode, setCouponCode] = useState("")
   const [showCouponInput, setShowCouponInput] = useState(false)
@@ -113,7 +121,7 @@ export default function Page() {
         title: "Diamond",
         description: "Our basic gives you opportunity to verify",
         verifications_provided: 10,
-        price: "100",
+        price: "10",
         features: ['One Verifications', 'Personality check provided','Work place checks provided', 'Credit score verifications provided', 'Employability checks provided']
     },
     {
@@ -131,7 +139,14 @@ export default function Page() {
         features: ['Personality check provided', 'Work place checks provided', 'Credit score verifications provided', 'Employability checks provided', 'TivroAI']
     }
   ])
-  const [subData, setSubData] = useState([])
+  const [subData, setSubData] = useState<Partial<overviewType>>({})
+  const [openBVNModal, setOpenBVNModal] = useState(false)
+  const [BVN, setBVN] = useState("")
+  const [loadingBVN, setloadingBVN] = useState(false)
+  const [sendingBVNOTP, setSendingBVNOTP] = useState(false)
+  const [BVNOTP, setBVNOTP] = useState("")
+  const [showOTPInput, setShowOTPInput] = useState(false)
+  const [submittingOTP, setSubmittingOTP] = useState(false)
 
   const handleSubscription = () => {
     setOpenSubModal(true)
@@ -144,7 +159,7 @@ export default function Page() {
       setLoadingPage(true)
       
       const response = await axiosClient.get("/dashboard")
-      setSubData(response.data.message || [])
+      setSubData(response.data || {})
       console.log(response.data)
 
     } catch (error: any) {
@@ -236,6 +251,41 @@ export default function Page() {
     }
   }
 
+  const requestVerification = () => {
+    setOpenBVNModal(true)
+    // router.push("'/dashboard/request-verification'")
+  }
+
+  const sendBVNOTP = async () => {
+     try {
+
+      setSendingBVNOTP(true)
+      
+      const response = await axiosClient.post("/bvn/otp/request", {bvn: BVN})
+      // setSubData(response.data || {})
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setSendingBVNOTP(false)
+    } 
+  }
+
+    const verifyBVNOTP = async () => {
+     try {
+
+      setSubmittingOTP(true)
+      
+      const response = await axiosClient.post("/verify/bvn/otp", {token: BVNOTP})
+      setBVN("")
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setSubmittingOTP(false)
+    } 
+  }
+
   return (
     <div>
       <Title title="Overview" desc="View and manage tenant verifications request"/>
@@ -245,7 +295,7 @@ export default function Page() {
         <div>
           <div>
             <div className="flex flex-col items-center justify-center w-full">
-              {subData.length === 0 &&
+              {Object.keys(subData).length === 0 &&
                 <div className={`flex flex-col gap-3 items-center justify-center max-w-96 text-center min-h-[70vh]`}>
                     <Image src={"/empty1.png"} alt="" width={100} height={100} className="w-fit"/>
                     <h1 className='text-xl font-semibold'>You’ve not made any requests yet</h1>
@@ -393,21 +443,21 @@ export default function Page() {
       
 
         {/* overview data */}
-        {subData.length !== 0 && (
+        {Object.keys(subData).length !== 0 && (
           <div>
             <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl">10</CardTitle>
+                  <CardTitle className="text-2xl">{subData?.Number_of_verification}</CardTitle>
                   <CardDescription className="flex items-center justify-between gap-1">
                     <span>Number of verifications</span>
-                    <span className="rounded-full px-2 py-0.5 text-green-500 bg-green-500/30">One-time</span>
+                    <span className="rounded-full px-2 py-0.5 text-green-500 bg-green-500/30">{subData?.plan}</span>
                   </CardDescription>
                 </CardHeader>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl">0</CardTitle>
+                  <CardTitle className="text-2xl">{subData?.Total_verification_requested}</CardTitle>
                   <CardDescription className="flex items-center justify-between gap-1">
                     <span>Total verification requested</span>
                   </CardDescription>
@@ -415,7 +465,7 @@ export default function Page() {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl">0</CardTitle>
+                  <CardTitle className="text-2xl">{subData?.completed_verification}</CardTitle>
                   <CardDescription className="flex items-center justify-between gap-1">
                     <span>Completed verifications</span>
                   </CardDescription>
@@ -425,13 +475,37 @@ export default function Page() {
 
             <div className="flex items-center justify-between gap-2 w-full my-6">
               <SearchForm/>
-              <Link href={'/dashboard/request-verification'}>
-                <Button>
-                  <Plus/>
-                  Request verification
-                </Button>
-              </Link>
+              <Button loading={loadingBVN} disabled={loadingBVN} onClick={requestVerification}>
+                <Plus/>
+                {loadingBVN ? "Loading..." : "Request verification"}
+              </Button>
             </div>
+
+            <AlertDialog open={openBVNModal} onOpenChange={setOpenBVNModal}>
+              <AlertDialogContent className="rounded-2xl p-0 gap-0 w-[300px] max-h-[75vh] overflow-y-auto">
+                <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                  <AlertDialogTitle className="text-base">Verify your BVN</AlertDialogTitle>
+                  <AlertDialogCancel onClick={() => {setShowCouponInput(false); setCouponCode("")}} className="bg-background-light border-0 shadow-none size-8 rounded-full">
+                    <X className="size-6"/>
+                  </AlertDialogCancel>
+                </AlertDialogHeader>
+                <div>
+                  <div className="bg-light p-4 shadow dark:border rounded-b-2xl">
+                    <div>
+                      <div className="grid gap-2 mb-5">
+                        <Label htmlFor="bvn">Enter BVN</Label>
+                        <Input id="bvn" type="number" value={BVN} onChange={(e: any) => setBVN(e.target.value)} placeholder="Enter BVN here" />
+                      </div>
+                      <div className="w-full flex items-center justify-center">
+                        <Button disabled={BVN.length < 11 || sendingBVNOTP} loading={sendingBVNOTP} onClick={sendBVNOTP}>
+                          {sendingBVNOTP ? "Verifying..." : "Continue"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </AlertDialogContent>
+            </AlertDialog>
 
             <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
               <Table>

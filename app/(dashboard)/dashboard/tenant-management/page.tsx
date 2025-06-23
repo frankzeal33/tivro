@@ -1,8 +1,8 @@
 'use client'
 import Title from "@/components/Title"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
-import { useState } from "react";
+import { ChevronLeft, ChevronRight, Loader2, X } from "lucide-react"
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -50,67 +50,184 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { axiosClient } from "@/GlobalApi";
+import { toast } from "react-toastify";
+import displayCurrency from "@/utils/displayCurrency";
+import { Loading } from "@/components/Loading";
+import { format } from "date-fns";
 
-const requests = [
-  {
-    id: 1,
-    propertyName: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    contact: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    occupancyDate: 'Today at 02:30 PM',
-    renewalDate: 'Today at 02:30 PM',
-    status: 'due',
-  },
-  {
-    id: 2,
-    propertyName: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    contact: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    occupancyDate: 'Today at 02:30 PM',
-    renewalDate: 'Today at 02:30 PM',
-    status: 'evicted',
-  },
-  {
-    id: 3,
-    propertyName: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    contact: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    occupancyDate: 'Today at 02:30 PM',
-    renewalDate: 'Today at 02:30 PM',
-    status: 'active',
-  },
-]
+type tenantType = {
+  property_name: string;
+  tenant_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  move_in: string;
+  renewal_date: string;
+  Active_tenant: boolean
+}[]
 
-const properties = [
-  {
-    id: 1,
-    propertyName: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    contact: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    occupancyDate: 'Today at 02:30 PM',
-    renewalDate: 'Today at 02:30 PM',
-    status: 'due',
-  }
-]
+type propertyType = {
+  house_id: string;
+  property_name: string;
+  address: string;
+  house_type: string;
+  number_of_rooms: number;
+  number_of_flats: number;
+  property_description: string;
+}[]
 
 export default function Page() {
 
   const router = useRouter()
   const [open, setOpen] = useState(false);
    const [activeTab, setActiveTab] = useState("Tenants");
-   const [subscription, setSubscription] = useState(false);
+   const [totalTenents, setTotalTenants] = useState(0);
+   const [totalProperty, setTotalProperty] = useState(0);
+   const [walletBalance, setwalletBalance] = useState(0);
+   const [TenantTable, setTenantTable] = useState<tenantType>([]);
+   const [PropertyTable, setPropertyTable] = useState<propertyType>([]);
+   const [loadingTenantCount, setLoadingTenantCount] = useState(false);
+   const [loadingPropertyCount, setLoadingPropertyCount] = useState(false);
+   const [loadingWalletBalance, setLoadingWalletBalance] = useState(false);
+   const [loadingTenantTable, setLoadingTenantTable] = useState(false);
+   const [loadingPropertyTable, setLoadingPropertyTable] = useState(false);
+   const [submittingPayment, setSubmittingPayment] = useState(false);
+   const [amount, setAmount] = useState("");
 
-  const handlePayment = (paymentMethod: string) => {
-    if(paymentMethod === 'save-haven'){
-      setSubscription(true)
-      setOpen(false)
-    }else if(paymentMethod === 'paystack'){
-      setSubscription(true)
-      setOpen(false)
+  const getTotalTenents = async () => {
+  
+    try {
+
+      setLoadingTenantCount(true)
+      
+      const response = await axiosClient.get("/total/tenant/")
+      setTotalTenants(response.data?.count || 0)
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoadingTenantCount(false)
+    } 
+  }
+
+  const getTotalProperties = async () => {
+  
+    try {
+
+      setLoadingPropertyCount(true)
+      
+      const response = await axiosClient.get("/total/property/")
+      setTotalProperty(response.data?.total_property || 0)
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoadingPropertyCount(false)
+    } 
+  }
+
+   const getWalletBalance = async () => {
+  
+    try {
+
+      setLoadingWalletBalance(true)
+      
+      const response = await axiosClient.get("/wallet/balance/")
+      setwalletBalance(response.data?.wallet || 0)
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoadingWalletBalance(false)
+    } 
+  }
+
+  const getTenants = async () => {
+  
+    try {
+
+      setLoadingTenantTable(true)
+      
+      const response = await axiosClient.get("/tenants/")
+      setTenantTable(response.data.items || [])
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoadingTenantTable(false)
+    } 
+  }
+
+  const getProperties = async () => {
+  
+    try {
+
+      setLoadingPropertyTable(true)
+      
+      const response = await axiosClient.get("/properties/")
+      setPropertyTable(response.data.items || [])
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoadingPropertyTable(false)
+    } 
+  }
+
+  useEffect(() => {
+    getTotalTenents()
+    getTotalProperties()
+    getWalletBalance()
+    getTenants()
+    getProperties()
+  }, [])
+
+  const handlePayment = async (paymentMethod: string) => {
+
+    const data = {
+      amount: Number(amount)
+    }
+
+    if(paymentMethod === 'flutterwave'){
+      try {
+          setSubmittingPayment(true)
+
+          const result = await axiosClient.post("/nomba/fundwallet/", data)
+          const paymentLink = result.data?.payment?.link;
+
+          if (paymentLink) {
+            window.location.href = paymentLink;
+          } else {
+            toast.error("No payment link received");
+          }
+  
+      } catch (error: any) {
+          toast.error(error.response?.data?.message);
+  
+      } finally {
+          // setSubmittingPayment(false)
+      }
+    }else if(paymentMethod === 'nomba'){
+       try {
+          setSubmittingPayment(true)
+
+          const result = await axiosClient.post("/nomba/fundwallet/", data)
+          const paymentLink = result.data?.payment?.link;
+
+          if (paymentLink) {
+            window.location.href = paymentLink;
+          } else {
+            toast.error("No payment link received");
+          }
+  
+      } catch (error: any) {
+          toast.error(error.response?.data?.message);
+  
+      } finally {
+          // setSubmittingPayment(false)
+      }
     }
   }
 
@@ -134,7 +251,11 @@ export default function Page() {
           <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">$100,000</CardTitle>
+                {loadingWalletBalance ? (
+                  <Loader2 className="animate-spin size-7 text-primary" />
+                ) : (
+                  <CardTitle className="text-2xl">{displayCurrency(Number(walletBalance), "NGN")}</CardTitle>
+                )}
                 <CardDescription className="flex items-center justify-between gap-1">
                   <span>Wallet balance</span>
                   <AlertDialog>
@@ -150,11 +271,11 @@ export default function Page() {
                             <AlertDialogDescription className="w-full bg-light px-4 py-4 flex items-center justify-center gap-3">
                                 <span className='grid gap-2 w-full'>
                                     <Label htmlFor="amount">Enter amount</Label>
-                                    <Input id="amount" type="number" placeholder="Enter amount here" required />
+                                    <Input id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} type="number" placeholder="Enter amount here" />
                                 </span>
                             </AlertDialogDescription>
                             <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
-                                <AlertDialogAction className='w-full' onClick={() => setOpen(true)}>Make Payment</AlertDialogAction>
+                                <AlertDialogAction  disabled={amount.length < 1} className='w-full' onClick={() => setOpen(true)}>Make Payment</AlertDialogAction>
                             </AlertDialogFooter>
                         </form>
                     </AlertDialogContent>
@@ -164,7 +285,11 @@ export default function Page() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">0</CardTitle>
+                {loadingTenantCount ? (
+                  <Loader2 className="animate-spin size-7 text-primary" />
+                ) : (
+                  <CardTitle className="text-2xl">{totalTenents}</CardTitle>
+                )}
                 <CardDescription className="flex items-center justify-between gap-1">
                   <span>Total number of tenants</span>
                 </CardDescription>
@@ -172,7 +297,11 @@ export default function Page() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">0</CardTitle>
+                 {loadingPropertyCount ? (
+                  <Loader2 className="animate-spin size-7 text-primary" />
+                ) : (
+                  <CardTitle className="text-2xl">{totalProperty}</CardTitle>
+                )}
                 <CardDescription className="flex items-center justify-between gap-1">
                   <span>Total number of properties</span>
                 </CardDescription>
@@ -205,24 +334,24 @@ export default function Page() {
                   </TableRow>
                 </TableHeader>
                 {
-                requests.length !== 0 &&
+                TenantTable.length !== 0 && !loadingTenantTable &&
                   (
                     <TableBody>
-                      {requests.map((request, index) => (
+                      {TenantTable.map((tenant, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium capitalize">
-                            {request.propertyName}
+                            {tenant?.property_name}
                           </TableCell>
                           <TableCell className='capitalize'>
-                            {request.fullName}
+                            {tenant?.full_name}
                           </TableCell>
-                          <TableCell className='capitalize'>{request.contact}</TableCell>
-                          <TableCell className='capitalize'>{request.email}</TableCell>
-                          <TableCell className='capitalize'>{request.occupancyDate}</TableCell>
-                          <TableCell className='capitalize'>{request.renewalDate}</TableCell>
-                          <TableCell className='capitalize'><TenentStatus status={request.status}/></TableCell>
+                          <TableCell className='capitalize'>{tenant?.phone}</TableCell>
+                          <TableCell className='capitalize'>{tenant?.email}</TableCell>
+                          <TableCell className='capitalize'>{format(new Date(tenant?.move_in), "dd MMM yyyy")}</TableCell>
+                          <TableCell className='capitalize'>{format(new Date(tenant?.renewal_date), "dd MMM yyyy")}</TableCell>
+                          <TableCell className='capitalize'><TenentStatus status={tenant?.Active_tenant}/></TableCell>
                           <TableCell className='capitalize text-center bg-muted/30'>
-                              <Link href={`/dashboard/tenant-management/tenant-info/${request.id}`}>
+                              <Link href={`/dashboard/tenant-management/tenant-info/${tenant?.tenant_id}`}>
                                   <Button variant={'ghost'}>View</Button>
                               </Link>
                           </TableCell>
@@ -234,14 +363,20 @@ export default function Page() {
                 
               </Table>
 
-              {requests.length === 0 &&
+              {TenantTable.length === 0 && !loadingTenantTable &&
                 <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
                   <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any tenants yet'/>
                 </div>
               }
 
+              {loadingTenantTable &&
+                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+                  <Loading/>
+                </div>
+              }
+
               {
-                requests.length !== 0 &&
+                TenantTable.length !== 0 && !loadingTenantTable &&
                 (
                   <div className='flex gap-2 items-center justify-between w-full my-2'>
                     <div className='flex gap-2 items-center justify-between'>
@@ -278,34 +413,32 @@ export default function Page() {
                   <TableHeader>
                     <TableRow className="bg-muted">
                       <TableHead className="rounded-tl-xl capitalize">Property name</TableHead>
-                      <TableHead className='capitalize'>Full name</TableHead>
-                      <TableHead className='capitalize'>Contact</TableHead>
-                      <TableHead className='capitalize'>Email</TableHead>
-                      <TableHead className='capitalize'>Occupancy date</TableHead>
-                      <TableHead className='capitalize'>Renewal date</TableHead>
-                      <TableHead className='capitalize'>Status</TableHead>
+                      <TableHead className='capitalize'>Location</TableHead>
+                      <TableHead className='capitalize'>Property Type</TableHead>
+                      <TableHead className='capitalize'>N0. of Rooms</TableHead>
+                      <TableHead className='capitalize'>N0. of Flats</TableHead>
+                      <TableHead className='capitalize'>Property Desc.</TableHead>
                       <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   {
-                  properties.length !== 0 &&
+                  PropertyTable.length !== 0 && !loadingPropertyTable &&
                     (
                       <TableBody>
-                        {properties.map((property, index) => (
+                        {PropertyTable.map((property, index) => (
                           <TableRow key={index}>
                             <TableCell className="font-medium capitalize">
-                              {property.propertyName}
+                              {property?.property_name}
                             </TableCell>
                             <TableCell className='capitalize'>
-                              {property.fullName}
+                              {property?.address}
                             </TableCell>
-                            <TableCell className='capitalize'>{property.contact}</TableCell>
-                            <TableCell className='capitalize'>{property.email}</TableCell>
-                            <TableCell className='capitalize'>{property.occupancyDate}</TableCell>
-                            <TableCell className='capitalize'>{property.renewalDate}</TableCell>
-                            <TableCell className='capitalize'><TenentStatus status={property.status}/></TableCell>
+                            <TableCell className='capitalize'>{property?.house_type}</TableCell>
+                            <TableCell className='capitalize'>{property?.number_of_rooms}</TableCell>
+                            <TableCell className='capitalize'>{property?.number_of_flats}</TableCell>
+                            <TableCell className='capitalize'>{property?.property_description}</TableCell>
                             <TableCell className='capitalize text-center bg-muted/30'>
-                                <Link href={`/dashboard/tenant-management/tenant-info/${property.id}`}>
+                                <Link href={`/dashboard/tenant-management/tenant-info/${property.house_id}`}>
                                     <Button variant={'ghost'}>View</Button>
                                 </Link>
                             </TableCell>
@@ -317,14 +450,20 @@ export default function Page() {
                 
               </Table>
 
-              {properties.length === 0 &&
+              {PropertyTable.length === 0 && !loadingPropertyTable &&
                 <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
                   <NotFound imageStyle='size-14' title='No Properties found' desc='You haven’t added any properties yet'/>
                 </div>
               }
 
+              {loadingPropertyTable &&
+                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+                  <Loading/>
+                </div>
+              }
+
               {
-                properties.length !== 0 &&
+                PropertyTable.length !== 0 && !loadingPropertyTable &&
                 (
                   <div className='flex gap-2 items-center justify-between w-full my-2'>
                     <div className='flex gap-2 items-center justify-between'>
@@ -367,25 +506,33 @@ export default function Page() {
               </AlertDialogCancel>
               </AlertDialogHeader>
               <AlertDialogDescription className="bg-light rounded-b-2xl px-4 py-6 flex flex-col items-center justify-center gap-3">
-                  <Button onClick={() => handlePayment('save-haven')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
-                  <span className="flex gap-2 items-center justify-center">
-                      <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
-                      <Image src={'/save-haven.png'} width={40} height={40} alt=""/>
-                      </span>
-                      <h4 className="text-accent-foreground font-semibold">Save Haven</h4>
-                  </span>
-                  <ChevronRight size={14} className="text-accent-foreground"/>
-                  </Button>
+                  {submittingPayment ? (
+                    <span className="w-full min-h-[100px] flex items-center justify-center">
+                      <Loader2 className="animate-spin size-10 text-primary" />
+                    </span>
+                  ) : (
+                    <>
+                      <Button onClick={() => handlePayment('flutterwave')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
+                        <span className="flex gap-2 items-center justify-center">
+                          <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
+                          <Image src={'/flutterwave.png'} width={40} height={40} alt=""/>
+                          </span>
+                          <h4 className="text-accent-foreground font-semibold">Flutterwave</h4>
+                        </span>
+                        <ChevronRight size={14} className="text-accent-foreground"/>
+                      </Button>
 
-                  <Button onClick={() => handlePayment('paystack')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
-                  <span className="flex gap-2 items-center justify-center">
-                      <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
-                      <Image src={'/paystack.png'} width={20} height={20} alt=""/>
-                      </span>
-                      <h4 className="text-accent-foreground font-semibold">Paystack</h4>
-                  </span>
-                  <ChevronRight size={14} className="text-accent-foreground"/>
-                  </Button>
+                      <Button onClick={() => handlePayment('nomba')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
+                        <span className="flex gap-2 items-center justify-center">
+                          <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
+                          <Image src={'/nomba.png'} width={20} height={20} alt=""/>
+                          </span>
+                          <h4 className="text-accent-foreground font-semibold">Nomba</h4>
+                        </span>
+                        <ChevronRight size={14} className="text-accent-foreground"/>
+                      </Button>
+                    </>
+                  )}
               </AlertDialogDescription>
           </AlertDialogContent>
       </AlertDialog>
