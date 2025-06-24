@@ -46,6 +46,8 @@ import { format } from 'date-fns'
 import { SubscriptionStatus } from '@/components/SubscriptionStatus'
 import displayCurrency from '@/utils/displayCurrency'
 import { Loading } from '@/components/Loading'
+import Skeleton from '@/components/Skeleton'
+import TableSkeleton from '@/components/TableSkeleton'
 
 const frameworks = [
     {
@@ -90,6 +92,8 @@ const Page = () => {
     const [loadingPlan, setLoadingPlan] = useState(false)
     const [subscriptionPlan, setSubscriptionPlan] = useState<planType>()
     const [subHistory, setSubHistory] = useState<historyType>([])
+    const arrayList = new Array(1).fill(null)
+    const tableList = new Array(6).fill(null)
 
     const getPlan = async () => {
     
@@ -132,12 +136,14 @@ const Page = () => {
     <div className='my-container space-y-4'>
         <ContainerTitle title='Subscriptions' desc='Manage your Tivro subscriptions'/>
 
-        <div className='bg-light p-4 rounded-2xl border space-y-4'>
-            {loadingSubscription ? (
-                <div className='flex flex-col items-center justify-center min-h-[20vh] w-full'>
-                    <Loading/>
-                </div>
-            ) : (
+        {loadingPlan ? (
+            <div className="grid grid-col-1 gap-2">
+                {arrayList.map((_, index) => (
+                    <Skeleton key={index} />
+                ))}
+            </div>
+        ) : (
+            <div className='bg-light p-4 rounded-2xl border space-y-4'>
                 <div>
                     <div className='flex gap-1 items-center justify-between'>
                         <div className='rounded-full size-10 bg-primary/20 flex items-center justify-center'>
@@ -157,7 +163,7 @@ const Page = () => {
                             </div>
                             <div>
                                 <div className='mb-1'>Date issued</div>
-                                <p className="text-sm text-muted-foreground">{subscriptionPlan?.date && format(new Date(subscriptionPlan?.date), "dd MMM yyyy")}</p>
+                                <p className="text-sm text-muted-foreground">{subscriptionPlan?.date ? format(new Date(subscriptionPlan?.date), "dd MMM yyyy") : "N/A"}</p>
                             </div>
                             <Separator orientation="vertical" />
                             <div>
@@ -167,16 +173,27 @@ const Page = () => {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
-
-        <div className='bg-light p-4 rounded-2xl border'>
-            <div className='flex items-center gap-2 mb-6'>
-                <p className="text-lg font-medium leading-none">Subscription history</p>
             </div>
+        )}
+
+        {loadingSubscription ? (
+            <div className="mt-8">
+                <div className='w-full h-72 bg-white rounded-sm shadow flex'>
+                    <div className='p-4 grid w-full gap-2'>
+                    {tableList.map((_, index) => (
+                        <TableSkeleton key={index}/>
+                    ))}
+                    </div>
+                </div>
+            </div>
+        ) : (
+             <div className='bg-light p-4 rounded-2xl border'>
+                <div className='flex items-center gap-2 mb-6'>
+                    <p className="text-lg font-medium leading-none">Subscription history</p>
+                </div>
             
                 <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
-                <Table>
+                    <Table>
                         <TableHeader>
                             <TableRow className="bg-muted">
                             <TableHead className="rounded-tl-xl capitalize">Transaction</TableHead>
@@ -255,12 +272,6 @@ const Page = () => {
                     </div>
                     }
 
-                    {loadingSubscription &&
-                        <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                            <Loading/>
-                        </div>
-                    }
-
                     {
                     subHistory.length !== 0 && !loadingSubscription &&
                     (
@@ -292,7 +303,8 @@ const Page = () => {
                     )
                     }
                 </div>
-        </div>
+            </div>
+        )}
     </div>
   )
 }

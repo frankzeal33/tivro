@@ -36,6 +36,7 @@ import { toast } from 'react-toastify'
 import { axiosClient } from '@/GlobalApi'
 import { Loading } from '@/components/Loading'
 import { z } from 'zod'
+import Skeleton from '@/components/Skeleton'
 
 type profileType = {
     first_name: string,
@@ -105,6 +106,7 @@ const Page = () => {
     })
     const [fileName, setFileName] = useState<File | null>(null);
     const [filepreview, setFilePreview] = useState<string | null>(null);
+    const arrayList = new Array(2).fill(null)
     
     const toggle = (value: string) => {
         if(value === 'next'){
@@ -296,7 +298,11 @@ const Page = () => {
         <ContainerTitle title='Profile' desc='Manage your personal information here'/>
 
         {isGetting ? (
-            <Loading/>
+            <div className="grid grid-col-1 gap-6">
+                {arrayList.map((_, index) => (
+                    <Skeleton key={index} />
+                ))}
+            </div>
         ) : (
             <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-3 bg-light border p-0 shadow-none">
@@ -430,7 +436,7 @@ const Page = () => {
                         <span className='grid gap-2 w-full'>
                             <span>Enter the confirmation code sent to <span className='text-accent-foreground'>{changeEmail.new_email}</span> to confirm this action</span>
                             <Input type='number' value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter code here" required className='text-center'/>
-                            <span className='text-center'>Didn’t receive a code? <Button variant={'link'} className='p-0 text-primary font-medium'>Resend</Button></span>
+                            <span className='text-center text-sm'>Didn’t receive a code? <Button variant={'link'} className='p-0 text-primary font-medium'>Resend</Button></span>
                         </span>
                     </AlertDialogDescription>
                     <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>

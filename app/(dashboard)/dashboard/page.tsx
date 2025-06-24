@@ -52,6 +52,8 @@ import { Label } from "@/components/ui/label"
 import { Loading } from "@/components/Loading"
 import { toast } from "react-toastify"
 import { axiosClient } from "@/GlobalApi"
+import Skeleton from "@/components/Skeleton"
+import TableSkeleton from "@/components/TableSkeleton"
 
 const requests = [
   {
@@ -147,6 +149,9 @@ export default function Page() {
   const [BVNOTP, setBVNOTP] = useState("")
   const [showOTPInput, setShowOTPInput] = useState(false)
   const [submittingOTP, setSubmittingOTP] = useState(false)
+  const [submittingOTPResend, setSubmittingOTPResend] = useState(false)
+  const arrayList = new Array(3).fill(null)
+  const tableList = new Array(6).fill(null)
 
   const handleSubscription = () => {
     setOpenSubModal(true)
@@ -158,7 +163,7 @@ export default function Page() {
 
       setLoadingPage(true)
       
-      const response = await axiosClient.get("/dashboard")
+      const response = await axiosClient.get("/dashboard/")
       setSubData(response.data || {})
       console.log(response.data)
 
@@ -261,23 +266,30 @@ export default function Page() {
 
       setSendingBVNOTP(true)
       
-      const response = await axiosClient.post("/bvn/otp/request", {bvn: BVN})
-      // setSubData(response.data || {})
+      const response = await axiosClient.post("/request/bvn/", {bvn: BVN})
+      toast.success(response.data?.message);
+      setShowOTPInput(true)
 
     } catch (error: any) {
-      toast.error(error.response?.data?.message);
+      if(error.response?.data?.message === "NOT NULL constraint failed: Verifications_verificationdata.email"){
+        toast.error("BVN assigned to a user, Please contact support");
+      }else{
+        toast.error(error.response?.data?.message);
+      }
     } finally {
       setSendingBVNOTP(false)
     } 
   }
 
-    const verifyBVNOTP = async () => {
+  const verifyBVNOTP = async () => {
      try {
 
       setSubmittingOTP(true)
       
-      const response = await axiosClient.post("/verify/bvn/otp", {token: BVNOTP})
+      const response = await axiosClient.post("/verify/bvn/otp/", {token: BVNOTP})
+      toast.success(response.data?.message);
       setBVN("")
+      setOpenBVNModal(false)
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
@@ -286,11 +298,41 @@ export default function Page() {
     } 
   }
 
+  const resendBVNOTP = async () => {
+    try {
+
+      setSubmittingOTPResend(true)
+      
+      const response = await axiosClient.post("/bvn/resend/otp/", {bvn: BVN})
+      toast.success(response.data?.message);
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setSubmittingOTPResend(false)
+    } 
+  }
+
   return (
     <div>
       <Title title="Overview" desc="View and manage tenant verifications request"/>
       {loadingPage ? (
-        <Loading/>
+        <div>
+          <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
+            {arrayList.map((_, index) => (
+              <Skeleton key={index} />
+            ))}
+          </div>
+          <div className="mt-8">
+            <div className='w-full h-72 bg-white rounded-sm shadow flex'>
+              <div className='p-4 grid w-full gap-2'>
+                {tableList.map((_, index) => (
+                  <TableSkeleton key={index}/>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
         <div>
           <div>
@@ -490,19 +532,37 @@ export default function Page() {
                   </AlertDialogCancel>
                 </AlertDialogHeader>
                 <div>
-                  <div className="bg-light p-4 shadow dark:border rounded-b-2xl">
-                    <div>
-                      <div className="grid gap-2 mb-5">
-                        <Label htmlFor="bvn">Enter BVN</Label>
-                        <Input id="bvn" type="number" value={BVN} onChange={(e: any) => setBVN(e.target.value)} placeholder="Enter BVN here" />
-                      </div>
-                      <div className="w-full flex items-center justify-center">
-                        <Button disabled={BVN.length < 11 || sendingBVNOTP} loading={sendingBVNOTP} onClick={sendBVNOTP}>
-                          {sendingBVNOTP ? "Verifying..." : "Continue"}
-                        </Button>
+                  {showOTPInput ? (
+                    <div className="bg-light p-4 shadow dark:border rounded-b-2xl">
+                      <div>
+                        <p className="mb-3 text-sm text-accent-foreground">An OTP was sent to your BVN-linked phone number to verify your BVN.</p>
+                        <div className="grid gap-2 mb-5">
+                          <Label htmlFor="bvn">Enter the OTP</Label>
+                          <Input id="bvn" type="number" value={BVNOTP} onChange={(e: any) => setBVNOTP(e.target.value)} placeholder="Enter OTP here" />
+                          <span className='text-center text-sm'>Didn’t receive a code? <Button variant={'link'} onClick={resendBVNOTP} className='p-0 text-primary font-medium'>Resend</Button></span>
+                        </div>
+                        <div className="w-full flex items-center justify-center">
+                          <Button disabled={BVNOTP.length < 6 || submittingOTP} loading={sendingBVNOTP} onClick={verifyBVNOTP}>
+                            {submittingOTP ? "Verifying..." : "Verify"}
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-light p-4 shadow dark:border rounded-b-2xl">
+                      <div>
+                        <div className="grid gap-2 mb-5">
+                          <Label htmlFor="bvn">Enter BVN</Label>
+                          <Input id="bvn" type="number" value={BVN} onChange={(e: any) => setBVN(e.target.value)} placeholder="Enter BVN here" />
+                        </div>
+                        <div className="w-full flex items-center justify-center">
+                          <Button disabled={BVN.length < 11 || sendingBVNOTP} loading={sendingBVNOTP} onClick={sendBVNOTP}>
+                            {sendingBVNOTP ? "Verifying..." : "Continue"}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </AlertDialogContent>
             </AlertDialog>

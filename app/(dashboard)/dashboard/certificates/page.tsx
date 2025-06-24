@@ -41,6 +41,7 @@ import { useEffect, useState } from 'react'
 import { Loading } from '@/components/Loading'
 import { axiosClient } from '@/GlobalApi'
 import { toast } from 'react-toastify'
+import TableSkeleton from '@/components/TableSkeleton'
 
 
 const frameworks = [
@@ -131,6 +132,7 @@ const Page = () => {
       created_at: "2025-06-16T11:08:44.226Z"
     }
   ])
+  const tableList = new Array(8).fill(null)
 
   const getCert = async () => {
     
@@ -158,7 +160,15 @@ const Page = () => {
         <Title title='Certificates' desc='Manage tenant certification here'/>
 
         {loadingPage ? (
-          <Loading/>
+          <div className="mt-8">
+            <div className='w-full h-[60vh] bg-white rounded-sm shadow flex'>
+              <div className='p-4 grid w-full gap-2'>
+                {tableList.map((_, index) => (
+                  <TableSkeleton key={index}/>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
            <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
             <Table>
