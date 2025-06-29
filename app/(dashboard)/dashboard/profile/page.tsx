@@ -36,7 +36,7 @@ import { toast } from 'react-toastify'
 import { axiosClient } from '@/GlobalApi'
 import { Loading } from '@/components/Loading'
 import { z } from 'zod'
-import Skeleton from '@/components/Skeleton'
+import SkeletonFull from '@/components/SkeletonFull'
 
 type profileType = {
     first_name: string,
@@ -300,7 +300,7 @@ const Page = () => {
         {isGetting ? (
             <div className="grid grid-col-1 gap-6">
                 {arrayList.map((_, index) => (
-                    <Skeleton key={index} />
+                    <SkeletonFull key={index} />
                 ))}
             </div>
         ) : (
@@ -435,8 +435,8 @@ const Page = () => {
                     <AlertDialogDescription className="w-full bg-light px-4 py-4 flex flex-col items-center justify-center gap-3">
                         <span className='grid gap-2 w-full'>
                             <span>Enter the confirmation code sent to <span className='text-accent-foreground'>{changeEmail.new_email}</span> to confirm this action</span>
-                            <Input type='number' value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter code here" required className='text-center'/>
-                            <span className='text-center text-sm'>Didn’t receive a code? <Button variant={'link'} className='p-0 text-primary font-medium'>Resend</Button></span>
+                            <Input type='number' value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter code here" className='text-center'/>
+                            {/* <span className='text-center text-sm'>Didn’t receive a code? <Button variant={'link'} className='p-0 text-primary font-medium'>Resend</Button></span> */}
                         </span>
                     </AlertDialogDescription>
                     <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>

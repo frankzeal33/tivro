@@ -55,6 +55,7 @@ import { toast } from "react-toastify";
 import displayCurrency from "@/utils/displayCurrency";
 import { Loading } from "@/components/Loading";
 import { format } from "date-fns";
+import Skeleton from "@/components/Skeleton";
 
 type tenantType = {
   property_name: string;
@@ -82,65 +83,35 @@ export default function Page() {
 
   const router = useRouter()
   const [open, setOpen] = useState(false);
-   const [activeTab, setActiveTab] = useState("Tenants");
-   const [totalTenents, setTotalTenants] = useState(0);
-   const [totalProperty, setTotalProperty] = useState(0);
-   const [walletBalance, setwalletBalance] = useState(0);
-   const [TenantTable, setTenantTable] = useState<tenantType>([]);
-   const [PropertyTable, setPropertyTable] = useState<propertyType>([]);
-   const [loadingTenantCount, setLoadingTenantCount] = useState(false);
-   const [loadingPropertyCount, setLoadingPropertyCount] = useState(false);
-   const [loadingWalletBalance, setLoadingWalletBalance] = useState(false);
-   const [loadingTenantTable, setLoadingTenantTable] = useState(false);
-   const [loadingPropertyTable, setLoadingPropertyTable] = useState(false);
-   const [submittingPayment, setSubmittingPayment] = useState(false);
-   const [amount, setAmount] = useState("");
+  const [activeTab, setActiveTab] = useState("Tenants");
+  const [TenantTable, setTenantTable] = useState<tenantType>([]);
+  const [PropertyTable, setPropertyTable] = useState<propertyType>([]);
+  const [loadingTenantTable, setLoadingTenantTable] = useState(false);
+  const [loadingPropertyTable, setLoadingPropertyTable] = useState(false);
+  const [loadingOverview, setLoadingOverview] = useState(false);
+  const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [overview, setOverview] = useState({
+    total_property: 0, 
+    tenant: 0, 
+    wallet: 0
+  });
+  const [amount, setAmount] = useState("");
+  const arrayList = new Array(3).fill(null)
+  const tableList = new Array(6).fill(null)
 
-  const getTotalTenents = async () => {
+  const getOVerview = async () => {
   
     try {
 
-      setLoadingTenantCount(true)
+      setLoadingOverview(true)
       
-      const response = await axiosClient.get("/total/tenant/")
-      setTotalTenants(response.data?.count || 0)
+      const response = await axiosClient.get("/overview/property/tenant/")
+      setOverview(response.data || overview)
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
     } finally {
-      setLoadingTenantCount(false)
-    } 
-  }
-
-  const getTotalProperties = async () => {
-  
-    try {
-
-      setLoadingPropertyCount(true)
-      
-      const response = await axiosClient.get("/total/property/")
-      setTotalProperty(response.data?.total_property || 0)
-
-    } catch (error: any) {
-      toast.error(error.response?.data?.message);
-    } finally {
-      setLoadingPropertyCount(false)
-    } 
-  }
-
-   const getWalletBalance = async () => {
-  
-    try {
-
-      setLoadingWalletBalance(true)
-      
-      const response = await axiosClient.get("/wallet/balance/")
-      setwalletBalance(response.data?.wallet || 0)
-
-    } catch (error: any) {
-      toast.error(error.response?.data?.message);
-    } finally {
-      setLoadingWalletBalance(false)
+      setLoadingOverview(false)
     } 
   }
 
@@ -177,9 +148,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    getTotalTenents()
-    getTotalProperties()
-    getWalletBalance()
+    getOVerview()
     getTenants()
     getProperties()
   }, [])
@@ -194,7 +163,7 @@ export default function Page() {
       try {
           setSubmittingPayment(true)
 
-          const result = await axiosClient.post("/nomba/fundwallet/", data)
+          const result = await axiosClient.post("/flutterwave/fundwallet/", data)
           const paymentLink = result.data?.payment?.link;
 
           if (paymentLink) {
@@ -248,66 +217,64 @@ export default function Page() {
       </div>
       
         <div>
-          <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
-            <Card>
-              <CardHeader>
-                {loadingWalletBalance ? (
-                  <Loader2 className="animate-spin size-7 text-primary" />
-                ) : (
-                  <CardTitle className="text-2xl">{displayCurrency(Number(walletBalance), "NGN")}</CardTitle>
-                )}
-                <CardDescription className="flex items-center justify-between gap-1">
-                  <span>Wallet balance</span>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button>Fund Wallet</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
-                        <form>
-                            <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
-                                <AlertDialogTitle className="text-sm">Fund wallet</AlertDialogTitle>
-                                <AlertDialogCancel className='bg-background-light border-0 shadow-none'><X className='text-2xl'/></AlertDialogCancel>
-                            </AlertDialogHeader>
-                            <AlertDialogDescription className="w-full bg-light px-4 py-4 flex items-center justify-center gap-3">
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="amount">Enter amount</Label>
-                                    <Input id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} type="number" placeholder="Enter amount here" />
-                                </span>
-                            </AlertDialogDescription>
-                            <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
-                                <AlertDialogAction  disabled={amount.length < 1} className='w-full' onClick={() => setOpen(true)}>Make Payment</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </form>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                {loadingTenantCount ? (
-                  <Loader2 className="animate-spin size-7 text-primary" />
-                ) : (
-                  <CardTitle className="text-2xl">{totalTenents}</CardTitle>
-                )}
-                <CardDescription className="flex items-center justify-between gap-1">
-                  <span>Total number of tenants</span>
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                 {loadingPropertyCount ? (
-                  <Loader2 className="animate-spin size-7 text-primary" />
-                ) : (
-                  <CardTitle className="text-2xl">{totalProperty}</CardTitle>
-                )}
-                <CardDescription className="flex items-center justify-between gap-1">
-                  <span>Total number of properties</span>
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
+          {loadingOverview ? (
+            <div>
+              <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
+                {arrayList.map((_, index) => (
+                  <Skeleton key={index} />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">{displayCurrency(Number(overview?.wallet), "NGN")}</CardTitle>
+                  <CardDescription className="flex items-center justify-between gap-1">
+                    <span>Wallet balance</span>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button>Fund Wallet</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
+                          <form>
+                              <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                                  <AlertDialogTitle className="text-sm">Fund wallet</AlertDialogTitle>
+                                  <AlertDialogCancel className='bg-background-light border-0 shadow-none'><X className='text-2xl'/></AlertDialogCancel>
+                              </AlertDialogHeader>
+                              <AlertDialogDescription className="w-full bg-light px-4 py-4 flex items-center justify-center gap-3">
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="amount">Enter amount</Label>
+                                      <Input id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} type="number" placeholder="Enter amount here" />
+                                  </span>
+                              </AlertDialogDescription>
+                              <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                                  <AlertDialogAction  disabled={amount.length < 1} className='w-full' onClick={() => setOpen(true)}>Make Payment</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </form>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">{overview?.tenant}</CardTitle>
+                  <CardDescription className="flex items-center justify-between gap-1">
+                    <span>Total number of tenants</span>
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl">{overview?.total_property}</CardTitle>
+                  <CardDescription className="flex items-center justify-between gap-1">
+                    <span>Total number of properties</span>
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          )}
 
           <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
             <div className="flex items-center justify-between gap-1 mt-7 mb-3">

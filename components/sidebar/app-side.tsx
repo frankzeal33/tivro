@@ -29,6 +29,9 @@ import { useEffect, useState } from "react"
 import { axiosClient } from "@/GlobalApi"
 import { toast } from "react-toastify"
 import { Loading } from "../Loading"
+import { Button } from "../ui/button"
+import { useAuthStore } from "@/store/AuthStore"
+import { useRouter } from "next/navigation"
 
 
 const data = { 
@@ -88,25 +91,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     tokens_total: 0, 
     usage_percentage: 0
   })
+  const router = useRouter();
+  const clearUserInfo = useAuthStore((state) => state.clearUserInfo);
 
    const getUpgrade = async () => {
-    //  try {
+     try {
 
-    //   setLoadingUpgrade(true)
+      setLoadingUpgrade(true)
       
-    //   const response = await axiosClient.get("/upgrade/usage/")
-    //   setUpgrade(response.data)
+      const response = await axiosClient.get("/upgrade/usage/")
+      setUpgrade(response.data)
 
-    // } catch (error: any) {
-    //   toast.error(error.response?.data?.message);
-    // } finally {
-    //   setLoadingUpgrade(false)
-    // } 
+    } catch (error: any) {
+      
+    } finally {
+      setLoadingUpgrade(false)
+    } 
   }
 
   useEffect(() => {
     getUpgrade()
   }, [])
+
+  const handleLogout = () => {
+    clearUserInfo()
+    localStorage.removeItem("auth-store");
+    router.replace("/login");
+  }
 
   return (
     <Sidebar
@@ -115,14 +126,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     >
       <SidebarContent className="bg-light">
         <NavBar items={data.navHeader} />
-        <NavBar items={data.navFooter} className="mt-auto" />
+        <NavBar items={data.navFooter} className="mt-auto" onLogout={handleLogout} />
         {loadingUpgrade ? (
           <Loading/>
         ) : (
           <Card className="mx-3 bg-muted border-0">
             <CardHeader>
               <CardTitle className="text-sm">Create project</CardTitle>
-              <CardDescription className="text-xs">Your team has used {Upgrade?.usage_percentage}% of your available space. Need more?</CardDescription>
+              <CardDescription className="text-xs">Your team has used {Upgrade?.usage_percentage ? Upgrade?.usage_percentage : "0"}% of your available space. Need more?</CardDescription>
             </CardHeader>
             <CardContent>
             <Progress value={Upgrade?.usage_percentage}/>

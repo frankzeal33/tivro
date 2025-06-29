@@ -133,7 +133,8 @@ const Page = () => {
     
         const data = {
             property_id: form.property_id,
-            full_name: `${form.first_name} ${form.last_name}`,
+            first_name: form.first_name,
+            last_name: form.last_name,
             phone: form.phone,
             email: form.email,
             move_in: format(new Date(form.move_in), "yyyy-MM-dd"),

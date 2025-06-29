@@ -38,10 +38,11 @@ import {
 import { Status } from '@/components/Status'
 import NotFound from '@/components/NotFound'
 import { useEffect, useState } from 'react'
-import { Loading } from '@/components/Loading'
 import { axiosClient } from '@/GlobalApi'
 import { toast } from 'react-toastify'
 import TableSkeleton from '@/components/TableSkeleton'
+import ReduceTextLength from '@/utils/ReduceTextLength'
+import { format } from 'date-fns'
 
 
 const frameworks = [
@@ -72,66 +73,12 @@ type CertType = {
   created_at: string;
 }[]
 
-// const certificates:  CertType = [
-//     {
-//       id: 1,
-//       fullname: "ojiego franklin",
-//       address: "3 Ernest orachiri close",
-//       date: "22 Sep 2024, 10:15 AM",
-//       status: 'ongoing'
-//     },
-//     {
-//         id: 2,
-//         fullname: "ojiego franklin",
-//         address: "3 Ernest orachiri close",
-//         date: "22 Sep 2024, 10:15 AM",
-//         status: 'pending'
-//     },
-//     {
-//         id: 3,
-//         fullname: "ojiego franklin",
-//         address: "3 Ernest orachiri close",
-//         date: "22 Sep 2024, 10:15 AM",
-//         status: 'passed'
-//     },
-//     {
-//         id: 4,
-//         fullname: "ojiego franklin",
-//         address: "3 Ernest orachiri close",
-//         date: "22 Sep 2024, 10:15 AM",
-//         status: 'failed'
-//     },
-//     {
-//         id: 5,
-//         fullname: "ojiego franklin",
-//         address: "3 Ernest orachiri close",
-//         date: "22 Sep 2024, 10:15 AM",
-//         status: 'ongoing'
-//       },
-//       {
-//           id: 6,
-//           fullname: "ojiego franklin",
-//           address: "3 Ernest orachiri close",
-//           date: "22 Sep 2024, 10:15 AM",
-//           status: 'pending'
-//       }
-//   ]
-
 const Page = () => {
 
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
   const [loadingPage, setLoadingPage] = useState(false)
-  const [certificates, setCeretificates] = useState<CertType>([
-    {
-      id: 0,
-      address: "3 Ernest orachiri close",
-      status: "pending",
-      first_name: "ojiego",
-      last_name: "franklin",
-      created_at: "2025-06-16T11:08:44.226Z"
-    }
-  ])
+  const [certificates, setCeretificates] = useState<CertType>([])
   const tableList = new Array(8).fill(null)
 
   const getCert = async () => {
@@ -142,7 +89,6 @@ const Page = () => {
         
         const response = await axiosClient.get("/certificate/list/")
         setCeretificates(response.data || [])
-        console.log(response.data)
   
       } catch (error: any) {
         toast.error(error.response?.data?.message);
@@ -233,14 +179,14 @@ const Page = () => {
                   <TableBody>
                     {certificates.map((cert, index) => (
                       <TableRow key={index}>
-                        <TableCell className="capitalize">{cert.fullname}</TableCell>
-                        <TableCell className='capitalize'>{cert.address}</TableCell>
-                        <TableCell className='capitalize'>{cert.date}</TableCell>
+                        <TableCell className="capitalize">{ReduceTextLength(`${cert?.first_name} ${cert?.last_name}`, 15)}</TableCell>
+                        <TableCell className='capitalize'>{ReduceTextLength(cert?.address, 45)}</TableCell>
+                        <TableCell className='capitalize'>{cert?.created_at ? format(new Date(cert?.created_at), "dd MMM yyyy, hh:mm a") : "N/A"}</TableCell>
                         <TableCell className='capitalize'>
-                          <Status status={cert.status}/>
+                          <Status status={cert?.status}/>
                         </TableCell>
                         <TableCell className='capitalize text-center bg-muted/30'>
-                            <Link href={`/dashboard/certificates/${cert.id}`}>
+                            <Link href={`/dashboard/certificates/${cert?.id}`}>
                                 <Button variant={'ghost'}>View</Button>
                             </Link>
                         </TableCell>

@@ -54,49 +54,30 @@ import { toast } from "react-toastify"
 import { axiosClient } from "@/GlobalApi"
 import Skeleton from "@/components/Skeleton"
 import TableSkeleton from "@/components/TableSkeleton"
+import ReduceTextLength from "@/utils/ReduceTextLength"
+import { StatusBoolean } from "@/components/StatusBoolean"
+import { DateLabels } from "@/utils/DateLabels"
 
-const requests = [
-  {
-    requestId: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    phoneNo: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    IdCheck: 'pending',
-    creditCheck: 'pending',
-    employmentCheck: 'pending',
-    requestStatus: 'passed',
-    date: 'Today at 02:30 PM'
-  },
-  {
-    requestId: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    phoneNo: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    IdCheck: 'pending',
-    creditCheck: 'failed',
-    employmentCheck: 'pending',
-    requestStatus: 'passed',
-    date: 'Today at 02:30 PM'
-  },
-  {
-    requestId: '#PG1005',
-    fullName: 'Reginald Pepple Junior',
-    phoneNo: '+234 282 458 88',
-    email: 'info@cityvj.com',
-    IdCheck: 'ongoing',
-    creditCheck: 'pending',
-    employmentCheck: 'failed',
-    requestStatus: 'passed',
-    date: 'Today at 02:30 PM'
-  },
-]
+type verificationType = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+  request_id: string;
+  identity_check: boolean;
+  credit_check: string;
+  employment_check: string;
+  status: string;
+  date: string;
+}[]
 
 type plansType = {
   title: string,
   description: string,
   verifications_provided: number,
   price: string,
-  features: string[];
+  // features: string[];
 }
 
 type overviewType = {
@@ -107,10 +88,36 @@ type overviewType = {
   status: string
 }
 
+type BVNType = {
+  customer_phone?: string;
+  [key: string]: any; // allow flexible shape
+};
+
+//  {
+//         title: "Diamond",
+//         description: "Our basic gives you opportunity to verify",
+//         verifications_provided: 10,
+//         price: "10",
+//         features: ['One Verifications', 'Personality check provided','Work place checks provided', 'Credit score verifications provided', 'Employability checks provided']
+//     },
+//     {
+//         title: "Diamond",
+//         description: "Our basic gives you opportunity to verify",
+//         verifications_provided: 12,
+//         price: "100.00",
+//         features: ['Personality check provided', 'Work place checks provided', 'Credit score verifications provided', 'TivroAI', 'Employability checks provided']
+//     },
+//     {
+//         title: "Diamond",
+//         description: "Our basic gives you opportunity to verify",
+//         verifications_provided: 15,
+//         price: "100.00",
+//         features: ['Personality check provided', 'Work place checks provided', 'Credit score verifications provided', 'Employability checks provided', 'TivroAI']
+//     }
+
 export default function Page() {
 
   const router = useRouter()
-  const [subscription, setSubscription ] = useState(false)
   const [choosenSub, setChoosenSub] = useState<Partial<plansType>>({})
   const [openSubModal, setOpenSubModal] = useState(false);
   const [couponCode, setCouponCode] = useState("")
@@ -118,30 +125,17 @@ export default function Page() {
   const [loadingPlans, setLoadingPlans] = useState(false)
   const [submittingPayment, setSubmittingPayment] = useState(false)
   const [loadingPage, setLoadingPage] = useState(false)
-  const [plansData, setPlansData] = useState<plansType[]>([
-    {
-        title: "Diamond",
-        description: "Our basic gives you opportunity to verify",
-        verifications_provided: 10,
-        price: "10",
-        features: ['One Verifications', 'Personality check provided','Work place checks provided', 'Credit score verifications provided', 'Employability checks provided']
-    },
-    {
-        title: "Diamond",
-        description: "Our basic gives you opportunity to verify",
-        verifications_provided: 12,
-        price: "100.00",
-        features: ['Personality check provided', 'Work place checks provided', 'Credit score verifications provided', 'TivroAI', 'Employability checks provided']
-    },
-    {
-        title: "Diamond",
-        description: "Our basic gives you opportunity to verify",
-        verifications_provided: 15,
-        price: "100.00",
-        features: ['Personality check provided', 'Work place checks provided', 'Credit score verifications provided', 'Employability checks provided', 'TivroAI']
-    }
-  ])
-  const [subData, setSubData] = useState<Partial<overviewType>>({})
+  const [loadingVerification, setLoadingVerification] = useState(false)
+  const [verification, setVerification] = useState<verificationType>([])
+  const [confirmingBVN,setConfirmingBVN] = useState(false)
+  const [plansData, setPlansData] = useState<plansType[]>([])
+  const [subData, setSubData] = useState<overviewType>({
+    Number_of_verification: 0,
+    Total_verification_requested: 0,
+    completed_verification: 0,
+    status: "",
+    plan: ""
+  })
   const [openBVNModal, setOpenBVNModal] = useState(false)
   const [BVN, setBVN] = useState("")
   const [loadingBVN, setloadingBVN] = useState(false)
@@ -150,6 +144,7 @@ export default function Page() {
   const [showOTPInput, setShowOTPInput] = useState(false)
   const [submittingOTP, setSubmittingOTP] = useState(false)
   const [submittingOTPResend, setSubmittingOTPResend] = useState(false)
+  const [BVNDetails, setBVNDetails] = useState<BVNType | null>(null);
   const arrayList = new Array(3).fill(null)
   const tableList = new Array(6).fill(null)
 
@@ -182,7 +177,7 @@ export default function Page() {
       setLoadingPlans(true)
       
       const response = await axiosClient.get("/subscription/")
-      // setPlansData(response.data || [])
+      setPlansData(response.data || [])
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
@@ -194,13 +189,14 @@ export default function Page() {
   useEffect(() => {
     getOverview()
     getPlans()
+    getVerifications()
   }, [])
 
   const handlePayment = async (paymentMethod: string) => {
 
     const paymentData = {
       plan: choosenSub?.title,
-      amount: choosenSub?.price,
+      amount: choosenSub?.price?.toString(),
       verifications_provided: choosenSub?.verifications_provided,
       coupon_code: couponCode
     }
@@ -256,9 +252,21 @@ export default function Page() {
     }
   }
 
-  const requestVerification = () => {
-    setOpenBVNModal(true)
-    // router.push("'/dashboard/request-verification'")
+  const requestVerification = async () => {
+    try {
+
+      setConfirmingBVN(true)
+      
+      const response = await axiosClient.post("/verify/landlord/bvn/", {token: BVNOTP})
+
+      router.push("/dashboard/request-verification")
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+      setOpenBVNModal(true)
+    } finally {
+      setConfirmingBVN(false)
+    } 
   }
 
   const sendBVNOTP = async () => {
@@ -267,12 +275,14 @@ export default function Page() {
       setSendingBVNOTP(true)
       
       const response = await axiosClient.post("/request/bvn/", {bvn: BVN})
-      toast.success(response.data?.message);
+      setBVNDetails(response.data)
+
+      toast.success("OTP Sent");
       setShowOTPInput(true)
 
     } catch (error: any) {
       if(error.response?.data?.message === "NOT NULL constraint failed: Verifications_verificationdata.email"){
-        toast.error("BVN assigned to a user, Please contact support");
+        toast.error("Something went wrong, Please contact support");
       }else{
         toast.error(error.response?.data?.message);
       }
@@ -282,7 +292,7 @@ export default function Page() {
   }
 
   const verifyBVNOTP = async () => {
-     try {
+    try {
 
       setSubmittingOTP(true)
       
@@ -304,12 +314,28 @@ export default function Page() {
       setSubmittingOTPResend(true)
       
       const response = await axiosClient.post("/bvn/resend/otp/", {bvn: BVN})
-      toast.success(response.data?.message);
+      toast.success("Another OTP has been sent");
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
     } finally {
       setSubmittingOTPResend(false)
+    } 
+  }
+
+  const getVerifications = async () => {
+  
+    try {
+
+      setLoadingVerification(true)
+      
+      const response = await axiosClient.get("/verifications/")
+      setVerification(response.data?.verifications || [])
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoadingVerification(false)
     } 
   }
 
@@ -324,7 +350,7 @@ export default function Page() {
             ))}
           </div>
           <div className="mt-8">
-            <div className='w-full h-72 bg-white rounded-sm shadow flex'>
+            <div className='w-full h-80 bg-white rounded-sm shadow flex'>
               <div className='p-4 grid w-full gap-2'>
                 {tableList.map((_, index) => (
                   <TableSkeleton key={index}/>
@@ -337,7 +363,12 @@ export default function Page() {
         <div>
           <div>
             <div className="flex flex-col items-center justify-center w-full">
-              {Object.keys(subData).length === 0 &&
+            {(Object.keys(subData).length === 0 ||
+              (
+                subData.Number_of_verification === 0 &&
+                subData.Total_verification_requested === 0 &&
+                subData.completed_verification === 0
+              )) && (
                 <div className={`flex flex-col gap-3 items-center justify-center max-w-96 text-center min-h-[70vh]`}>
                     <Image src={"/empty1.png"} alt="" width={100} height={100} className="w-fit"/>
                     <h1 className='text-xl font-semibold'>You’ve not made any requests yet</h1>
@@ -461,14 +492,23 @@ export default function Page() {
                                       </AlertDialogContent>
                                     </AlertDialog>
 
-                                    <div className="space-y-2">
+                                  <div className="space-y-2">
+                                    {['One Verifications', 'Personality check provided','Work place checks provided', 'Credit score verifications provided', 'Employability checks provided'].map((feature, index) => (
+                                        <div key={index} className="flex gap-1 items-start">
+                                          <FaCircleCheck className="text-primary"/>
+                                          <span className="text-xs">{feature}</span>
+                                        </div>
+                                      ))}
+                                  </div>
+
+                                    {/* <div className="space-y-2">
                                       {item?.features.map((feature, index) => (
                                         <div key={index} className="flex gap-1 items-start">
                                           <FaCircleCheck className="text-primary"/>
                                           <span className="text-xs">{feature}</span>
                                         </div>
                                       ))}
-                                    </div>
+                                    </div> */}
                                   </div>
                                 ))}
                               </div>
@@ -479,13 +519,18 @@ export default function Page() {
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
-              }    
+              )}    
             </div>
           </div>
       
 
         {/* overview data */}
-        {Object.keys(subData).length !== 0 && (
+        {(Object.keys(subData).length !== 0 &&
+          (
+            subData.Number_of_verification > 0 ||
+            subData.Total_verification_requested > 0 ||
+            subData.completed_verification > 0
+          )) && (
           <div>
             <div className="grid grid-col-1 lg:grid-cols-3 gap-2">
               <Card>
@@ -517,14 +562,14 @@ export default function Page() {
 
             <div className="flex items-center justify-between gap-2 w-full my-6">
               <SearchForm/>
-              <Button loading={loadingBVN} disabled={loadingBVN} onClick={requestVerification}>
-                <Plus/>
-                {loadingBVN ? "Loading..." : "Request verification"}
+              <Button loading={confirmingBVN} disabled={confirmingBVN} onClick={requestVerification}>
+                {confirmingBVN ? "" : ( <Plus/>)}
+                {confirmingBVN ? "Loading..." : "Request verification"}
               </Button>
             </div>
 
             <AlertDialog open={openBVNModal} onOpenChange={setOpenBVNModal}>
-              <AlertDialogContent className="rounded-2xl p-0 gap-0 w-[300px] max-h-[75vh] overflow-y-auto">
+              <AlertDialogContent className="rounded-2xl p-0 gap-0 w-[300px] md:w-[350px] max-h-[90vh] overflow-y-auto">
                 <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
                   <AlertDialogTitle className="text-base">Verify your BVN</AlertDialogTitle>
                   <AlertDialogCancel onClick={() => {setShowCouponInput(false); setCouponCode("")}} className="bg-background-light border-0 shadow-none size-8 rounded-full">
@@ -535,14 +580,19 @@ export default function Page() {
                   {showOTPInput ? (
                     <div className="bg-light p-4 shadow dark:border rounded-b-2xl">
                       <div>
-                        <p className="mb-3 text-sm text-accent-foreground">An OTP was sent to your BVN-linked phone number to verify your BVN.</p>
+                        <p className="mb-3 text-sm text-accent-foreground">{BVNDetails?.customer_phone}</p>
                         <div className="grid gap-2 mb-5">
                           <Label htmlFor="bvn">Enter the OTP</Label>
                           <Input id="bvn" type="number" value={BVNOTP} onChange={(e: any) => setBVNOTP(e.target.value)} placeholder="Enter OTP here" />
-                          <span className='text-center text-sm'>Didn’t receive a code? <Button variant={'link'} onClick={resendBVNOTP} className='p-0 text-primary font-medium'>Resend</Button></span>
+                          <span className='text-center text-sm flex items-center gap-1'>Didn’t receive a code?
+                            {submittingOTPResend ?  
+                              <Loader2 className="animate-spin size-5 text-primary" /> :
+                              <Button variant={'link'} onClick={resendBVNOTP} className='p-0 text-primary font-medium'>Resend</Button>
+                            }
+                          </span>
                         </div>
                         <div className="w-full flex items-center justify-center">
-                          <Button disabled={BVNOTP.length < 6 || submittingOTP} loading={sendingBVNOTP} onClick={verifyBVNOTP}>
+                          <Button disabled={BVNOTP.length < 6 || submittingOTP} loading={sendingBVNOTP} onClick={verifyBVNOTP} className="min-w-32">
                             {submittingOTP ? "Verifying..." : "Verify"}
                           </Button>
                         </div>
@@ -556,7 +606,7 @@ export default function Page() {
                           <Input id="bvn" type="number" value={BVN} onChange={(e: any) => setBVN(e.target.value)} placeholder="Enter BVN here" />
                         </div>
                         <div className="w-full flex items-center justify-center">
-                          <Button disabled={BVN.length < 11 || sendingBVNOTP} loading={sendingBVNOTP} onClick={sendBVNOTP}>
+                          <Button disabled={BVN.length < 11 || sendingBVNOTP} loading={sendingBVNOTP} onClick={sendBVNOTP} className="min-w-32">
                             {sendingBVNOTP ? "Verifying..." : "Continue"}
                           </Button>
                         </div>
@@ -567,96 +617,108 @@ export default function Page() {
               </AlertDialogContent>
             </AlertDialog>
 
-            <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted">
-                    <TableHead className="rounded-tl-xl capitalize">Request ID</TableHead>
-                    <TableHead className='capitalize'>Full name</TableHead>
-                    <TableHead className='capitalize'>Email address</TableHead>
-                    <TableHead className='capitalize'>ID check</TableHead>
-                    <TableHead className='capitalize'>Credit check</TableHead>
-                    <TableHead className='capitalize'>Employment check</TableHead>
-                    <TableHead className='capitalize'>Request Status</TableHead>
-                    <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                {
-                requests.length !== 0 &&
-                  (
-                    <TableBody>
-                      {requests.map((request, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium capitalize">
-                            {request.requestId}
-                            <p className="text-muted-foreground text-xs">{request.date}</p>
-                          </TableCell>
-                          <TableCell className='capitalize'>
-                            <div className="flex items-center">
-                              <Avatar className="-mx-2">
-                                <AvatarFallback>CN</AvatarFallback>
-                              </Avatar>
-                              <div className="ml-3">
-                                {request.fullName}
-                                <p className="text-muted-foreground text-xs">{request.phoneNo}</p>
+            {loadingVerification ? (
+              <div>
+                <div className='w-full h-80 bg-white rounded-md shadow flex'>
+                  <div className='p-4 grid w-full gap-2'>
+                    {tableList.map((_, index) => (
+                      <TableSkeleton key={index}/>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted">
+                      <TableHead className="rounded-tl-xl capitalize">Request ID</TableHead>
+                      <TableHead className='capitalize'>Full name</TableHead>
+                      <TableHead className='capitalize'>Email address</TableHead>
+                      <TableHead className='capitalize'>ID check</TableHead>
+                      <TableHead className='capitalize'>Credit check</TableHead>
+                      <TableHead className='capitalize'>Employment check</TableHead>
+                      <TableHead className='capitalize'>Request Status</TableHead>
+                      <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  {
+                  verification.length !== 0 &&
+                    (
+                      <TableBody>
+                        {verification.map((request, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium capitalize">
+                              #{ReduceTextLength(request?.request_id, 8)}
+                              <p className="text-muted-foreground text-xs">{DateLabels(request?.date)}</p>
+                            </TableCell>
+                            <TableCell className='capitalize'>
+                              <div className="flex items-center">
+                                <Avatar className="-mx-2">
+                                  <AvatarFallback>{`${request?.first_name[0] ?? ''}${request?.last_name[0] ?? ''}`.toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <div className="ml-3">
+                                  {ReduceTextLength(`${request?.first_name} ${request?.last_name}`, 15)}
+                                  <p className="text-muted-foreground text-xs">{request?.phone}</p>
+                                </div>
                               </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className='capitalize'>{request.email}</TableCell>
-                          <TableCell className='capitalize'><Status status={request.IdCheck}/></TableCell>
-                          <TableCell className='capitalize'><Status status={request.creditCheck}/></TableCell>
-                          <TableCell className='capitalize'><Status status={request.employmentCheck}/></TableCell>
-                          <TableCell className='capitalize'><Status status={request.requestStatus}/></TableCell>
-                          <TableCell className='capitalize text-center bg-muted/30'>
-                              <Link href={`/dashboard/certificates/${index}`}>
-                                  <Button variant={'ghost'}>View</Button>
-                              </Link>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+                            </TableCell>
+                            <TableCell className='capitalize'>{request?.email}</TableCell>
+                            <TableCell className='capitalize'><StatusBoolean status={request?.identity_check}/></TableCell>
+                            <TableCell className='capitalize'><Status status={request?.credit_check}/></TableCell>
+                            <TableCell className='capitalize'><Status status={request?.employment_check}/></TableCell>
+                            <TableCell className='capitalize'><Status status={request?.status}/></TableCell>
+                            <TableCell className='capitalize text-center bg-muted/30'>
+                                <Link href={`/dashboard/certificates/${request?.id}`}>
+                                    <Button variant={'ghost'}>View</Button>
+                                </Link>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    )
+                  }
+                  
+                </Table>
+
+                {verification.length === 0 &&
+                  <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+                    <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any requests yet'/>
+                  </div>
+                }
+
+                {
+                  verification.length !== 0 &&
+                  (
+                    <div className='flex gap-2 items-center justify-between w-full my-2'>
+                      <div className='flex gap-2 items-center justify-between'>
+                          <Select>
+                            <SelectTrigger className="w-[75px]">
+                              <SelectValue placeholder="10" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="apple">10</SelectItem>
+                                <SelectItem value="banana">20</SelectItem>
+                                <SelectItem value="blueberry">50</SelectItem>
+                                <SelectItem value="grapes">70</SelectItem>
+                                <SelectItem value="pineapple">100</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <span className='text-muted-foreground'>Per Page</span>
+                      </div>
+                        
+                      <div className='flex gap-2 items-center justify-between'>
+                        <Link href={"#"}><ChevronLeft size={20}/></Link>
+                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
+                        <Link href={"#"}><ChevronRight size={20}/></Link>
+                      </div>
+                </div>
                   )
                 }
-                
-              </Table>
-
-              {requests.length === 0 &&
-                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                  <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any requests yet'/>
-                </div>
-              }
-
-              {
-                requests.length !== 0 &&
-                (
-                  <div className='flex gap-2 items-center justify-between w-full my-2'>
-                    <div className='flex gap-2 items-center justify-between'>
-                        <Select>
-                          <SelectTrigger className="w-[75px]">
-                            <SelectValue placeholder="10" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="apple">10</SelectItem>
-                              <SelectItem value="banana">20</SelectItem>
-                              <SelectItem value="blueberry">50</SelectItem>
-                              <SelectItem value="grapes">70</SelectItem>
-                              <SelectItem value="pineapple">100</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                        <span className='text-muted-foreground'>Per Page</span>
-                    </div>
-                      
-                    <div className='flex gap-2 items-center justify-between'>
-                      <Link href={"#"}><ChevronLeft size={20}/></Link>
-                      <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                      <Link href={"#"}><ChevronRight size={20}/></Link>
-                    </div>
               </div>
-                )
-              }
-            </div>
+            )}
           </div>
         )}
       </div>

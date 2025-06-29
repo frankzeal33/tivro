@@ -20,15 +20,17 @@ const page = () => {
   const router = useRouter()
 
 
-    // Redirect if no orderId
     useEffect(() => {
-        if (!transactionId) {
-            router.replace("/dashboard")
-        }
-
         if (status !== "completed") {
             router.replace("/dashboard")
         }
+
+        if (!transactionId) {
+            router.replace("/dashboard")
+        }else{
+            verifyPayment()
+        }
+        
     }, [transactionId, status])
 
     const verifyPayment = async () => {
@@ -42,10 +44,17 @@ const page = () => {
             })
 
         } catch (error: any) {
-            setMessage({
-                msg: error.response?.data?.message || "Something went wrong",
-                status: false
-            })
+            if(error.response?.data?.message === "Failed transaction {'status': 500, 'message': \"We can't verify this payment\"}"){
+                setMessage({
+                    msg: "Failed transaction, We can't verify this payment",
+                    status: false
+                })
+            }else{
+                setMessage({
+                    msg: error.response?.data?.message || "Something went wrong",
+                    status: false
+                })
+            }
         } finally {
             setLoading(false)
             setTimeout(() => {
@@ -53,10 +62,6 @@ const page = () => {
             }, 5000)
         } 
     }
-
-    useEffect(() => {
-        verifyPayment()
-    }, [])
 
   if(loading) {
     return (

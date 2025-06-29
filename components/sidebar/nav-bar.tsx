@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation"
 
 export function NavBar({
   items,
+  onLogout,
   ...props
 }: {
   items: {
@@ -20,6 +21,7 @@ export function NavBar({
     url: string
     icon: LucideIcon
   }[]
+  onLogout?: () => void
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
 
   const pathname = usePathname()
@@ -31,10 +33,23 @@ export function NavBar({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
-                <Link href={item.url} className={`px-4 py-5 font-semibold ${pathname === item.url && 'bg-primary group'}`}>
-                  <item.icon className={`${pathname === item.url && 'text-primary-foreground group-hover:text-black'}`}/>
-                  <span className={`${pathname === item.url && 'text-primary-foreground group-hover:text-black'}`}>{item.title}</span>
-                </Link>
+                {item.title === "Logout" && onLogout ? (
+                  <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-2 px-4 py-5 font-semibold text-left hover:bg-primary group"
+                  >
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={item.url}
+                    className={`px-4 py-5 font-semibold ${pathname === item.url && 'bg-primary group'}`}
+                  >
+                    <item.icon className={`${pathname === item.url && 'text-primary-foreground group-hover:text-black'}`} />
+                    <span className={`${pathname === item.url && 'text-primary-foreground group-hover:text-black'}`}>{item.title}</span>
+                  </Link>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

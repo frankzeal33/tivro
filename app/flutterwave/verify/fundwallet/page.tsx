@@ -14,35 +14,46 @@ const page = () => {
     status: false
   })
   const searchParams = useSearchParams()
-  const orderId = searchParams.get("orderId")
+  const transactionId = searchParams.get("transaction_id")
+  const status = searchParams.get("status")
 
   const router = useRouter()
 
-
-    // Redirect if no orderId
     useEffect(() => {
-        if (!orderId) {
+        if (status !== "completed") {
+            router.replace("/dashboard/tenant-management")
+        }
+
+        if (!transactionId) {
             router.replace("/dashboard/tenant-management")
         }else{
             verifyPayment()
         }
-    }, [orderId])
+        
+    }, [transactionId, status])
 
     const verifyPayment = async () => {
 
         try {
         
-            const response = await axiosClient.get(`/fundwallet/verify/?order_id=${orderId}`)
+            const response = await axiosClient.get(`/flutterwave/verify/fundwallet/?transaction_id=${transactionId}`)
             setMessage({
                 msg: response.data?.message || "Something went wrong",
                 status: true
             })
 
         } catch (error: any) {
-            setMessage({
-                msg: error.response?.data?.message || "Something went wrong",
-                status: false
-            })
+            if(error.response?.data?.message === "Failed transaction {'status': 500, 'message': \"We can't verify this payment\"}"){
+                setMessage({
+                    msg: "Failed transaction, We can't verify this payment",
+                    status: false
+                })
+            }else{
+                setMessage({
+                    msg: error.response?.data?.message || "Something went wrong",
+                    status: false
+                })
+            }
         } finally {
             setLoading(false)
             setTimeout(() => {

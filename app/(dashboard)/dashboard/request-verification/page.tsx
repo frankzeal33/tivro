@@ -103,11 +103,11 @@ const Page = () => {
                 address: ""
             })
 
-            // toast.success("New Tenant Added Successfully")
+            toast.success("Request Sent")
             setOpen(false)
 
         } catch (error: any) {
-            toast.error(error.response?.data?.detail);
+            toast.error(error.response?.data?.message);
 
         } finally {
             setIsSubmitting(false)

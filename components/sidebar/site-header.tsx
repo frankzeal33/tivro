@@ -36,6 +36,7 @@ import { BsFillLightningChargeFill } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
 import { useAuthStore } from "@/store/AuthStore"
 import { useRouter } from "next/navigation"
+import ReduceTextLength from "@/utils/ReduceTextLength"
 
 const dropdown = [
   {
@@ -58,7 +59,8 @@ export function SiteHeader() {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
 
-  const userInfo = useAuthStore((state) => state.clearUserInfo);
+  const userInfo = useAuthStore((state) => state.userInfo);
+  const clearUserInfo = useAuthStore((state) => state.clearUserInfo);
 
   const router = useRouter();
 
@@ -70,7 +72,7 @@ export function SiteHeader() {
     } else if(route === "messages"){
       router.push("/dashboard/messages");
     } else {
-      userInfo()
+      clearUserInfo()
       localStorage.removeItem("auth-store");
       router.replace("/login");
     }
@@ -125,10 +127,9 @@ export function SiteHeader() {
                 className="w-[190px] h-[2.5rem] justify-between rounded-full cursor-pointer border-0 bg-muted"
               > 
                 <Avatar className="-mx-2">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
-                  <AvatarFallback className="bg-white">CN</AvatarFallback>
+                  <AvatarImage src={userInfo?.profile_image} alt="TV"/>
                 </Avatar>
-                Ojiego Franklin
+                {ReduceTextLength(`${userInfo?.first_name} ${userInfo?.last_name}`, 15)}
                 <ChevronDown className="opacity-50" />
               </Button>
             </PopoverTrigger>
