@@ -21,6 +21,7 @@ import { toast } from "react-toastify"
 import { Loader2 } from "lucide-react"
 import { z } from "zod"
 import { debounce } from "lodash"
+import { useTenantStore } from "@/store/TenantStore"
 
 const otpSchema = z.object({
   pin: z.string().min(6, "PIN must be 6 digits"),
@@ -36,6 +37,8 @@ const Page = () => {
   const [pin, setPin] = useState("")
   const [error, setError] = useState<string>("")
   const [touched, setTouched] = useState(false)
+
+  const tenantInfo = useTenantStore((state) => state.setTenantInfo)
 
    // Debounced validation
     const validateOtp = useCallback(
@@ -57,15 +60,9 @@ const Page = () => {
       }
     }, [pin, touched, validateOtp])
 
-  const storeToken = () => {
-    localStorage.setItem("token", token)
-  }
-
   useEffect(() => {
     if (!token) {
       router.replace("/")
-    }else{
-      storeToken()
     }
   }, [token])
 
@@ -88,6 +85,10 @@ const Page = () => {
       setLoading(true)
       
       const response = await axiosClient.get(`/tenant/?token=${token}&pin=${pin}`)
+
+      tenantInfo(response.data)
+      toast.success("Verification Started")
+
       router.push('/tenant/start-verification')
 
     } catch (error: any) {

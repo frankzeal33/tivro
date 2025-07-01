@@ -10,7 +10,10 @@ import { Label } from "../ui/label"
 import FormCardFooter from "./FormCardFooter"
 import Image from "next/image"
 import { useGlobalContext } from "@/context/GlobalContext"
-import { FormEvent } from "react"
+import { FormEvent, useState } from "react"
+import { useTenantStore } from "@/store/TenantStore"
+import { toast } from "react-toastify"
+import { axiosClient } from "@/GlobalApi"
 
 const  VerifyApartment = () => {
 
@@ -23,13 +26,60 @@ const  VerifyApartment = () => {
     certificate,
     setCertificate,
   } = useGlobalContext();
+
+  const [loading, setLoading] = useState(false)
+  const [loadingPayment, setLoadingPayment] = useState(false)
     
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const tenantInfo = useTenantStore((state) => state.tenantInfo)
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setCurrentSection("certificates")
-    setFormProgress({...formProgress, fraction: "6/6",  percent: 100})
-    setApartmentInspection({...apartmentInspection, completed: true,  iscurrentForm: false})
-    setCertificate({...certificate,  completed: true, iscurrentForm: true})
+
+    try{
+      setLoading(true)
+
+
+      const response = await axiosClient.post(`/apartment/verification/consent/?token=${tenantInfo?.user_token}&consent=no`)
+
+      toast.success(response.data?.message)
+
+      setCurrentSection("certificates")
+      setFormProgress({...formProgress, fraction: "6/6",  percent: 100})
+      setApartmentInspection({...apartmentInspection, completed: true,  iscurrentForm: false})
+      setCertificate({...certificate,  completed: true, iscurrentForm: true})
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail);
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
+  const pay = async () =>  {
+    try{
+      setLoadingPayment(true)
+
+      const response = await axiosClient.post(`/apartment/verification/consent/?token=${tenantInfo?.user_token}&consent=yes`)
+
+      const data = {
+        amount: 10,
+        token: tenantInfo?.user_token
+      }
+      const result = await axiosClient.post("/payment/tenant/", data)
+      const paymentLink = result.data?.payment?.link;
+
+      if (paymentLink) {
+        window.location.href = paymentLink;
+      } else {
+        toast.error("No payment link received");
+      }
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail);
+    } finally {
+      // setLoadingPayment(false)
+    }
   }
 
 return (
@@ -41,7 +91,7 @@ return (
                       <div className='grid gap-6'>
                           <div className="grid gap-2">
                               <Label htmlFor="id">Apartment address</Label>
-                              <Input id="id" type="number" placeholder="Wilbros pipeline, Lagos island" className="bg-background" disabled/>
+                              <Input id="id" type="number" value={tenantInfo?.address} placeholder={tenantInfo?.address} className="bg-background" disabled/>
                           </div>
                       </div>
                       <Card className="p-4 shadow-none grid lg:grid-cols-2 gap-2">
@@ -49,7 +99,7 @@ return (
                           <h4>Inspection service</h4>
                           <p className="text-xs text-muted-foreground">Are you too busy to inspect the apartment? Let us handle it for you! We'll provide a detailed report within 48 hours.</p>
                           <p className="text-xs text-muted-foreground">Inspection fee: <span className="text-primary font-bold">₦10,000</span></p>
-                          <Button variant={'outline'} className="bg-light">Yes, proceed</Button>
+                          <Button variant={'outline'} type="button" onClick={pay} className="bg-light" loading={loadingPayment} disabled={loadingPayment}>{loadingPayment ? "Loading..." : "Yes, proceed"}</Button>
                         </div>
                         <div className="hidden lg:flex">
                           <Image src={'/inspect.png'} width={100} height={100} alt="" className="w-full h-full rounded-2xl"/>
@@ -65,7 +115,7 @@ return (
                       
                   </div>
               </CardContent>
-              <FormCardFooter text="Finish"/>
+              <FormCardFooter text="Finish" loading={loading || loadingPayment} />
           </form>
         </div>
 )

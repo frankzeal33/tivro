@@ -34,7 +34,6 @@ import PhoneInputWithCountrySelect from 'react-phone-number-input'
 import { PiSealCheckFill } from "react-icons/pi";
 import { toast } from 'react-toastify'
 import { axiosClient } from '@/GlobalApi'
-import { Loading } from '@/components/Loading'
 import { z } from 'zod'
 import SkeletonFull from '@/components/SkeletonFull'
 
@@ -45,6 +44,20 @@ type profileType = {
     image: string,
     last_name: string
 }
+
+const profileSchema = z.object({
+  first_name: z.string().min(1, "first name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  phone: z.coerce.string()
+    .regex(/^\d+$/, "Phone number must contain only digits")
+    .refine((val) => {
+      if (val.startsWith("0")) return val.length === 11;
+      return val.length === 10;
+    }, {
+      message: "Phone number must be 11 digits if it starts with 0, otherwise 10 digits",
+    })
+    .transform((val) => (val.startsWith("0") ? val.slice(1) : val)),
+});
 
 const newEmailSchema = z.object({
   new_email: z.string().email("Invalid new email address"),
@@ -72,6 +85,9 @@ const newPasswordSchema = z
     }
   )
 
+  
+type ProfileFormValues = z.infer<typeof profileSchema>
+
 type NewEmailFormValues = z.infer<typeof newEmailSchema>
 
 type NewPasswordFormValues = z.infer<typeof newPasswordSchema>
@@ -83,6 +99,13 @@ const Page = () => {
 
     const [isGetting, setIsGetting] = useState(false)
     const [profile, setProfile] = useState<profileType>({
+        first_name: "",
+        email: "",
+        phone: "",
+        image: "",
+        last_name: ""
+    })
+    const [originalProfile, setOriginalProfile] = useState<profileType>({
         first_name: "",
         email: "",
         phone: "",
@@ -118,8 +141,22 @@ const Page = () => {
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+       const allowedTypes = ["image/jpg", "image/jpeg", "image/png"];
 
         if (file) {
+
+            const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+            
+            if (file.size > maxSizeInBytes) {
+                toast.error("File size must be less than 5MB");
+                return;
+            }
+
+            if (!allowedTypes.includes(file.type)) {
+                toast.error("Only JPG, JPEG, or PNG files are allowed");
+                return;
+            }
+
             setFileName(file);
 
             // preview image/file
@@ -143,6 +180,15 @@ const Page = () => {
                 image: response.data.image,
                 last_name: response.data.last_name
             })
+
+            setOriginalProfile({
+                first_name: response.data.name,
+                email: response.data.email,
+                phone: response.data.phone,
+                image: response.data.image,
+                last_name: response.data.last_name
+            })
+
             setStaticEmail(response.data.email)
 
         } catch (error: any) {
@@ -157,8 +203,29 @@ const Page = () => {
         getProfile()
     }, [])
 
+    const hasChanges = () => {
+        if (!originalProfile) return true;
+
+        const current = JSON.stringify(profile);
+        const original = JSON.stringify(originalProfile);
+
+        return current !== original;
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
+
+        const result = profileSchema.safeParse(profile)
+        
+        if (!result.success) {
+            const fieldErrors: Partial<Record<keyof ProfileFormValues, string>> = {};
+            result.error.errors.forEach((err) => {
+                const field = err.path[0] as keyof ProfileFormValues
+                fieldErrors[field] = err.message
+            })
+            toast.error(Object.values(fieldErrors)[0]);
+            return
+        }
             
         const profileData = new FormData();
         profileData.set('first_name', profile.first_name)
@@ -169,12 +236,17 @@ const Page = () => {
             profileData.set('profile_pic', fileName);
         }
 
+        if (!hasChanges() && !fileName) {
+            return toast.success("No changes detected.")
+        }
+
         try {
     
             setIsSubmitting(true)
             const result = await axiosClient.post("/update/profile/", profileData)
             toast.success(result.data.message);
             setFilePreview(null)
+            setFileName(null)
             getProfile()
     
         } catch (error: any) {

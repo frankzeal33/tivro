@@ -12,6 +12,8 @@ import VerifyApartment from "@/components/tenant-forms/VerifyApartment"
 import Certificates from "@/components/tenant-forms/Certificates"
 import { Progress } from "@/components/ui/progress"
 import { useGlobalContext } from "@/context/GlobalContext"
+import { useTenantStore } from "@/store/TenantStore"
+import { useRouter } from "next/router"
 
 const sections = [
     {
@@ -60,11 +62,14 @@ const Page = () => {
     setRequestDetails,
     handleRequestDetailsChange
   } = useGlobalContext();
-  
+  const router = useRouter()
+  const tenantInfo = useTenantStore((state) => state.tenantInfo)
 
-  const handleSectionChange = (section: string) => {
-    setCurrentSection(section);
-  };
+  useEffect(() => {
+    if(!tenantInfo?.user_token){
+      router.replace("/")
+    }
+  }, [])
 
   const renderStages = () => {
     switch (currentSection) {
