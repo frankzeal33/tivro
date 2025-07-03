@@ -2,7 +2,7 @@
 import Title from "@/components/Title"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Loader2, X } from "lucide-react"
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -56,6 +56,8 @@ import displayCurrency from "@/utils/displayCurrency";
 import { Loading } from "@/components/Loading";
 import { format } from "date-fns";
 import Skeleton from "@/components/Skeleton";
+import { debounce } from "lodash";
+import TableSkeleton from "@/components/TableSkeleton";
 
 type tenantType = {
   property_name: string;
@@ -98,6 +100,13 @@ export default function Page() {
   const [amount, setAmount] = useState("");
   const arrayList = new Array(3).fill(null)
   const tableList = new Array(6).fill(null)
+  const [searchTenants, setSearchTenants] = useState("")
+  const [searchProperties, setSearchProperties] = useState("")
+  const [loadingTenantSearch, setLoadingTenantSearch] = useState(false)
+  const [loadingPropertySearch, setLoadingPropertySearch] = useState(false)
+
+  const [formerTenantTable, setFormerTenantTable] = useState<tenantType>([]);
+  const [formerPropertyTable, setFormerPropertyTable] = useState<propertyType>([]);
 
   const getOVerview = async () => {
   
@@ -123,6 +132,7 @@ export default function Page() {
       
       const response = await axiosClient.get("/tenants/")
       setTenantTable(response.data.items || [])
+      setFormerTenantTable(response.data.items || [])
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
@@ -139,6 +149,7 @@ export default function Page() {
       
       const response = await axiosClient.get("/properties/")
       setPropertyTable(response.data.items || [])
+      setFormerPropertyTable(response.data.items || [])
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
@@ -199,6 +210,76 @@ export default function Page() {
       }
     }
   }
+
+  const performTenantSearch = async (searchTerm: string) => {
+        
+      setLoadingTenantSearch(true)
+  
+      try {
+  
+        const response = await axiosClient.get(`/tenants/?page=1&page_size=4&search=${searchTerm}`)
+  
+        setTenantTable(response.data.items || [])
+  
+      } catch (error: any) {
+        toast.error(error.response.data.message);
+      } finally {
+        setLoadingTenantSearch(false)
+      }
+    };
+  
+    // Update debouncedQuery after user stops typing for 500ms
+    const debouncedTenantSearch = useCallback(
+      debounce((query: string) => {
+        if (query) {
+          console.log("q", query);
+          performTenantSearch(query);
+        } else {
+          setTenantTable(formerTenantTable);
+        }
+      }, 500),
+      [performTenantSearch, formerTenantTable] // dependencies
+    );
+  
+    // Call the debounced function whenever search changes
+    useEffect(() => {
+      debouncedTenantSearch(searchTenants);
+    }, [searchTenants]);
+
+    const performPropertySearch = async (searchTerm: string) => {
+        
+      setLoadingPropertySearch(true)
+  
+      try {
+  
+        const response = await axiosClient.get(`/properties/?page=1&page_size=4&search=${searchTerm}`)
+  
+        setPropertyTable(response.data.items || [])
+  
+      } catch (error: any) {
+        toast.error(error.response.data.message);
+      } finally {
+        setLoadingPropertySearch(false)
+      }
+    };
+  
+    // Update debouncedQuery after user stops typing for 500ms
+    const debouncedPropertySearch = useCallback(
+      debounce((query: string) => {
+        if (query) {
+          console.log("q", query);
+          performPropertySearch(query);
+        } else {
+          setPropertyTable(formerPropertyTable);
+        }
+      }, 500),
+      [performPropertySearch, formerPropertyTable] // dependencies
+    );
+  
+    // Call the debounced function whenever search changes
+    useEffect(() => {
+      debouncedPropertySearch(searchProperties);
+    }, [searchProperties]);
 
   return (
     <div>
@@ -282,130 +363,68 @@ export default function Page() {
                   <TabsTrigger value="Tenants" className='rounded-r-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'>Tenants</TabsTrigger>
                   <TabsTrigger value="Properties" className='rounded-l-none data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'>Properties</TabsTrigger>
               </TabsList>
-              <SearchForm/>
+              {activeTab === "Tenants" ? (
+                <SearchForm
+                  inputValue={searchTenants}
+                  inputOnChange={(e) => setSearchTenants(e.target.value)}
+                  placeholder="Search Tenants..."
+                  disabled={formerTenantTable.length === 0}
+                />
+              ) : (
+                <SearchForm
+                  inputValue={searchProperties}
+                  inputOnChange={(e) => setSearchProperties(e.target.value)}
+                  placeholder="Search Properties..."
+                  disabled={formerPropertyTable.length === 0}
+                />
+              )}
             </div>
             
             <TabsContent value="Tenants">
-              <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted">
-                    <TableHead className="rounded-tl-xl capitalize">Property name</TableHead>
-                    <TableHead className='capitalize'>Full name</TableHead>
-                    <TableHead className='capitalize'>Contact</TableHead>
-                    <TableHead className='capitalize'>Email</TableHead>
-                    <TableHead className='capitalize'>Occupancy date</TableHead>
-                    <TableHead className='capitalize'>Renewal date</TableHead>
-                    <TableHead className='capitalize'>Status</TableHead>
-                    <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                {
-                TenantTable.length !== 0 && !loadingTenantTable &&
-                  (
-                    <TableBody>
-                      {TenantTable.map((tenant, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium capitalize">
-                            {tenant?.property_name}
-                          </TableCell>
-                          <TableCell className='capitalize'>
-                            {tenant?.full_name}
-                          </TableCell>
-                          <TableCell className='capitalize'>{tenant?.phone}</TableCell>
-                          <TableCell className='capitalize'>{tenant?.email}</TableCell>
-                          <TableCell className='capitalize'>{format(new Date(tenant?.move_in), "dd MMM yyyy")}</TableCell>
-                          <TableCell className='capitalize'>{format(new Date(tenant?.renewal_date), "dd MMM yyyy")}</TableCell>
-                          <TableCell className='capitalize'><TenentStatus status={tenant?.Active_tenant}/></TableCell>
-                          <TableCell className='capitalize text-center bg-muted/30'>
-                              <Link href={`/dashboard/tenant-management/tenant-info/${tenant?.tenant_id}`}>
-                                  <Button variant={'ghost'}>View</Button>
-                              </Link>
-                          </TableCell>
-                        </TableRow>
+              {loadingTenantTable || loadingTenantSearch ? (
+                <div>
+                  <div className='w-full h-80 bg-white rounded-md shadow flex'>
+                    <div className='p-4 grid w-full gap-2'>
+                      {tableList.map((_, index) => (
+                        <TableSkeleton key={index}/>
                       ))}
-                    </TableBody>
-                  )
-                }
-                
-              </Table>
-
-              {TenantTable.length === 0 && !loadingTenantTable &&
-                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                  <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any tenants yet'/>
-                </div>
-              }
-
-              {loadingTenantTable &&
-                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                  <Loading/>
-                </div>
-              }
-
-              {
-                TenantTable.length !== 0 && !loadingTenantTable &&
-                (
-                  <div className='flex gap-2 items-center justify-between w-full my-2'>
-                    <div className='flex gap-2 items-center justify-between'>
-                        <Select>
-                          <SelectTrigger className="w-[75px]">
-                            <SelectValue placeholder="10" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="apple">10</SelectItem>
-                              <SelectItem value="banana">20</SelectItem>
-                              <SelectItem value="blueberry">50</SelectItem>
-                              <SelectItem value="grapes">70</SelectItem>
-                              <SelectItem value="pineapple">100</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                        <span className='text-muted-foreground'>Per Page</span>
                     </div>
-                      
-                    <div className='flex gap-2 items-center justify-between'>
-                      <Link href={"#"}><ChevronLeft size={20}/></Link>
-                      <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                      <Link href={"#"}><ChevronRight size={20}/></Link>
-                    </div>
-              </div>
-                )
-              }
-              </div>
-            </TabsContent>
-            <TabsContent value="Properties">
-              <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted">
                       <TableHead className="rounded-tl-xl capitalize">Property name</TableHead>
-                      <TableHead className='capitalize'>Location</TableHead>
-                      <TableHead className='capitalize'>Property Type</TableHead>
-                      <TableHead className='capitalize'>N0. of Rooms</TableHead>
-                      <TableHead className='capitalize'>N0. of Flats</TableHead>
-                      <TableHead className='capitalize'>Property Desc.</TableHead>
+                      <TableHead className='capitalize'>Full name</TableHead>
+                      <TableHead className='capitalize'>Contact</TableHead>
+                      <TableHead className='capitalize'>Email</TableHead>
+                      <TableHead className='capitalize'>Occupancy date</TableHead>
+                      <TableHead className='capitalize'>Renewal date</TableHead>
+                      <TableHead className='capitalize'>Status</TableHead>
                       <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   {
-                  PropertyTable.length !== 0 && !loadingPropertyTable &&
+                  TenantTable.length !== 0 &&
                     (
                       <TableBody>
-                        {PropertyTable.map((property, index) => (
+                        {TenantTable.map((tenant, index) => (
                           <TableRow key={index}>
                             <TableCell className="font-medium capitalize">
-                              {property?.property_name}
+                              {tenant?.property_name}
                             </TableCell>
                             <TableCell className='capitalize'>
-                              {property?.address}
+                              {tenant?.full_name}
                             </TableCell>
-                            <TableCell className='capitalize'>{property?.house_type}</TableCell>
-                            <TableCell className='capitalize'>{property?.number_of_rooms}</TableCell>
-                            <TableCell className='capitalize'>{property?.number_of_flats}</TableCell>
-                            <TableCell className='capitalize'>{property?.property_description}</TableCell>
+                            <TableCell className='capitalize'>{tenant?.phone}</TableCell>
+                            <TableCell className='capitalize'>{tenant?.email}</TableCell>
+                            <TableCell className='capitalize'>{format(new Date(tenant?.move_in), "dd MMM yyyy")}</TableCell>
+                            <TableCell className='capitalize'>{format(new Date(tenant?.renewal_date), "dd MMM yyyy")}</TableCell>
+                            <TableCell className='capitalize'><TenentStatus status={tenant?.Active_tenant}/></TableCell>
                             <TableCell className='capitalize text-center bg-muted/30'>
-                                <Link href={`/dashboard/tenant-management/tenant-info/${property.house_id}`}>
+                                <Link href={`/dashboard/tenant-management/tenant-info/${tenant?.tenant_id}`}>
                                     <Button variant={'ghost'}>View</Button>
                                 </Link>
                             </TableCell>
@@ -414,52 +433,148 @@ export default function Page() {
                       </TableBody>
                     )
                   }
-                
-              </Table>
+                  
+                </Table>
 
-              {PropertyTable.length === 0 && !loadingPropertyTable &&
-                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                  <NotFound imageStyle='size-14' title='No Properties found' desc='You haven’t added any properties yet'/>
+                {TenantTable.length === 0 &&
+                  <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+                    {searchTenants ? (
+                      <NotFound imageStyle='size-14' title='No Tenant found' desc='Try a different search'/>
+                    ) : (
+                      <NotFound imageStyle='size-14' title='No Tenant found' desc='You haven’t added any tenants yet'/>
+                    )}
+                  </div>
+                }
+
+                {
+                  TenantTable.length !== 0 &&
+                  (
+                    <div className='flex gap-2 items-center justify-between w-full my-2'>
+                      <div className='flex gap-2 items-center justify-between'>
+                          <Select>
+                            <SelectTrigger className="w-[75px]">
+                              <SelectValue placeholder="10" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="apple">10</SelectItem>
+                                <SelectItem value="banana">20</SelectItem>
+                                <SelectItem value="blueberry">50</SelectItem>
+                                <SelectItem value="grapes">70</SelectItem>
+                                <SelectItem value="pineapple">100</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <span className='text-muted-foreground'>Per Page</span>
+                      </div>
+                        
+                      <div className='flex gap-2 items-center justify-between'>
+                        <Link href={"#"}><ChevronLeft size={20}/></Link>
+                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
+                        <Link href={"#"}><ChevronRight size={20}/></Link>
+                      </div>
                 </div>
-              }
-
-              {loadingPropertyTable &&
-                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                  <Loading/>
+                  )
+                }
                 </div>
-              }
+              )}
+            </TabsContent>
+            <TabsContent value="Properties">
+              {loadingPropertyTable || loadingPropertySearch ? (
+                <div>
+                  <div className='w-full h-80 bg-white rounded-md shadow flex'>
+                    <div className='p-4 grid w-full gap-2'>
+                      {tableList.map((_, index) => (
+                        <TableSkeleton key={index}/>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                 <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted">
+                        <TableHead className="rounded-tl-xl capitalize">Property name</TableHead>
+                        <TableHead className='capitalize'>Location</TableHead>
+                        <TableHead className='capitalize'>Property Type</TableHead>
+                        <TableHead className='capitalize'>N0. of Rooms</TableHead>
+                        <TableHead className='capitalize'>N0. of Flats</TableHead>
+                        <TableHead className='capitalize'>Property Desc.</TableHead>
+                        <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    {
+                    PropertyTable.length !== 0 &&
+                      (
+                        <TableBody>
+                          {PropertyTable.map((property, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium capitalize">
+                                {property?.property_name}
+                              </TableCell>
+                              <TableCell className='capitalize'>
+                                {property?.address}
+                              </TableCell>
+                              <TableCell className='capitalize'>{property?.house_type}</TableCell>
+                              <TableCell className='capitalize'>{property?.number_of_rooms}</TableCell>
+                              <TableCell className='capitalize'>{property?.number_of_flats}</TableCell>
+                              <TableCell className='capitalize'>{property?.property_description}</TableCell>
+                              <TableCell className='capitalize text-center bg-muted/30'>
+                                  <Link href={`/dashboard/tenant-management/tenant-info/${property.house_id}`}>
+                                      <Button variant={'ghost'}>View</Button>
+                                  </Link>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      )
+                    }
+                  
+                </Table>
 
-              {
-                PropertyTable.length !== 0 && !loadingPropertyTable &&
-                (
-                  <div className='flex gap-2 items-center justify-between w-full my-2'>
-                    <div className='flex gap-2 items-center justify-between'>
-                        <Select>
-                          <SelectTrigger className="w-[75px]">
-                            <SelectValue placeholder="10" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="apple">10</SelectItem>
-                              <SelectItem value="banana">20</SelectItem>
-                              <SelectItem value="blueberry">50</SelectItem>
-                              <SelectItem value="grapes">70</SelectItem>
-                              <SelectItem value="pineapple">100</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                        <span className='text-muted-foreground'>Per Page</span>
-                    </div>
-                      
-                    <div className='flex gap-2 items-center justify-between'>
-                      <Link href={"#"}><ChevronLeft size={20}/></Link>
-                      <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                      <Link href={"#"}><ChevronRight size={20}/></Link>
-                    </div>
+                {PropertyTable.length === 0 &&
+                  <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+                    {searchProperties ? (
+                      <NotFound imageStyle='size-14' title='No Properties found' desc='Try a different search'/>
+                    ) : (
+                      <NotFound imageStyle='size-14' title='No Properties found' desc='You haven’t added any properties yet'/>
+                    )}
+                  </div>
+                }
+
+                {
+                  PropertyTable.length !== 0 &&
+                  (
+                    <div className='flex gap-2 items-center justify-between w-full my-2'>
+                      <div className='flex gap-2 items-center justify-between'>
+                          <Select>
+                            <SelectTrigger className="w-[75px]">
+                              <SelectValue placeholder="10" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="apple">10</SelectItem>
+                                <SelectItem value="banana">20</SelectItem>
+                                <SelectItem value="blueberry">50</SelectItem>
+                                <SelectItem value="grapes">70</SelectItem>
+                                <SelectItem value="pineapple">100</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <span className='text-muted-foreground'>Per Page</span>
+                      </div>
+                        
+                      <div className='flex gap-2 items-center justify-between'>
+                        <Link href={"#"}><ChevronLeft size={20}/></Link>
+                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
+                        <Link href={"#"}><ChevronRight size={20}/></Link>
+                      </div>
+                </div>
+                  )
+                }
               </div>
-                )
-              }
-            </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>

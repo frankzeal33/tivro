@@ -79,7 +79,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="flex sticky top-0 z-50 w-full items-center border-b bg-light">
+    <header className="flex fixed top-0 z-50 w-full items-center border-b bg-light">
       <div className="flex h-[4rem] w-full items-center gap-2 px-4">
         <div>
           <div className="flex items-center">

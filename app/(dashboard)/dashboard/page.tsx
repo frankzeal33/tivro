@@ -6,7 +6,7 @@ import Image from "next/image"
 import { BsFillLightningChargeFill } from "react-icons/bs";
 import { HiBadgeCheck } from "react-icons/hi";
 import { FaCircleCheck } from "react-icons/fa6";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -57,6 +57,7 @@ import TableSkeleton from "@/components/TableSkeleton"
 import ReduceTextLength from "@/utils/ReduceTextLength"
 import { StatusBoolean } from "@/components/StatusBoolean"
 import { DateLabels } from "@/utils/DateLabels"
+import { debounce } from "lodash"
 
 type verificationType = {
   id: number;
@@ -147,6 +148,10 @@ export default function Page() {
   const [BVNDetails, setBVNDetails] = useState<BVNType | null>(null);
   const arrayList = new Array(3).fill(null)
   const tableList = new Array(6).fill(null)
+
+  const [search, setSearch] = useState("")
+  const [loadingSearch, setLoadingSearch] = useState(false)
+  const [formerVerifications, setFormerVerifications] = useState<verificationType>([])
 
   const handleSubscription = () => {
     setOpenSubModal(true)
@@ -331,6 +336,7 @@ export default function Page() {
       
       const response = await axiosClient.get("/verifications/")
       setVerification(response.data?.verifications || [])
+      setFormerVerifications(response.data?.verifications || [])
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
@@ -338,6 +344,44 @@ export default function Page() {
       setLoadingVerification(false)
     } 
   }
+
+  const performSearch = async (searchTerm: string) => {
+      
+    setLoadingSearch(true)
+
+    try {
+
+      console.log("searchterm=",searchTerm)
+      const result = await axiosClient.get(`/search/verifications/?page=1&page_size=4&search=${searchTerm}`)
+
+      setVerification(result.data?.verifications || [])
+
+      console.log("search=",result.data?.verifications)
+
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    } finally {
+      setLoadingSearch(false)
+    }
+  };
+
+  // Update debouncedQuery after user stops typing for 500ms
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      if (query) {
+        console.log("q", query);
+        performSearch(query);
+      } else {
+        setVerification(formerVerifications);
+      }
+    }, 500),
+    [performSearch, formerVerifications] // dependencies
+  );
+
+  // Call the debounced function whenever search changes
+  useEffect(() => {
+    debouncedSearch(search);
+  }, [search]);
 
   return (
     <div>
@@ -561,7 +605,13 @@ export default function Page() {
             </div>
 
             <div className="flex items-center justify-between gap-2 w-full my-6">
-              <SearchForm/>
+                 <SearchForm
+                    inputValue={search}
+                    inputOnChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search Verifications..."
+                    disabled={formerVerifications.length === 0}
+                  />
+
               <Button loading={confirmingBVN} disabled={confirmingBVN} onClick={requestVerification}>
                 {confirmingBVN ? "" : ( <Plus/>)}
                 {confirmingBVN ? "Loading..." : "Request verification"}
@@ -617,7 +667,7 @@ export default function Page() {
               </AlertDialogContent>
             </AlertDialog>
 
-            {loadingVerification ? (
+            {loadingVerification || loadingSearch ? (
               <div>
                 <div className='w-full h-80 bg-white rounded-md shadow flex'>
                   <div className='p-4 grid w-full gap-2'>
@@ -683,7 +733,11 @@ export default function Page() {
 
                 {verification.length === 0 &&
                   <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
-                    <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any requests yet'/>
+                    {search ? (
+                      <NotFound imageStyle='size-14' title='No requests found' desc='Try a different search'/>
+                    ) : (
+                      <NotFound imageStyle='size-14' title='No requests found' desc='You haven’t added any requests yet'/>
+                    )}
                   </div>
                 }
 

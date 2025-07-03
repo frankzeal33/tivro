@@ -50,8 +50,7 @@ if (typeof window !== "undefined") {
           console.log("new accesstoken=",refreshResponse.data)
 
           // Save the new access token securely
-          const updateToken = useAuthStore.getState();
-          updateToken.updateAccessToken(newAccessToken);
+          useAuthStore.getState().updateAccessToken(newAccessToken);
 
           // Update the Authorization header for the original request
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -59,12 +58,15 @@ if (typeof window !== "undefined") {
           // Retry the original request with the new token
           return axiosClient(originalRequest);
         } catch (refreshError) {
-          
-          useAuthStore.getState().clearUserInfo()
-          window.location.href = "/login";
 
+          useAuthStore.getState().clearUserInfo()
+          window.location.href = "/login"
           return Promise.reject(refreshError); // Always return this
+          
         }
+      }else if(error.response?.status === 400 && error.response?.data?.message === "Invalid or expired token"){
+        useAuthStore.getState().clearUserInfo()
+        window.location.href = "/login";
       }
 
       // If the error is not due to a 401 or retry fails

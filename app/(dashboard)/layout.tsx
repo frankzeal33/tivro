@@ -53,7 +53,7 @@ export default function  RootLayout({
               <div className="flex flex-1">
                 <AppSidebar />
                 <SidebarInset>
-                  <main className="w-full p-6">
+                  <main className="w-full px-6 pt-[6rem] pb-[3rem]">
                     {children}
                   </main>
                 </SidebarInset>
