@@ -29,8 +29,9 @@ if (typeof window !== "undefined") {
       // Check if the error is due to an expired access token
       const isUnauthorized = error.response?.status === 401;
       const isUnauthorizedMessage = error.response?.data?.detail === "Token has expired. Please log in again.";
-      console.log("run refresh error=", error.response?.status)
       const isFirstRetry = !originalRequest._retry;
+
+      const refreshToken = useAuthStore.getState().userInfo?.refresh
 
       if (isUnauthorized && isUnauthorizedMessage && isFirstRetry) {
         originalRequest._retry = true; // Prevent infinite loops
@@ -38,9 +39,8 @@ if (typeof window !== "undefined") {
         try {
 
           // Use refresh token to get a new access token
-          const refreshToken = useAuthStore.getState().userInfo?.refresh
           const refreshResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/refresh-token/`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/refresh_token/`,
             {
               token: refreshToken
             }
@@ -59,9 +59,8 @@ if (typeof window !== "undefined") {
           // Retry the original request with the new token
           return axiosClient(originalRequest);
         } catch (refreshError) {
-          console.error('Failed to refresh token:', refreshError);
-
-          const token = useAuthStore.getState().clearUserInfo()
+          
+          useAuthStore.getState().clearUserInfo()
           window.location.href = "/login";
 
           return Promise.reject(refreshError); // Always return this

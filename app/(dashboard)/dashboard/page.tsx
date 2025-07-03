@@ -669,7 +669,7 @@ export default function Page() {
                             <TableCell className='capitalize'><Status status={request?.employment_check}/></TableCell>
                             <TableCell className='capitalize'><Status status={request?.status}/></TableCell>
                             <TableCell className='capitalize text-center bg-muted/30'>
-                                <Link href={`/dashboard/certificates/${request?.id}`}>
+                                <Link href={`/dashboard/request-verification/${request?.id}`}>
                                     <Button variant={'ghost'}>View</Button>
                                 </Link>
                             </TableCell>

@@ -73,6 +73,7 @@ const Page = () => {
     if (!result.success) {
       const message = result.error.formErrors.fieldErrors.pin?.[0] || "Invalid input"
       setError(message)
+      toast.error(message)
       setTouched(true)
       return
     }
@@ -85,10 +86,13 @@ const Page = () => {
       
       const response = await axiosClient.get(`/tenant/?token=${token}&pin=${pin}`)
 
-      tenantInfo(response.data)
-      toast.success("Verification Started")
-
-      router.push('/tenant/start-verification')
+      if(response.data?.status === 500){
+        toast.error(response.data?.message)
+      }else{
+        tenantInfo(response.data)
+        toast.success("Verification Started")
+        router.push('/tenant/start-verification')
+      }
 
     } catch (error: any) {
       toast.error(error.response?.data?.detail);
