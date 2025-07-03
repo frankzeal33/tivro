@@ -116,7 +116,7 @@ const Page = () => {
                         <TableBody>
                             {messages.map((message, index) => (
                             <TableRow key={message?.id}>
-                                <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{message?.title}</TableCell>
+                                <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{ReduceTextLength(message?.title, 45)}</TableCell>
                                 <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{ReduceTextLength(message?.body, 20)}</TableCell>
                                 <TableCell className={`capitalize ${message?.status && 'font-semibold'}`}>{format(new Date(message?.created_at), "dd MMM yyyy HH:mm a")}</TableCell>
                                 <TableCell className='capitalize text-center bg-muted/30'>

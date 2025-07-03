@@ -13,7 +13,7 @@ import Certificates from "@/components/tenant-forms/Certificates"
 import { Progress } from "@/components/ui/progress"
 import { useGlobalContext } from "@/context/GlobalContext"
 import { useTenantStore } from "@/store/TenantStore"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 
 const sections = [
     {

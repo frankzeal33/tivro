@@ -82,24 +82,26 @@ const  IdentityCheck = () => {
             setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
           }
 
-          toast.success(result.data?.message);
+          if(result.status === 201 && result.data?.message === "You have provided your BVN, kindly provide the OTP"){
+            setCurrentSection("credit-check")
+            setFormProgress(51)
+            setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
+            setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
+            setOtp({...otp,  iscurrentForm: true})
+          }
 
-          // setCurrentSection("credit-check")
-          // setFormProgress(51)
-          // setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
-          // setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
-          // setOtp({...otp,  iscurrentForm: true})
+          toast.success(result.data?.message);
 
       } catch (error: any) {
         toast.error(error.response?.data?.message);
 
-        // if(error.response.status === 404 && error.response.data?.message === "you credit score has been created , proceed to employment details"){
-        //   setCurrentSection("employment-check")
-        //   setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
-        //   setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
-        //   setOtp({...otp, completed: true,  iscurrentForm: false})
-        //   setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
-        // }
+        if(error.response.status === 404 && error.response.data?.message === "No credit data available for user"){
+          setCurrentSection("employment-check")
+          setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
+          setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
+          setOtp({...otp, completed: true,  iscurrentForm: false})
+          setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
+        }
 
       } finally {
           setIsSubmitting(false)

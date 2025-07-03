@@ -33,6 +33,7 @@ const Page = () => {
     const params = useParams();
     const id = params?.id;
     const [loadingInfo, setLoadingInfo] = useState(false)
+    const [resending, setResending] = useState(false)
     const [verification, setVerification] = useState<any>()
      const arrayList = new Array(2).fill(null)
 
@@ -56,6 +57,21 @@ const Page = () => {
         getVerification()
     }, [id])
 
+    const resendVerification  = async () => {
+        try {
+    
+          setResending(true)
+          
+          const response = await axiosClient.post(`/resend/verification/link/`, { request_id: verification?.Bio_data?.request_id})
+          toast.success(response.data?.message)
+    
+        } catch (error: any) {
+          toast.error(error.response?.data?.detail);
+        } finally {
+          setResending(false)
+        } 
+    }
+
   return (
     <div className='my-container'>
         {loadingInfo ? (
@@ -76,9 +92,8 @@ const Page = () => {
                         <h2 className='font-bold text-2xl'>Issued certificate</h2>
                         <p className='text-muted-foreground'>{verification?.Bio_data?.["created date"] ? format(new Date(verification?.Bio_data?.["created date"]), "dd MMM yyyy, hh:mm a") : "N/A"}</p>
                     </div>
-                    <Button className='w-fit'>
-                        <BsFillLightningChargeFill size={26} className="text-primary-foreground"/>
-                        Download
+                    <Button loading={resending} disabled={resending} className='w-fit' onClick={resendVerification}>
+                        {resending ? "Resending..." : "Resend Verification"}
                     </Button>
                 </div>
 

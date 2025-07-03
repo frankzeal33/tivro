@@ -42,8 +42,25 @@ const employedCDetailsSchema = z.object({
   line_manager_email: z.string().email("Invalid email address"),
 })
 
-type GeneralFormValues = z.infer<typeof generalSchema>
-type employedCDetailsFormValues = z.infer<typeof employedCDetailsSchema>
+const selfEmployedBDetailsSchema = z.object({
+  business_name: z.string().min(1, "Business name is required"),
+  business_address: z.string().min(1, "Business address is required")
+})
+
+const unEmployedSchema = z.object({
+  guarantor_name: z.string().min(1, "Guarantor name is required"),
+  guarantor_address: z.string().min(1, "Guarantor address is required")
+})
+
+const freelanceSchema = z.object({
+  company_name: z.string().min(1, "Company name is required"),
+  company_address: z.string().min(1, "Company address is required")
+})
+
+const studentSchema = z.object({
+  guarantor_name: z.string().min(1, "Guarantor name is required"),
+  guarantor_address: z.string().min(1, "Guarantor address is required")
+})
 
 const  EmploymentCheck = () => {
 
@@ -65,6 +82,8 @@ const  EmploymentCheck = () => {
     employment_status: "employed",
     employment_type: "",
   })
+
+  //employed
   const [employedFormCompanydetails, setEmployedFormCompanydetails] = useState({
     company_name: "",
     company_address: "",
@@ -72,6 +91,79 @@ const  EmploymentCheck = () => {
   })
   const [employedCIDCard, setEmployedCIDCard] = useState<File | null>(null)
   const [employedLetter, setEmployedLetter] = useState<File | null>(null)
+
+  //self employed
+  const [selfEmployedBusinessDetails, setSelfEmployedBusinessDetails] = useState({
+    business_name: "",
+    business_address: "",
+    cac_no: "",
+  })
+  const [selfEmployedProofOfBus, setSelfEmployedProofOfBus] = useState<File | null>(null)
+
+  //unemployed
+  const [unEmployedDetails, setUnEmployedDetails] = useState({
+    guarantor_name: "",
+    guarantor_address: ""
+  })
+  const [unEmployedProofOfID, setUnEmployedProofOfID] = useState<File | null>(null)
+
+  //freelance
+  const [freelanceDetails, setFreelenceDetails] = useState({
+    company_name: "",
+    company_address: ""
+  })
+  const [freelanceLetterOfE, setFreelanceLetterOfE] = useState<File | null>(null)
+
+  //student
+  const [studentDetails, setStudentDetails] = useState({
+    guarantor_name: "",
+    guarantor_address: ""
+  })
+  const [studentID, setStudentID] = useState<File | null>(null)
+
+  const handleEmploymentStatusChange = (value: any) => {
+    setGeneralForm({...generalForm, employment_status: value, employment_type: ""})
+
+    //reset eveything to default
+    //employed
+    setEmployedFormCompanydetails({
+      company_name: "",
+      company_address: "",
+      line_manager_email: "",
+    })
+    setEmployedCIDCard(null)
+    setEmployedLetter(null)
+
+    //self employed
+    setSelfEmployedBusinessDetails({
+      business_name: "",
+      business_address: "",
+      cac_no: "",
+    })
+    setSelfEmployedProofOfBus(null)
+
+    //unemployed
+    setUnEmployedDetails({
+      guarantor_name: "",
+      guarantor_address: ""
+    })
+    setUnEmployedProofOfID(null)
+
+    // freelance
+    setFreelenceDetails({
+      company_name: "",
+      company_address: ""
+    })
+    setFreelanceLetterOfE(null)
+
+    //student
+    setStudentDetails({
+      guarantor_name: "",
+      guarantor_address: ""
+    })
+    setStudentID(null)
+
+  }
 
   const handleEmployedCIDCardChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -117,6 +209,94 @@ const  EmploymentCheck = () => {
       }
   };
 
+  const handleSelfEmployedProof = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const allowedTypes = ["image/jpg", "image/jpeg", "image/png"];
+
+      if (file) {
+        const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+        if (file.size > maxSizeInBytes) {
+          toast.error("File size must be less than 5MB");
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          toast.error("Only JPG, JPEG, PNG, or PDF files are allowed");
+          return;
+        }
+
+        setSelfEmployedProofOfBus(file);
+
+      }
+  };
+
+  const handleUnEmployedProof = (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      const allowedTypes = ["image/jpg", "image/jpeg", "image/png", "application/pdf"];
+
+      if (file) {
+        const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+        if (file.size > maxSizeInBytes) {
+          toast.error("File size must be less than 5MB");
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          toast.error("Only JPG, JPEG, PNG, or PDF files are allowed");
+          return;
+        }
+
+        setUnEmployedProofOfID(file);
+
+      }
+  };
+ 
+  const handleFreelanceProof = (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      const allowedTypes = ["image/jpg", "image/jpeg", "image/png", "application/pdf"];
+
+      if (file) {
+        const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+        if (file.size > maxSizeInBytes) {
+          toast.error("File size must be less than 5MB");
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          toast.error("Only JPG, JPEG, PNG, or PDF files are allowed");
+          return;
+        }
+
+        setFreelanceLetterOfE(file);
+
+      }
+  };
+
+  const handleStudentProof = (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      const allowedTypes = ["image/jpg", "image/jpeg", "image/png", "application/pdf"];
+
+      if (file) {
+        const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+        if (file.size > maxSizeInBytes) {
+          toast.error("File size must be less than 5MB");
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          toast.error("Only JPG, JPEG, PNG, or PDF files are allowed");
+          return;
+        }
+
+        setStudentID(file);
+
+      }
+  };
+
   const handleTabChange = (tab: string) => {
 
     if(tab === "Employment status"){
@@ -130,23 +310,33 @@ const  EmploymentCheck = () => {
       setActiveTab(tab)
     }else if(tab === "Uploads"){
 
+      const result = tenantValidationForm(generalSchema, generalForm, "employment-form-error");
+      if (!result.success) return;
+
       if(generalForm.employment_status === "employed"){
-        const result = tenantValidationForm(generalSchema, generalForm, "employment-form-error");
-        if (!result.success) return;
 
         const details = tenantValidationForm(employedCDetailsSchema, employedFormCompanydetails, "employment-form-error");
         if (!details.success) return;
 
       }else if(generalForm.employment_status === "self-employed"){
 
+        const details = tenantValidationForm(selfEmployedBDetailsSchema, selfEmployedBusinessDetails, "employment-form-error");
+        if (!details.success) return;
+
       }else if(generalForm.employment_status === "unemployed"){
+
+        const details = tenantValidationForm(unEmployedSchema, unEmployedDetails, "employment-form-error");
+        if (!details.success) return;
 
       }else if(generalForm.employment_status === "freelance"){
 
-      }else{
+        const details = tenantValidationForm(freelanceSchema, freelanceDetails, "employment-form-error");
+        if (!details.success) return;
 
+      }else{
+        const details = tenantValidationForm(studentSchema, studentDetails, "employment-form-error");
+        if (!details.success) return;
       }
-     
 
       setActiveTab(tab)
     }
@@ -164,11 +354,23 @@ const  EmploymentCheck = () => {
 
         }else if(generalForm.employment_status === "self-employed"){
 
+          const details = tenantValidationForm(selfEmployedBDetailsSchema, selfEmployedBusinessDetails);
+          if (!details.success) return;
+
         }else if(generalForm.employment_status === "unemployed"){
+
+          const details = tenantValidationForm(unEmployedSchema, unEmployedDetails);
+          if (!details.success) return;
 
         }else if(generalForm.employment_status === "freelance"){
 
+          const details = tenantValidationForm(freelanceSchema, freelanceDetails);
+          if (!details.success) return;
+
         }else{
+
+          const details = tenantValidationForm(studentSchema, studentDetails);
+          if (!details.success) return;
 
         }
 
@@ -220,16 +422,15 @@ const  EmploymentCheck = () => {
     if(generalForm.employment_status === "employed"){
       submitEmployed()
     }else if(generalForm.employment_status === "self-employed"){
-
+      submitSelfEmployed()
     }else if(generalForm.employment_status === "unemployed"){
-
+      submitUnEmployed()
     }else if(generalForm.employment_status === "freelance"){
-
+      submitFreelance()
     }else{
-
+      submitStudent()
     }
-    
-   
+
   }
 
   const submitEmployed = async () => {
@@ -266,6 +467,123 @@ const  EmploymentCheck = () => {
     } 
   }
 
+  const submitSelfEmployed = async () => {
+
+    try {
+    
+      setLoading(true)
+
+      const selfEmployedData = new FormData();
+      selfEmployedData.set('token', tenantInfo?.user_token)
+      selfEmployedData.set('employment_status', generalForm.employment_status)
+      selfEmployedData.set('employment_type', generalForm.employment_type)
+      selfEmployedData.set('company_name', selfEmployedBusinessDetails.business_name)
+      selfEmployedData.set('company_address', selfEmployedBusinessDetails.business_address)
+      selfEmployedData.set('cac_no', selfEmployedBusinessDetails.cac_no)
+      
+      if (selfEmployedProofOfBus) {
+        selfEmployedData.set('proof_of_business', selfEmployedProofOfBus);
+      }
+
+      const response = await axiosClient.post(`/selfemployed/status/`, selfEmployedData)
+
+      toast.success(response.data?.message)
+      gotoNext()
+      
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail);
+    } finally {
+      setLoading(false)
+    } 
+  }
+
+  const submitUnEmployed = async () => {
+
+    try {
+    
+      setLoading(true)
+
+      const unEmployedData = new FormData();
+      unEmployedData.set('token', tenantInfo?.user_token)
+      unEmployedData.set('employment_status', generalForm.employment_status)
+      unEmployedData.set('employment_type', generalForm.employment_type)
+      unEmployedData.set('previous_company_name', unEmployedDetails.guarantor_name)
+      unEmployedData.set('company_address', unEmployedDetails.guarantor_address)
+      
+      if (unEmployedProofOfID) {
+        unEmployedData.set('proof_of_work', unEmployedProofOfID);
+      }
+
+      const response = await axiosClient.post(`/unemployed/status/`, unEmployedData)
+
+      toast.success(response.data?.message)
+      gotoNext()
+      
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail);
+    } finally {
+      setLoading(false)
+    } 
+  }
+
+  const submitFreelance = async () => {
+
+    try {
+    
+      setLoading(true)
+
+      const freelanceData = new FormData();
+      freelanceData.set('token', tenantInfo?.user_token)
+      freelanceData.set('employment_status', generalForm.employment_status)
+      freelanceData.set('employment_type', generalForm.employment_type)
+      freelanceData.set('company_name', freelanceDetails.company_name)
+      freelanceData.set('company_address', freelanceDetails.company_address)
+      
+      if (freelanceLetterOfE) {
+        freelanceData.set('proof_of_work', freelanceLetterOfE);
+      }
+
+      const response = await axiosClient.post(`/freelancer/status/`,freelanceData)
+
+      toast.success(response.data?.message)
+      gotoNext()
+      
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail);
+    } finally {
+      setLoading(false)
+    } 
+  }
+
+  const submitStudent = async () => {
+
+    try {
+    
+      setLoading(true)
+
+      const studentData = new FormData();
+      studentData.set('token', tenantInfo?.user_token)
+      studentData.set('employment_status', generalForm.employment_status)
+      studentData.set('employment_type', generalForm.employment_type)
+      studentData.set('school_name', studentDetails.guarantor_name)
+      studentData.set('school_address', studentDetails.guarantor_address)
+      
+      if (studentID) {
+        studentData.set('proof_of_id', studentID);
+      }
+
+      const response = await axiosClient.post(`/student/status/`,studentData)
+
+      toast.success(response.data?.message)
+      gotoNext()
+      
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail);
+    } finally {
+      setLoading(false)
+    } 
+  }
+
   const gotoNext = () => {
     setCurrentSection("verify-apartment")
     setFormProgress({...formProgress, fraction: "5/6",  percent: 90})
@@ -290,7 +608,7 @@ return (
                           <div className='grid gap-6'>
                               <div className="grid gap-2">
                                   <Label>Select employment status*</Label>
-                                  <Select value={generalForm.employment_status} onValueChange={(value) => setGeneralForm({...generalForm, employment_status: value})}>
+                                  <Select value={generalForm.employment_status} onValueChange={handleEmploymentStatusChange}>
                                     <SelectTrigger className="w-full">
                                       <SelectValue placeholder="---Select---" />
                                     </SelectTrigger>
@@ -355,7 +673,7 @@ return (
                               </div>
                               <div className="grid gap-2">
                                   <Label htmlFor="address">Company address</Label>
-                                  <Input id="address" type="text" placeholder="e.g. Lagos, Nigeria" value={employedFormCompanydetails.company_address} onChange={(e: any) => setEmployedFormCompanydetails({ ...employedFormCompanydetails, company_address: e.target.value})} />
+                                  <Input id="address" type="text" placeholder="e.g.  5 toyin road, Ikeja, Lagos, Nigeria" value={employedFormCompanydetails.company_address} onChange={(e: any) => setEmployedFormCompanydetails({ ...employedFormCompanydetails, company_address: e.target.value})} />
                               </div>
                               <div className="grid gap-2">
                                   <Label htmlFor="email">Line manager email</Label>
@@ -367,59 +685,48 @@ return (
                             <div className='grid gap-6'>
                               <div className="grid gap-2">
                                   <Label htmlFor="cname">Business name</Label>
-                                  <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" required />
+                                  <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" value={selfEmployedBusinessDetails.business_name} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, business_name: e.target.value})} />
                               </div>
                               <div className="grid gap-2">
                                   <Label htmlFor="address">Business address</Label>
-                                  <Input id="address" type="text" placeholder="e.g. Lagos, Nigeria" required />
+                                  <Input id="address" type="text" placeholder="e.g. 5 toyin road, Ikeja, Lagos, Nigeria" value={selfEmployedBusinessDetails.business_address} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, business_address: e.target.value})} />
                               </div>
                               <div className="grid gap-2">
-                                  <Label htmlFor="email">CAC No</Label>
-                                  <Input id="email" type="email" placeholder="e.g. example@gmail.com" required />
-                                  <p className="text-xs text-negative">Employer’s email isn’t valid. Try again!</p>
+                                  <Label htmlFor="address">CAC No. (Optional)</Label>
+                                  <Input id="address" type="text" placeholder="e.g. 123456" value={selfEmployedBusinessDetails.cac_no} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, cac_no: e.target.value})} />
                               </div>
                             </div>
                           ) : generalForm.employment_status === "unemployed" ? (
                             <div className='grid gap-6'>
                               <div className="grid gap-2">
                                   <Label htmlFor="cname">Guarantor Name</Label>
-                                  <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" required />
+                                  <Input id="cname" type="text" placeholder="e.g. John Doe" value={unEmployedDetails.guarantor_name} onChange={(e: any) => setUnEmployedDetails({ ...unEmployedDetails, guarantor_name: e.target.value})} />
                               </div>
                               <div className="grid gap-2">
                                   <Label htmlFor="address">Guarantor Address</Label>
-                                  <Input id="address" type="text" placeholder="e.g. Lagos, Nigeria" required />
-                              </div>
-                              <div className="grid gap-2">
-                                  <Label htmlFor="email">Guarantor Phone No.</Label>
-                                  <Input id="email" type="email" placeholder="e.g. example@gmail.com" required />
-                                  <p className="text-xs text-negative">Employer’s email isn’t valid. Try again!</p>
+                                  <Input id="address" type="text" placeholder="e.g. 5 toyin road, Ikeja, Lagos, Nigeria" value={unEmployedDetails.guarantor_address} onChange={(e: any) => setUnEmployedDetails({ ...unEmployedDetails, guarantor_address: e.target.value})} />
                               </div>
                             </div>
                           ) : generalForm.employment_status === "freelance" ? (
                             <div className='grid gap-6'>
                               <div className="grid gap-2">
-                                  <Label htmlFor="cname">Working Site/Company Name</Label>
-                                  <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" required />
+                                  <Label htmlFor="fname">Company name</Label>
+                                  <Input id="fname" type="text" placeholder="e.g. Tivro Logistics"  value={freelanceDetails.company_name} onChange={(e: any) => setFreelenceDetails({ ...freelanceDetails, company_name: e.target.value})} />
                               </div>
                               <div className="grid gap-2">
-                                  <Label htmlFor="address">Letter of engagement</Label>
-                                  <Input id="address" type="text" placeholder="e.g. Lagos, Nigeria" required />
+                                  <Label htmlFor="faddress">Company address</Label>
+                                  <Input id="faddress" type="text" placeholder="e.g.  5 toyin road, Ikeja, Lagos, Nigeria" value={freelanceDetails.company_address} onChange={(e: any) => setFreelenceDetails({ ...freelanceDetails, company_address: e.target.value})} />
                               </div>
                             </div>
                           ) : (
                             <div className='grid gap-6'>
-                              <div className="grid gap-2">
-                                  <Label htmlFor="cname">Guarantor Name</Label>
-                                  <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" required />
+                               <div className="grid gap-2">
+                                  <Label htmlFor="stname">Guarantor Name</Label>
+                                  <Input id="stname" type="text" placeholder="e.g. John Doe" value={studentDetails.guarantor_name} onChange={(e: any) => setStudentDetails({ ...studentDetails, guarantor_name: e.target.value})} />
                               </div>
                               <div className="grid gap-2">
-                                  <Label htmlFor="address">Guarantor Address</Label>
-                                  <Input id="address" type="text" placeholder="e.g. Lagos, Nigeria" required />
-                              </div>
-                              <div className="grid gap-2">
-                                  <Label htmlFor="email">Guarantor Phone No.</Label>
-                                  <Input id="email" type="email" placeholder="e.g. example@gmail.com" required />
-                                  <p className="text-xs text-negative">Employer’s email isn’t valid. Try again!</p>
+                                  <Label htmlFor="staddress">Guarantor Address</Label>
+                                  <Input id="staddress" type="text" placeholder="e.g. 5 toyin road, Ikeja, Lagos, Nigeria" value={studentDetails.guarantor_address} onChange={(e: any) => setStudentDetails({ ...studentDetails, guarantor_address: e.target.value})} />
                               </div>
                             </div>
                           )}
@@ -432,13 +739,13 @@ return (
                               <Label htmlFor="card">Company ID card*</Label>
                               <Input id="cardId" className="hidden" type="file" onChange={handleEmployedCIDCardChange}/>
                               <Label htmlFor="cardId" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                  <div className="text-ring text-xs p-2">{employedCIDCard ? ReduceTextLength(employedCIDCard.name, 15) : "---Choose file---"}</div>
-                                  <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
+                                <div className="text-ring text-xs p-2">{employedCIDCard ? ReduceTextLength(employedCIDCard.name, 15) : "---Choose file---"}</div>
+                                <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
                               </Label>
                               <p className="text-xs text-negative">{!employedCIDCard && "Upload document or an image format!"}</p>
                             </div>
                             <div className='grid gap-2'>
-                              <Label htmlFor="card">Employment letter (optional)</Label>
+                              <Label htmlFor="letter">Employment letter (optional)</Label>
                               <Input id="eletter" className="hidden" type="file" onChange={handleEmployedLetter}/>
                               <Label htmlFor="eletter" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
                                   <div className="text-ring text-xs p-2">{employedLetter ? ReduceTextLength(employedLetter.name, 15) : "---Choose file---"}</div>
@@ -450,65 +757,49 @@ return (
                           ) : generalForm.employment_status === "self-employed" ? (
                             <div className='grid gap-6'>
                               <div className='grid gap-2'>
-                                <Label htmlFor="card">Proof of business (Business location)</Label>
-                                <Input id="cardId" className="hidden" type="file" />
-                                <Label htmlFor="cardId" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                    <div className="text-ring p-2">---Choose file---</div>
-                                    <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
+                                <Label htmlFor="bprooflabel">Proof of business (Business location, Business card/Signpost)</Label>
+                                <Input id="bproof" className="hidden" type="file" onChange={handleSelfEmployedProof}  accept="image/png, image/jpeg, image/jpg"/>
+                                <Label htmlFor="bproof" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
+                                  <div className="text-ring text-xs p-2">{selfEmployedProofOfBus ? ReduceTextLength(selfEmployedProofOfBus.name, 15) : "---Choose file---"}</div>
+                                  <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
                                 </Label>
-                                <p className="text-xs text-negative">Upload document or an image format!</p>
-                              </div>
-                              <div className='grid gap-2'>
-                                <Label htmlFor="card">Proof of business (Business card/Signpost - optional)</Label>
-                                <Input id="eletter" className="hidden" type="file" />
-                                <Label htmlFor="eletter" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                    <div className="text-ring p-2">---Choose file---</div>
-                                    <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
-                                </Label>
+                                <p className="text-xs text-negative">{!selfEmployedProofOfBus && "Upload an image format!"}</p>
                               </div>
                             </div>   
                           ) : generalForm.employment_status === "unemployed" ? (
                             <div className='grid gap-6'>
                               <div className='grid gap-2'>
-                                <Label htmlFor="card">proof of identity(Driving Licenses, passport - optional)</Label>
-                                <Input id="cardId" className="hidden" type="file" />
-                                <Label htmlFor="cardId" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                    <div className="text-ring p-2">---Choose file---</div>
-                                    <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
+                                <Label htmlFor="ulabel">Upload proof of identity(Driving Licenses, passport or National ID)</Label>
+                                <Input id="uid" className="hidden" type="file" onChange={handleUnEmployedProof} />
+                                <Label htmlFor="uid" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
+                                  <div className="text-ring text-xs p-2">{unEmployedProofOfID ? ReduceTextLength(unEmployedProofOfID.name, 15) : "---Choose file---"}</div>
+                                  <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
                                 </Label>
-                                <p className="text-xs text-negative">Upload document or an image format!</p>
+                                <p className="text-xs text-negative">{!unEmployedProofOfID && "Upload a document or image format!"}</p>
                               </div>
                             </div>   
                           ) : generalForm.employment_status === "freelance" ? (
                            <div className='grid gap-6'>
-                              <div className='grid gap-2'>
-                                <Label htmlFor="card">Letter of engagement</Label>
-                                <Input id="cardId" className="hidden" type="file" />
-                                <Label htmlFor="cardId" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                    <div className="text-ring p-2">---Choose file---</div>
-                                    <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
+                             <div className='grid gap-2'>
+                                <Label htmlFor="Llabel">Letter of engagement</Label>
+                                <Input id="Lid" className="hidden" type="file" onChange={handleFreelanceProof} />
+                                <Label htmlFor="Lid" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
+                                  <div className="text-ring text-xs p-2">{freelanceLetterOfE ? ReduceTextLength(freelanceLetterOfE.name, 15) : "---Choose file---"}</div>
+                                  <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
                                 </Label>
-                                <p className="text-xs text-negative">Upload document or an image format!</p>
-                              </div>
-                              <div className='grid gap-2'>
-                                <Label htmlFor="card">proof of identity(Driving Licenses, passport - optional)</Label>
-                                <Input id="eletter" className="hidden" type="file" />
-                                <Label htmlFor="eletter" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                    <div className="text-ring p-2">---Choose file---</div>
-                                    <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
-                                </Label>
+                                <p className="text-xs text-negative">{!freelanceLetterOfE && "Upload a document or image format!"}</p>
                               </div>
                             </div>   
                           ) : (
                             <div className='grid gap-6'>
                               <div className='grid gap-2'>
-                                <Label htmlFor="card">proof of identity(Driving Licenses, passport - optional)</Label>
-                                <Input id="cardId" className="hidden" type="file" />
-                                <Label htmlFor="cardId" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
-                                    <div className="text-ring p-2">---Choose file---</div>
-                                    <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
+                                <Label htmlFor="stlabel">Upload proof of identity(Driving Licenses, passport or National ID)</Label>
+                                <Input id="stid" className="hidden" type="file" onChange={handleStudentProof} />
+                                <Label htmlFor="stid" className="text-sm font-medium border cursor-pointer flex items-center justify-between w-full rounded-md hover:bg-muted">
+                                  <div className="text-ring text-xs p-2">{studentID ? ReduceTextLength(studentID.name, 15) : "---Choose file---"}</div>
+                                  <div className="bg-muted px-4 py-2 rounded-r-md">Choose file</div>
                                 </Label>
-                                <p className="text-xs text-negative">Upload document or an image format!</p>
+                                <p className="text-xs text-negative">{!studentID && "Upload a document or image format!"}</p>
                               </div>
                             </div>   
                           )}                     

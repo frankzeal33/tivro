@@ -146,7 +146,12 @@ const Page = () => {
             setIsSubmitting(true)
             
             const result = await axiosClient.post("/tenant/", data)
-            toast.success(result.data.message);
+
+            if(result.data?.status === 200 && result.data?.success === true){
+                toast.success("Tenant Added Successfully");
+            }else{
+                toast.error(result.data.message);
+            }
 
             setForm({
                 property_id: "",
@@ -159,8 +164,6 @@ const Page = () => {
             })
 
             setOpen(false)
-
-            toast.success("New Tenant Added Successfully")
 
         } catch (error: any) {
             toast.error(error.response?.data?.message);

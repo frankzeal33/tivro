@@ -145,10 +145,10 @@ const Page = () => {
 
         if (file) {
 
-            const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+            const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
             
             if (file.size > maxSizeInBytes) {
-                toast.error("File size must be less than 5MB");
+                toast.error("File size must be less than 2MB");
                 return;
             }
 
@@ -387,14 +387,14 @@ const Page = () => {
                         <div className='flex gap-4 flex-col md:flex-row items-start md:items-center'>
                             <div className='relative'>
                                 <Avatar className='size-32 border border-gray'>
-                                    <AvatarImage src={filepreview ? filepreview : profile.image} alt="@Tivro" />
+                                    <AvatarImage src={filepreview ? filepreview : profile.image} alt="TV" />
                                 </Avatar>
                                 <PiSealCheckFill size={30} className='text-primary absolute top-22 right-0'/>
                             </div>
                             <div className='flex flex-col gap-2'>
                                 <h3 className='2xl font-semibold'>Profile Picture</h3>
                                 <p className="text-sm font-medium text-muted-foreground leading-none">This image will be displayed on your profile</p>
-                                <Input id="picture" type="file" className="hidden" onChange={handleFileChange} accept="png, jpg, jpeg"/>
+                                <Input id="picture" type="file" className="hidden" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg"/>
                                 <Label htmlFor="picture" className="text-sm font-medium border cursor-pointer p-2 flex items-center justify-center max-w-[130px] rounded-md hover:bg-muted">
                                     Upload Picture
                                 </Label>

@@ -33,7 +33,6 @@ const Page = () => {
   const params = useParams();
   const token = params.token as string;
   const [loading, setLoading] = useState(false)
-  const [loadingOTPResend,  setLoadingOTPResend] = useState(false)
   const [pin, setPin] = useState("")
   const [error, setError] = useState<string>("")
   const [touched, setTouched] = useState(false)
@@ -98,23 +97,7 @@ const Page = () => {
     } 
 
   }
-
-  const resendOTP = async () => {
-    try {
-
-      setLoadingOTPResend(true)
-      
-      // const response = await axiosClient.post("/bvn/resend/otp/", {bvn: BVN})
-      // toast.success("Another PIN has been sent");
-
-    } catch (error: any) {
-      toast.error(error.response?.data?.message);
-    } finally {
-       setLoadingOTPResend(false)
-    } 
-  }
   
-
   return (
     <div className="tenant-container -mt-[4.5rem] lg:mt-0">
         <div className={cn("flex flex-col gap-6 items-center justify-center")}>
@@ -143,16 +126,6 @@ const Page = () => {
                       />
                     </div>
                     {touched && error && <p className="text-sm text-center text-red-500">{error}</p>}
-                    <div className="text-center text-sm flex items-center justify-center gap-1">
-                      Didn’t receive a code?{" "}
-                      {loadingOTPResend ? (
-                        <Loader2 className="animate-spin size-5 text-primary" />
-                      ) : (
-                        <Button type="button" onClick={resendOTP} className="p-0 text-primary" variant={'link'}>
-                          Resend
-                        </Button>
-                      )}
-                    </div>
                     <div>
                       <div className='w-full flex bg-muted gap-1 border border-l-primary border-l-6 rounded-md p-2'>
                         <p className='text-muted-foreground text-xs md:text-sm'>Once you begin the verification process, ensure you complete it in one go, as all information is saved as you progress.</p>  
