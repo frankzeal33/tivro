@@ -232,18 +232,19 @@ export default function Page() {
     const debouncedTenantSearch = useCallback(
       debounce((query: string) => {
         if (query) {
-          console.log("q", query);
           performTenantSearch(query);
-        } else {
-          setTenantTable(formerTenantTable);
         }
       }, 500),
-      [performTenantSearch, formerTenantTable] // dependencies
+      [performTenantSearch]
     );
   
     // Call the debounced function whenever search changes
     useEffect(() => {
-      debouncedTenantSearch(searchTenants);
+      if (!searchTenants) {
+        setTenantTable(formerTenantTable); // immediate fallback
+      } else {
+        debouncedTenantSearch(searchTenants);
+      }
     }, [searchTenants]);
 
     const performPropertySearch = async (searchTerm: string) => {
@@ -264,21 +265,23 @@ export default function Page() {
     };
   
     // Update debouncedQuery after user stops typing for 500ms
-    const debouncedPropertySearch = useCallback(
-      debounce((query: string) => {
-        if (query) {
-          console.log("q", query);
-          performPropertySearch(query);
-        } else {
-          setPropertyTable(formerPropertyTable);
-        }
-      }, 500),
-      [performPropertySearch, formerPropertyTable] // dependencies
-    );
+
+      const debouncedPropertySearch = useCallback(
+        debounce((query: string) => {
+          if (query) {
+            performPropertySearch(query);
+          }
+        }, 500),
+        [ performPropertySearch]
+      );
   
     // Call the debounced function whenever search changes
     useEffect(() => {
-      debouncedPropertySearch(searchProperties);
+      if (!searchProperties) {
+        setPropertyTable(formerPropertyTable); // immediate fallback
+      } else {
+        debouncedPropertySearch(searchProperties);
+      }
     }, [searchProperties]);
 
   return (

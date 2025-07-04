@@ -371,16 +371,18 @@ export default function Page() {
       if (query) {
         console.log("q", query);
         performSearch(query);
-      } else {
-        setVerification(formerVerifications);
       }
     }, 500),
-    [performSearch, formerVerifications] // dependencies
+    [performSearch] // dependencies
   );
 
   // Call the debounced function whenever search changes
   useEffect(() => {
-    debouncedSearch(search);
+    if (!search) {
+      setVerification(formerVerifications); // immediate fallback
+    } else {
+      debouncedSearch(search);
+    }
   }, [search]);
 
   return (
