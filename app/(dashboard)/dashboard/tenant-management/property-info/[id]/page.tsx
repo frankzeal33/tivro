@@ -177,7 +177,7 @@ const Page = () => {
                                 <p className="text-sm text-muted-foreground">{property?.house_id}</p>
                             </div>
                         </div>
-                        <div className='bg-muted p-2 rounded-2xl mt-4'>
+                        <div className='bg-muted p-2 rounded-xl mt-4'>
                             <p className="text-sm font-medium leading-none mb-1">Property description</p>
                             <p className="text-sm text-muted-foreground">{property?.property_description}</p>
                         </div>

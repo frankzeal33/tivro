@@ -58,6 +58,7 @@ import { format } from "date-fns";
 import Skeleton from "@/components/Skeleton";
 import { debounce } from "lodash";
 import TableSkeleton from "@/components/TableSkeleton";
+import ReduceTextLength from "@/utils/ReduceTextLength";
 
 type tenantType = {
   property_name: string;
@@ -402,7 +403,6 @@ export default function Page() {
                       <TableHead className="rounded-tl-xl capitalize">Property name</TableHead>
                       <TableHead className='capitalize'>Full name</TableHead>
                       <TableHead className='capitalize'>Contact</TableHead>
-                      <TableHead className='capitalize'>Email</TableHead>
                       <TableHead className='capitalize'>Occupancy date</TableHead>
                       <TableHead className='capitalize'>Renewal date</TableHead>
                       <TableHead className='capitalize'>Status</TableHead>
@@ -416,13 +416,12 @@ export default function Page() {
                         {TenantTable.map((tenant, index) => (
                           <TableRow key={index}>
                             <TableCell className="font-medium capitalize">
-                              {tenant?.property_name}
+                              {ReduceTextLength(tenant?.property_name, 15)}
                             </TableCell>
                             <TableCell className='capitalize'>
-                              {tenant?.full_name}
+                              {ReduceTextLength(tenant?.full_name, 15)}
                             </TableCell>
                             <TableCell className='capitalize'>{tenant?.phone}</TableCell>
-                            <TableCell className='capitalize'>{tenant?.email}</TableCell>
                             <TableCell className='capitalize'>{format(new Date(tenant?.move_in), "dd MMM yyyy")}</TableCell>
                             <TableCell className='capitalize'>{format(new Date(tenant?.renewal_date), "dd MMM yyyy")}</TableCell>
                             <TableCell className='capitalize'><TenentStatus status={tenant?.Active_tenant}/></TableCell>
@@ -503,7 +502,6 @@ export default function Page() {
                         <TableHead className='capitalize'>Property Type</TableHead>
                         <TableHead className='capitalize'>N0. of Rooms</TableHead>
                         <TableHead className='capitalize'>N0. of Flats</TableHead>
-                        <TableHead className='capitalize'>Property Desc.</TableHead>
                         <TableHead className="rounded-tr-2xl capitalize">Action</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -514,15 +512,14 @@ export default function Page() {
                           {PropertyTable.map((property, index) => (
                             <TableRow key={index}>
                               <TableCell className="font-medium capitalize">
-                                {property?.property_name}
+                                 {ReduceTextLength(property?.property_name, 20)}
                               </TableCell>
                               <TableCell className='capitalize'>
-                                {property?.address}
+                                {ReduceTextLength(property?.address, 20)}
                               </TableCell>
-                              <TableCell className='capitalize'>{property?.house_type}</TableCell>
+                              <TableCell className='capitalize'>{ReduceTextLength(property?.house_type, 15)}</TableCell>
                               <TableCell className='capitalize'>{property?.number_of_rooms}</TableCell>
                               <TableCell className='capitalize'>{property?.number_of_flats}</TableCell>
-                              <TableCell className='capitalize'>{property?.property_description}</TableCell>
                               <TableCell className='capitalize text-center bg-muted/30'>
                                   <Link href={`/dashboard/tenant-management/property-info/${property?.house_id}`}>
                                       <Button variant={'ghost'}>View</Button>
