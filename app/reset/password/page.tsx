@@ -1,3 +1,5 @@
+"use client"
+
 export const dynamic = "force-dynamic"; // disables static rendering for this route
 
 import { NewPasswordForm } from "@/components/forms/NewPasswordForm"
