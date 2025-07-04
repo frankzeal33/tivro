@@ -8,13 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckCircle, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
-import { FormEvent, Suspense, useEffect, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { z } from "zod"
 import { debounce } from "lodash"
 import { axiosClient } from "@/GlobalApi"
 import { toast } from "react-toastify"
-import LoadingPage from "../LoadingPage";
 
 const passwordSchema = z
   .object({
@@ -135,86 +134,84 @@ export function NewPasswordForm({
   }
 
   return (
-    <Suspense fallback={<LoadingPage />}>
-      <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold">Create new password</h1>
-          <p className="text-balance text-sm font-normal">
-            One more step to go and you’re back into your account
-          </p>
+    <form className={cn("flex flex-col gap-6", className)} {...props} onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold">Create new password</h1>
+        <p className="text-balance text-sm font-normal">
+          One more step to go and you’re back into your account
+        </p>
+      </div>
+
+      <div className="grid gap-6">
+        {/* New Password */}
+        <div className="grid gap-2">
+          <Label htmlFor="newPassword">New Password</Label>
+          <div className="relative">
+            <Input
+              id="newPassword"
+              type={showNewPassword ? "text" : "password"}
+              value={form.newPassword}
+              onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
+              onBlur={() => setTouched(prev => ({ ...prev, newPassword: true }))}
+              placeholder="*********************"
+              className="pr-12"
+            />
+            <button
+              type="button"
+              className="absolute top-2 right-3 text-ring"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+            >
+              {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+          {touched.newPassword && errors.newPassword && (
+            <p className="text-xs text-red-500">{errors.newPassword}</p>
+          )}
         </div>
 
-        <div className="grid gap-6">
-          {/* New Password */}
-          <div className="grid gap-2">
-            <Label htmlFor="newPassword">New Password</Label>
-            <div className="relative">
-              <Input
-                id="newPassword"
-                type={showNewPassword ? "text" : "password"}
-                value={form.newPassword}
-                onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
-                onBlur={() => setTouched(prev => ({ ...prev, newPassword: true }))}
-                placeholder="*********************"
-                className="pr-12"
-              />
-              <button
-                type="button"
-                className="absolute top-2 right-3 text-ring"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-              >
-                {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-            {touched.newPassword && errors.newPassword && (
-              <p className="text-xs text-red-500">{errors.newPassword}</p>
-            )}
+        {/* Confirm New Password */}
+        <div className="grid gap-2">
+          <Label htmlFor="confirmPassword">Confirm New Password</Label>
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              type={showConfirmNewPassword ? "text" : "password"}
+              value={form.confirmNewPassword}
+              onChange={(e) => setForm({ ...form, confirmNewPassword: e.target.value })}
+              onBlur={() => setTouched(prev => ({ ...prev, confirmNewPassword: true }))}
+              placeholder="*********************"
+              className="pr-12"
+            />
+            <button
+              type="button"
+              className="absolute top-2 right-3 text-ring"
+              onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+            >
+              {showConfirmNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
-
-          {/* Confirm New Password */}
-          <div className="grid gap-2">
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmNewPassword ? "text" : "password"}
-                value={form.confirmNewPassword}
-                onChange={(e) => setForm({ ...form, confirmNewPassword: e.target.value })}
-                onBlur={() => setTouched(prev => ({ ...prev, confirmNewPassword: true }))}
-                placeholder="*********************"
-                className="pr-12"
-              />
-              <button
-                type="button"
-                className="absolute top-2 right-3 text-ring"
-                onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-              >
-                {showConfirmNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-            {touched.confirmNewPassword && errors.confirmNewPassword && (
-              <p className="text-xs text-red-500">{errors.confirmNewPassword}</p>
-            )}
-          </div>
-
-          {/* Dynamic Password Checklist */}
-          <div className="flex gap-x-4 gap-y-2 items-center flex-wrap">
-            <div className="space-y-1">
-              <ValidationItem label="Minimum of 8 characters long" isValid={passwordChecks.minLength} />
-              <ValidationItem label="At least one capital letter" isValid={passwordChecks.hasUppercase} />
-            </div>
-            <div className="space-y-1">
-              <ValidationItem label="At least one number" isValid={passwordChecks.hasNumber} />
-              <ValidationItem label="At least one symbol" isValid={passwordChecks.hasSpecialChar} />
-            </div>
-          </div>
-
-          <Button loading={isSubmitting} disabled={isSubmitting} type="submit" className="w-full">
-            {isSubmitting ? "Reseting..." : "Reset password"}
-          </Button>
+          {touched.confirmNewPassword && errors.confirmNewPassword && (
+            <p className="text-xs text-red-500">{errors.confirmNewPassword}</p>
+          )}
         </div>
-      </form>
-    </Suspense>
+
+        {/* Dynamic Password Checklist */}
+        <div className="flex gap-x-4 gap-y-2 items-center flex-wrap">
+          <div className="space-y-1">
+            <ValidationItem label="Minimum of 8 characters long" isValid={passwordChecks.minLength} />
+            <ValidationItem label="At least one capital letter" isValid={passwordChecks.hasUppercase} />
+          </div>
+          <div className="space-y-1">
+            <ValidationItem label="At least one number" isValid={passwordChecks.hasNumber} />
+            <ValidationItem label="At least one symbol" isValid={passwordChecks.hasSpecialChar} />
+          </div>
+        </div>
+
+        <Button loading={isSubmitting} disabled={isSubmitting} type="submit" className="w-full">
+          {isSubmitting ? "Reseting..." : "Reset password"}
+        </Button>
+      </div>
+    </form>
   )
 }
 
