@@ -1,7 +1,3 @@
-"use client"
-
-export const dynamic = "force-dynamic"; // disables static rendering for this route
-
 import { VerifyEmail } from "@/components/forms/VerifyEmail"
 import LoadingPage from "@/components/LoadingPage"
 import OnBoarding from "@/components/OnBoarding"
