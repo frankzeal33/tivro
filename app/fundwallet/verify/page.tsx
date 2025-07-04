@@ -2,10 +2,11 @@
 import { axiosClient } from '@/GlobalApi'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import Lottie from "lottie-react";
 import paymentCheck from '@/public/payment-check.json';
 import paymentError from '@/public/payment-error.json';
+import LoadingPage from '@/components/LoadingPage'
 
 const page = () => {
   const [loading, setLoading] = useState(true)
@@ -64,28 +65,30 @@ const page = () => {
   }
 
   return (
-    <div className="w-full flex justify-center items-center h-screen p-4">
-        {message.status ? (
-            <div className='items-center justify-center'>
-                <div className='w-[150px] h-[150px] mx-auto'>
-                    <Lottie animationData={paymentCheck} loop={true} />
+    <Suspense fallback={<LoadingPage />}>
+        <div className="w-full flex justify-center items-center h-screen p-4">
+            {message.status ? (
+                <div className='items-center justify-center'>
+                    <div className='w-[150px] h-[150px] mx-auto'>
+                        <Lottie animationData={paymentCheck} loop={true} />
+                    </div>
+                    <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
+                    <p className='font-bold text-sm mx-auto text-center'>Redirecting to Dashboard...</p>
+                    <Loader2 className="animate-spin size-6 text-green-600 mx-auto" />
                 </div>
-                <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
-                <p className='font-bold text-sm mx-auto text-center'>Redirecting to Dashboard...</p>
-                <Loader2 className="animate-spin size-6 text-green-600 mx-auto" />
-            </div>
-        ) : (
-            <div className='items-center justify-center'>
-                <div className='w-[150px] h-[150px] mx-auto'>
-                    <Lottie animationData={paymentError} loop={true} />
+            ) : (
+                <div className='items-center justify-center'>
+                    <div className='w-[150px] h-[150px] mx-auto'>
+                        <Lottie animationData={paymentError} loop={true} />
+                    </div>
+                    <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
+                    <p className='font-bold text-sm mx-auto text-center'>Redirecting to Dashboard...</p>
+                    <Loader2 className="animate-spin size-6 text-red-600 mx-auto" />
                 </div>
-                <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
-                <p className='font-bold text-sm mx-auto text-center'>Redirecting to Dashboard...</p>
-                <Loader2 className="animate-spin size-6 text-red-600 mx-auto" />
-            </div>
-        )}
-        
-    </div>
+            )}
+            
+        </div>
+    </Suspense>
   )
 }
 

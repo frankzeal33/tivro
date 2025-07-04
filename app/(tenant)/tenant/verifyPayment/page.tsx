@@ -2,13 +2,14 @@
 import { axiosClient } from '@/GlobalApi'
 import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { Suspense, useEffect, useRef, useState } from 'react'
 import Lottie from "lottie-react";
 import paymentCheck from '@/public/payment-check.json';
 import paymentError from '@/public/payment-error.json';
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-toastify'
 import { useTenantStore } from '@/store/TenantStore'
+import LoadingPage from '@/components/LoadingPage'
 
 const page = () => {
   const [loading, setLoading] = useState(true)
@@ -96,34 +97,36 @@ const page = () => {
   }
 
   return (
-    <div className="w-full flex justify-center items-center h-[80vh] p-4">
-        {message.status ? (
-            <div className='items-center justify-center'>
-                <div className='w-[150px] h-[150px] mx-auto'>
-                    <Lottie animationData={paymentCheck} loop={true} />
-                </div>
-                <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
+    <Suspense fallback={<LoadingPage />}>
+        <div className="w-full flex justify-center items-center h-[80vh] p-4">
+            {message.status ? (
                 <div className='items-center justify-center'>
-                    <h2 className='font-bold mx-auto text-center mb-2 text-lg'>You’ve come to the end</h2>
-                    <p className='font-bold text-sm mx-auto text-center'>Congratulations, you have completed this verification.</p>
-                    <p className='font-bold text-sm mx-auto text-center'>You will receive a mail from us soon.</p>
-                </div>
-            </div>
-        ) : (
-            <div className='items-center justify-center'>
-                <div className='w-[150px] h-[150px] mx-auto'>
-                    <Lottie animationData={paymentError} loop={true} />
-                </div>
-                <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
-                {message.msg !== "We have previously processed this payment" && (
-                    <div className='flex items-center justify-center'>
-                        <Button type="button" onClick={pay} loading={loadingPayment} disabled={loadingPayment}>{loadingPayment ? "Loading..." : "Retry Payment"}</Button>
+                    <div className='w-[150px] h-[150px] mx-auto'>
+                        <Lottie animationData={paymentCheck} loop={true} />
                     </div>
-                )}
-            </div>
-        )}
-        
-    </div>
+                    <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
+                    <div className='items-center justify-center'>
+                        <h2 className='font-bold mx-auto text-center mb-2 text-lg'>You’ve come to the end</h2>
+                        <p className='font-bold text-sm mx-auto text-center'>Congratulations, you have completed this verification.</p>
+                        <p className='font-bold text-sm mx-auto text-center'>You will receive a mail from us soon.</p>
+                    </div>
+                </div>
+            ) : (
+                <div className='items-center justify-center'>
+                    <div className='w-[150px] h-[150px] mx-auto'>
+                        <Lottie animationData={paymentError} loop={true} />
+                    </div>
+                    <h2 className='font-bold mx-auto text-center mb-2'>{message.msg}</h2>
+                    {message.msg !== "We have previously processed this payment" && (
+                        <div className='flex items-center justify-center'>
+                            <Button type="button" onClick={pay} loading={loadingPayment} disabled={loadingPayment}>{loadingPayment ? "Loading..." : "Retry Payment"}</Button>
+                        </div>
+                    )}
+                </div>
+            )}
+            
+        </div>
+    </Suspense>
   )
 }
 
