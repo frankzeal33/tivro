@@ -524,7 +524,7 @@ export default function Page() {
                               <TableCell className='capitalize'>{property?.number_of_flats}</TableCell>
                               <TableCell className='capitalize'>{property?.property_description}</TableCell>
                               <TableCell className='capitalize text-center bg-muted/30'>
-                                  <Link href={`/dashboard/tenant-management/tenant-info/${property.house_id}`}>
+                                  <Link href={`/dashboard/tenant-management/property-info/${property?.house_id}`}>
                                       <Button variant={'ghost'}>View</Button>
                                   </Link>
                               </TableCell>

@@ -1,7 +1,8 @@
+"use client"
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Card,
     CardContent,
@@ -29,6 +30,11 @@ import {
   } from "@/components/ui/table"
 import NotFound from '@/components/NotFound'
 import { ContainerTitle } from '@/components/ContainerTitle'
+import { toast } from 'react-toastify'
+import { axiosClient } from '@/GlobalApi'
+import { useParams } from 'next/navigation'
+import Skeleton from '@/components/Skeleton'
+import TableSkeleton from '@/components/TableSkeleton'
 
 const requests = [
     {
@@ -51,15 +57,95 @@ const requests = [
     },
 ]
 
+type historyType = {
+  property_name: string;
+  tenant_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  move_in: string;
+  renewal_date: string;
+  Active_tenant: boolean
+}[]
+
+type propertyType = {
+  house_id: string;
+  property_name: string;
+  address: string;
+  house_type: string;
+  number_of_rooms: number;
+  number_of_flats: number;
+  property_description: string;
+}
+
 const Page = () => {
-    const status = 'passed'
+
+  const params = useParams();
+    const id = params.id;
+    const [date, setDate] = useState<Date>()
+    const [loadingProperty, setLoadingProperty] = useState(false)
+    const [loadingHistory, setLoadingHistory] = useState(false)
+    const [property, setProperty] = useState<propertyType | null>(null)
+    const [history, setHistory] = useState<historyType>([])
+    const [openEditTenant, setOpenEditTenant] = useState(false)
+    const [submittingTenant, setSubmittingTenant] = useState(false)
+    const [openConfirmModal, setOpenConfirmModal] = useState(false)
+    const arrayList = new Array(2).fill(null)
+    const tableList = new Array(6).fill(null)
+  
+    const getProperty = async () => {
+      
+      try {
+        setLoadingProperty(true)
+        
+        const response = await axiosClient.get(`/property/${id}/`)
+        setProperty(response.data || {})
+  
+      } catch (error: any) {
+        toast.error(error.response?.data?.message);
+      } finally {
+        setLoadingProperty(false)
+      } 
+    }
+  
+    const getHistory = async () => {
+      
+      try {
+  
+        setLoadingHistory(true)
+        
+        const response = await axiosClient.get(`/property/${id}/tenants/`)
+        setHistory(response.data.items || [])
+  
+      } catch (error: any) {
+        toast.error(error.response?.data?.message);
+      } finally {
+        setLoadingHistory(false)
+      } 
+    }
+    
+    useEffect(() => {
+      getProperty()
+      getHistory()
+    }, [id])
+
   return (
     <div className='my-container space-y-4'>
-        <div  className='flex items-end justify-between gap-2'>
-            <ContainerTitle goBack='/dashboard/tenant-management' title='Property information' desc='View your property details here'/>
-        </div>
 
-        <div className='bg-light p-4 rounded-2xl border space-y-4'>
+      {loadingProperty ? (
+          <div className="grid grid-col-1 gap-4">
+              {arrayList.map((_, index) => (
+                  <Skeleton key={index} />
+              ))}
+          </div>
+      ) : (
+        <div className='space-y-4'>
+          <div  className='flex items-end justify-between gap-2'>
+            <ContainerTitle goBack='/dashboard/tenant-management' title='Property information' desc='View your property details here'/>
+          </div>
+
+          <div className='bg-light p-4 rounded-2xl border space-y-4'>
             <p className='text-lg font-semibold'>Property information</p>
 
             <Card className='shadow-none'>
@@ -68,44 +154,57 @@ const Page = () => {
                         <div className='grid md:grid-cols-2 gap-4'>
                             <div>
                                 <p className="text-sm font-medium leading-none">Property name</p>
-                                <p className="text-sm text-muted-foreground">Reginald</p>
+                                <p className="text-sm text-muted-foreground">{property?.property_name}</p>
                             </div>
                             <div>
                                 <p className="text-sm font-medium leading-none">Property type</p>
-                                <p className="text-sm text-muted-foreground">Estate</p>
+                                <p className="text-sm text-muted-foreground">{property?.house_type}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium leading-none">Maintenance</p>
-                                <p className="text-sm text-muted-foreground">Reginald</p>
+                                <p className="text-sm font-medium leading-none">No of flats</p>
+                                <p className="text-sm text-muted-foreground">{property?.number_of_flats}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium leading-none">Lease terms</p>
-                                <p className="text-sm text-muted-foreground">Estate</p>
+                                <p className="text-sm font-medium leading-none">No of rooms</p>
+                                <p className="text-sm text-muted-foreground">{property?.number_of_rooms}</p>
                             </div>
                             <div>
                                 <p className="text-sm font-medium leading-none">Property Location</p>
-                                <p className="text-sm text-muted-foreground">14 Adamawa Street, Port Harcourt, Nigeria</p>
+                                <p className="text-sm text-muted-foreground">{property?.address}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium leading-none">Security features</p>
-                                <p className="text-sm text-muted-foreground">Onion</p>
+                                <p className="text-sm font-medium leading-none">House ID</p>
+                                <p className="text-sm text-muted-foreground">{property?.house_id}</p>
                             </div>
                         </div>
                         <div className='bg-muted p-2 rounded-2xl mt-4'>
                             <p className="text-sm font-medium leading-none mb-1">Property description</p>
-                            <p className="text-sm text-muted-foreground">My estate is one of a kind, I only need people who have cars and money, because i’m a no nonsense somebody.</p>
+                            <p className="text-sm text-muted-foreground">{property?.property_description}</p>
                         </div>
                     </div>
                 </CardContent>
             </Card>
+          </div>
         </div>
+      )}
 
-        <div className='bg-light p-4 rounded-2xl border space-y-4'>
-            <div className='flex items-center gap-2 mb-6'>
-                <p className="text-lg font-medium leading-none">History</p>
+      {loadingHistory ? (
+        <div className="mt-4">
+            <div className='w-full h-72 bg-white rounded-sm shadow flex'>
+                <div className='p-4 grid w-full gap-2'>
+                {tableList.map((_, index) => (
+                    <TableSkeleton key={index}/>
+                ))}
+                </div>
             </div>
+        </div>
+      ) : (
+        <div className='bg-light p-4 rounded-2xl border space-y-4'>
+          <div className='flex items-center gap-2 mb-6'>
+            <p className="text-lg font-medium leading-none">History</p>
+          </div>
 
-            <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
+          <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted">
@@ -185,8 +284,10 @@ const Page = () => {
             </div>
               )
             }
+          </div>
         </div>
-        </div>
+      )}
+  
     </div>
   )
 }

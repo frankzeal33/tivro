@@ -154,8 +154,8 @@ const Page = () => {
   const getTenant = async () => {
     
     try {
-
       setLoadingTenant(true)
+      setLoadingHistory(true)
       
       const response = await axiosClient.get(`/tenant/${id}/`)
       setTenant(response.data.tenant || {})
@@ -316,7 +316,7 @@ const Page = () => {
     <div className='my-container space-y-4'>
       
        {loadingTenant ? (
-            <div className="grid grid-col-1 gap-2">
+            <div className="grid grid-col-1 gap-4">
                 {arrayList.map((_, index) => (
                     <Skeleton key={index} />
                 ))}
@@ -549,7 +549,7 @@ const Page = () => {
                   <CardContent>               
                       <div className='flex flex-col gap-4 items-center justify-center'>
                           <Avatar className='size-32'>
-                            <AvatarImage src={'/photo.png'} alt="@Tivro" />
+                            <AvatarImage src={'/photo.png'} alt="TV" />
                           </Avatar>
                           <div className='flex flex-col items-center justify-center gap-2'>
                               <p className="text-2xl font-medium leading-none text-center">{tenant?.full_name}</p>
@@ -603,7 +603,7 @@ const Page = () => {
         )}
 
         {loadingHistory ? (
-            <div className="mt-8">
+            <div className="mt-4">
                 <div className='w-full h-72 bg-white rounded-sm shadow flex'>
                     <div className='p-4 grid w-full gap-2'>
                     {tableList.map((_, index) => (
