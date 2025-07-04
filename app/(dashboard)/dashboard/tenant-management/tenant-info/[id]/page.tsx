@@ -525,7 +525,7 @@ const Page = () => {
                       </AlertDialogContent>
                   </AlertDialog>
               </div>
-          </div>
+            </div>
 
           <AlertDialog open={openConfirmModal} onOpenChange={setOpenConfirmModal}>
               <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
