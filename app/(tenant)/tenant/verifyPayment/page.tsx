@@ -18,25 +18,31 @@ const page = () => {
     status: false
   })
   const searchParams = useSearchParams()
-  const orderId = searchParams.get("orderId")
+  
   const tenantInfo = useTenantStore((state) => state.tenantInfo)
-  const hasVerified = useRef(false)
+//   const hasVerified = useRef(false)
 
   const router = useRouter()
 
 
     // Redirect if no orderId
     useEffect(() => {
+        const orderId = searchParams.get("orderId")
+
         if (!orderId) {
             router.replace("/")
+        }else{
+            // if (hasVerified.current) return;
+            // hasVerified.current = true;
+            verifyPayment(orderId)
         }
-    }, [orderId])
+    }, [searchParams])
 
-    const verifyPayment = async () => {
+    const verifyPayment = async (order_Id: string) => {
 
         try {
         
-            const response = await axiosClient.get(`/ten/verifyPayment/?order_id=${orderId}`)
+            const response = await axiosClient.get(`/ten/verifyPayment/?order_id=${order_Id}`)
             setMessage({
                 msg: response.data?.message || "Something went wrong",
                 status: true
@@ -51,12 +57,6 @@ const page = () => {
             setLoading(false)
         } 
     }
-
-    useEffect(() => {
-        if (hasVerified.current) return;
-        hasVerified.current = true;
-        verifyPayment()
-    }, [])
 
     const pay = async (): Promise<void> =>  {
         try{

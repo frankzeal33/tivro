@@ -14,29 +14,27 @@ const page = () => {
     status: false
   })
   const searchParams = useSearchParams()
-  const transactionId = searchParams.get("transaction_id")
-  const status = searchParams.get("status")
 
   const router = useRouter()
 
     useEffect(() => {
-        if (status !== "completed") {
-            router.replace("/dashboard/tenant-management")
-        }
 
-        if (!transactionId) {
+        const transactionId = searchParams.get("transaction_id")
+        const status = searchParams.get("status")
+
+        if (!transactionId || status !== "completed") {
             router.replace("/dashboard/tenant-management")
-        }else{
-            verifyPayment()
+        } else {
+            verifyPayment(transactionId)
         }
         
-    }, [transactionId, status])
+    }, [searchParams])
 
-    const verifyPayment = async () => {
+    const verifyPayment = async (transId: string) => {
 
         try {
         
-            const response = await axiosClient.get(`/flutterwave/verify/fundwallet/?transaction_id=${transactionId}`)
+            const response = await axiosClient.get(`/flutterwave/verify/fundwallet/?transaction_id=${transId}`)
             setMessage({
                 msg: response.data?.message || "Something went wrong",
                 status: true
@@ -58,7 +56,7 @@ const page = () => {
             setLoading(false)
             setTimeout(() => {
                 router.replace("/dashboard/tenant-management")
-            }, 5000)
+            }, 4000)
         } 
     }
 

@@ -19,25 +19,24 @@ const page = () => {
 
   const router = useRouter()
 
-
     useEffect(() => {
-        if (status !== "completed") {
-            router.replace("/dashboard")
-        }
+    
+        const transactionId = searchParams.get("transaction_id")
+        const status = searchParams.get("status")
 
-        if (!transactionId) {
-            router.replace("/dashboard")
-        }else{
-            verifyPayment()
+        if (!transactionId || status !== "completed") {
+             router.replace("/dashboard")
+        } else {
+            verifyPayment(transactionId)
         }
         
-    }, [transactionId, status])
+    }, [searchParams])
 
-    const verifyPayment = async () => {
+    const verifyPayment = async (transId: string) => {
 
         try {
         
-            const response = await axiosClient.get(`/flutterwave/verify/?transaction_id=${transactionId}`)
+            const response = await axiosClient.get(`/flutterwave/verify/?transaction_id=${transId}`)
             setMessage({
                 msg: response.data?.message || "Something went wrong",
                 status: true
@@ -59,7 +58,7 @@ const page = () => {
             setLoading(false)
             setTimeout(() => {
                 router.replace("/dashboard")
-            }, 5000)
+            }, 4000)
         } 
     }
 

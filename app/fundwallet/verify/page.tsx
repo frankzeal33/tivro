@@ -14,25 +14,26 @@ const page = () => {
     status: false
   })
   const searchParams = useSearchParams()
-  const orderId = searchParams.get("orderId")
 
   const router = useRouter()
 
 
     // Redirect if no orderId
     useEffect(() => {
+        const orderId = searchParams.get("orderId")
+
         if (!orderId) {
             router.replace("/dashboard/tenant-management")
         }else{
-            verifyPayment()
+            verifyPayment(orderId)
         }
-    }, [orderId])
+    }, [searchParams])
 
-    const verifyPayment = async () => {
+    const verifyPayment = async (order_Id: string) => {
 
         try {
         
-            const response = await axiosClient.get(`/fundwallet/verify/?order_id=${orderId}`)
+            const response = await axiosClient.get(`/fundwallet/verify/?order_id=${order_Id}`)
             setMessage({
                 msg: response.data?.message || "Something went wrong",
                 status: true
@@ -47,7 +48,7 @@ const page = () => {
             setLoading(false)
             setTimeout(() => {
                 router.replace("/dashboard/tenant-management")
-            }, 5000)
+            }, 4000)
         } 
     }
 
