@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic"; // disables static rendering for this route
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,13 +12,14 @@ import {
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { FormEvent, useCallback, useEffect, useState } from "react"
+import { FormEvent, Suspense, useCallback, useEffect, useState } from "react"
 import { z } from "zod"
 import debounce from "lodash/debounce"
 import { axiosClient } from "@/GlobalApi"
 import { toast } from "react-toastify"
 import Countdown from "react-countdown"
 import { useAuthStore } from "@/store/AuthStore"
+import LoadingPage from "../LoadingPage"
 
 const otpSchema = z.object({
   otp: z.string().min(6, "OTP must be 6 digits"),
@@ -178,45 +181,47 @@ export function VerifyEmail({
   }
 
   return (
-    <form
-      className={cn("flex flex-col gap-6", className)}
-      {...props}
-      onSubmit={handleSubmit}
-    >
-      <Link href={"/register"} className="text-sm -mt-4 flex gap-1 items-center">
-        <ArrowLeft size={16} className="text-normal" />
-        Back
-      </Link>
+    <Suspense fallback={<LoadingPage />}>
+      <form
+        className={cn("flex flex-col gap-6", className)}
+        {...props}
+        onSubmit={handleSubmit}
+      >
+        <Link href={"/register"} className="text-sm -mt-4 flex gap-1 items-center">
+          <ArrowLeft size={16} className="text-normal" />
+          Back
+        </Link>
 
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold">Verify your email</h1>
-        <p className="text-balance text-sm font-normal">
-          We sent a mail to your email preferred address. Kindly enter the OTP to verify your account.
-        </p>
-      </div>
-
-      <div className="grid gap-6">
-        <div className="grid gap-2">
-          <InputOTP maxLength={6} value={otp} onChange={handleChange}>
-            <InputOTPGroup className="w-full flex gap-3 justify-between">
-              {[...Array(6)].map((_, index) => (
-                <InputOTPSlot key={index} index={index} className="rounded-md border size-10 bg-light" />
-              ))}
-            </InputOTPGroup>
-          </InputOTP>
-          {error && <p className="text-xs text-red-500">{error}</p>}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold">Verify your email</h1>
+          <p className="text-balance text-sm font-normal">
+            We sent a mail to your email preferred address. Kindly enter the OTP to verify your account.
+          </p>
         </div>
 
-        <Button loading={isSubmitting} type="submit" className="w-full" disabled={otp.length < 6 || isSubmitting}>
-          {isSubmitting ? "Verifying..." : "Confirm"}
-        </Button>
-      </div>
+        <div className="grid gap-6">
+          <div className="grid gap-2">
+            <InputOTP maxLength={6} value={otp} onChange={handleChange}>
+              <InputOTPGroup className="w-full flex gap-3 justify-between">
+                {[...Array(6)].map((_, index) => (
+                  <InputOTPSlot key={index} index={index} className="rounded-md border size-10 bg-light" />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
+            {error && <p className="text-xs text-red-500">{error}</p>}
+          </div>
 
-      <div className="text-sm -mt-4">
-        {otpExpiry && (
-          <Countdown key={resendKey} date={otpExpiry} renderer={renderer} />
-        )}
-      </div>
-    </form>
+          <Button loading={isSubmitting} type="submit" className="w-full" disabled={otp.length < 6 || isSubmitting}>
+            {isSubmitting ? "Verifying..." : "Confirm"}
+          </Button>
+        </div>
+
+        <div className="text-sm -mt-4">
+          {otpExpiry && (
+            <Countdown key={resendKey} date={otpExpiry} renderer={renderer} />
+          )}
+        </div>
+      </form>
+    </Suspense>
   )
 }
