@@ -59,6 +59,8 @@ import {
 } from "@/components/ui/popover"
 import { cn } from '@/lib/utils'
 import SkeletonFull from '@/components/SkeletonFull'
+import Skeleton from '@/components/Skeleton'
+import TableSkeleton from '@/components/TableSkeleton'
 
 
 type tenantType = {
@@ -146,6 +148,8 @@ const Page = () => {
     renewal_date: "",
     active_tenant: true
   })
+  const arrayList = new Array(2).fill(null)
+  const tableList = new Array(6).fill(null)
 
   const getTenant = async () => {
     
@@ -310,284 +314,306 @@ const Page = () => {
 
   return (
     <div className='my-container space-y-4'>
-        <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-2'>
-            <div>
-                <Link href={'/dashboard/tenant-management'} className="text-sm mb-6 flex gap-1 items-center">
-                    <ArrowLeft size={16} className="text-normal"/>
-                    Back
-                </Link>
-                <h2 className='font-bold text-2xl'>Tenant information</h2>
-                <p className='text-muted-foreground'>View new tenant details here</p>
+      
+       {loadingTenant ? (
+            <div className="grid grid-col-1 gap-2">
+                {arrayList.map((_, index) => (
+                    <Skeleton key={index} />
+                ))}
             </div>
-            <div className='flex gap-1'>
-                <AlertDialog open={openEditTenant} onOpenChange={setOpenEditTenant}>
-                    <AlertDialogTrigger asChild>
-                      <Button variant={'outline'} className='bg-light'><Plus/> Edit Profile</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl p-0 w-[300px] md:w-[500px] gap-0 max-h-[95%] overflow-y-auto">
-                        <form>
-                            <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
-                                <AlertDialogTitle className="text-sm">Edit Tenant</AlertDialogTitle>
-                                <AlertDialogCancel className='bg-background-light border-0 shadow-none'><X className='text-2xl'/></AlertDialogCancel>
-                            </AlertDialogHeader>
-                            <AlertDialogDescription className="w-full bg-light px-4 py-4 flex flex-col items-center justify-center gap-3">
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="firstname" className='text-accent-foreground'>First name</Label>
-                                    <Input id="firstname" value={editForm.first_name} onChange={(e: any) => setEditForm({ ...editForm, first_name: e.target.value})} placeholder="Enter here"/>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="lastname" className='text-accent-foreground'>Last name</Label>
-                                    <Input id="lastname" value={editForm.last_name} onChange={(e: any) => setEditForm({ ...editForm, last_name: e.target.value})}placeholder="Enter here"/>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="email" className='text-accent-foreground'>Email address</Label>
-                                    <Input id="email" type="email" value={editForm.email} onChange={(e: any) => setEditForm({ ...editForm, email: e.target.value})} placeholder="Enter here" />
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="Phone" className='text-accent-foreground'>Phone no.</Label>
-                                    <Input id="Phone" type="number" value={editForm.phone} onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value})} placeholder="Enter here"/>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="Purpose" className='text-accent-foreground'>Occupancy Date</Label>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                          <Button
-                                          variant={"outline"}
-                                          className={cn(
-                                              "justify-start text-left font-normal bg-light",
-                                              !date && "text-muted-foreground"
-                                          )}
-                                          >
-                                          <CalendarIcon />
-                                          {editForm.move_in ? format(new Date(editForm.move_in), "PPP") : <span>Pick a date</span>}
-                                          </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="flex w-auto flex-col space-y-2 p-2">
-                                          <Select
-                                              onValueChange={(value) => {
-                                                  const newDate = addDays(new Date(), parseInt(value));
-                                                  setEditForm((prev) => ({
-                                                      ...prev,
-                                                      move_in: newDate.toISOString(),
-                                                  }));
-                                              }}
-                                          >
-                                          <SelectTrigger className='w-full'>
-                                              <SelectValue placeholder="Select" />
-                                          </SelectTrigger>
-                                          <SelectContent position="popper">
-                                              <SelectItem value="-1">Yesterday</SelectItem>
-                                              <SelectItem value="0">Today</SelectItem>
-                                              <SelectItem value="1">Tomorrow</SelectItem>
-                                          </SelectContent>
-                                          </Select>
-                                          <div className="rounded-md border">
-                                              <Calendar mode="single" selected={editForm.move_in ? new Date(editForm.move_in) : undefined} onSelect={(date) => {
-                                                  setEditForm((prev) => ({
-                                                      ...prev,
-                                                      move_in: date?.toISOString() ?? "",
-                                              }))}}/>
-                                          </div>
-                                      </PopoverContent>
-                                  </Popover>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="amount" className='text-accent-foreground'>Renewal Date</Label>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                          <Button
-                                          variant={"outline"}
-                                          className={cn(
-                                              "justify-start text-left font-normal bg-light",
-                                              !date && "text-muted-foreground"
-                                          )}
-                                          >
-                                          <CalendarIcon />
-                                          {editForm.renewal_date ? format(new Date(editForm.renewal_date), "PPP") : <span>Pick a date</span>}
-                                          </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="flex w-auto flex-col space-y-2 p-2">
-                                          <Select
-                                              onValueChange={(value) => {
-                                                  const newDate = addDays(new Date(), parseInt(value));
-                                                  setEditForm((prev) => ({
-                                                      ...prev,
-                                                      renewal_date: newDate.toISOString(),
-                                                  }));
-                                              }}
-                                          >
-                                          <SelectTrigger className='w-full'>
-                                              <SelectValue placeholder="Select" />
-                                          </SelectTrigger>
-                                          <SelectContent position="popper">
-                                              <SelectItem value="180">6 months from today</SelectItem>
-                                              <SelectItem value="365">1 year from today</SelectItem>
-                                              <SelectItem value="730">2 years from today</SelectItem>
-                                              <SelectItem value="1095">3 years from today</SelectItem>
-                                              <SelectItem value="1460">4 years from today</SelectItem> 
-                                              <SelectItem value="1825">5 years from today</SelectItem> 
-                                          </SelectContent>
-                                          </Select>
-                                          <div className="rounded-md border">
-                                              <Calendar mode="single" selected={editForm.renewal_date ? new Date(editForm.renewal_date) : undefined} onSelect={(date) => {
-                                                  setEditForm((prev) => ({
-                                                      ...prev,
-                                                      renewal_date: date?.toISOString() ?? "",
-                                              }))}}/>
-                                          </div>
-                                      </PopoverContent>
-                                  </Popover>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                  <Label htmlFor="Property-name" className='text-accent-foreground'>Tenant Status</Label>
-                                  <Select value={String(editForm.active_tenant)} onValueChange={(value) =>
-                                      setEditForm((prev) => ({
-                                          ...prev,
-                                          active_tenant: value === "true"
-                                      }))
-                                  }>
-                                      <SelectTrigger className="w-full">
-                                          <SelectValue placeholder="Select a property" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                          <SelectGroup>
-                                          <SelectLabel>Tenant currently {editForm.active_tenant ? "Active" : "In Active"}</SelectLabel>
-                                            <SelectItem value={"true"}>Active</SelectItem>
-                                            <SelectItem value={"false"}>In Active</SelectItem>
-                                          </SelectGroup>
-                                      </SelectContent>
-                                  </Select>
-                                </span>
-                            </AlertDialogDescription>
-                            <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
-                                <Button type="button" className='w-full' onClick={confirmEditTenant}>
-                                  Update Tenant
-                                </Button>
-                            </AlertDialogFooter>
-                        </form>
-                    </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog open={openInvoice} onOpenChange={setOpenInvoice}>
-                    <AlertDialogTrigger asChild>
-                      <Button>Send Invoice</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="rounded-2xl p-0 w-[300px] md:w-[500px] gap-0 max-h-[95%] overflow-y-auto">
-                        <form onSubmit={sendInvoice}>
-                            <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
-                                <AlertDialogTitle className="text-sm">Send invoice</AlertDialogTitle>
-                                <AlertDialogCancel className='bg-background-light border-0 shadow-none'><X className='text-2xl'/></AlertDialogCancel>
-                            </AlertDialogHeader>
-                            <AlertDialogDescription className="w-full bg-light px-4 py-4 flex flex-col items-center justify-center gap-3">
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="firstname" className='text-accent-foreground'>First name</Label>
-                                    <Input id="firstname" className='bg-background-light' value={tenant?.full_name ? tenant.full_name.split(" ")[0] : ""} placeholder="Enter here" disabled/>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="lastname" className='text-accent-foreground'>Last name</Label>
-                                    <Input id="lastname" className='bg-background-light' value={tenant?.full_name ? tenant?.full_name.split(" ").slice(1).join(" ") : ""} placeholder="Enter here" disabled/>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="Property-name" className='text-accent-foreground'>Property name</Label>
-                                    <Input id="Property-name" className='bg-background-light' value={tenant?.property_name ?? ""} placeholder="Enter here" disabled/>
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="Purpose" className='text-accent-foreground'>Purpose for invoice</Label>
-                                    <Input id="Purpose" type="text" value={invoiceForm.purpose_of_invoice ?? ""} onChange={(e: any) => setInvoiceForm({ ...invoiceForm, purpose_of_invoice: e.target.value})} placeholder="Enter here" />
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="email" className='text-accent-foreground'>Email address</Label>
-                                    <Input id="email" className='bg-background-light' value={tenant?.email ?? ""} placeholder="Enter here" disabled />
-                                </span>
-                                <span className='grid gap-2 w-full'>
-                                    <Label htmlFor="amount" className='text-accent-foreground'>Enter amount</Label>
-                                    <Input id="amount" type="number" value={invoiceForm.amount ?? ""} onChange={(e: any) => setInvoiceForm({ ...invoiceForm, amount: e.target.value})} placeholder="Enter amount here" />
-                                </span>
-                            </AlertDialogDescription>
-                            <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
-                                <Button loading={loadingInvoice} disabled={loadingInvoice} type="submit" className='w-full'>
-                                    {loadingInvoice ? "Sending Invoice..." : "Send Invoice"}
-                                </Button>
-                            </AlertDialogFooter>
-                        </form>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-        </div>
+        ) : (
+          <div className='space-y-4'>
+            <div className='flex flex-col md:flex-row md:items-end md:justify-between gap-2'>
+              <div>
+                  <Link href={'/dashboard/tenant-management'} className="text-sm mb-6 flex gap-1 items-center">
+                      <ArrowLeft size={16} className="text-normal"/>
+                      Back
+                  </Link>
+                  <h2 className='font-bold text-2xl'>Tenant information</h2>
+                  <p className='text-muted-foreground'>View new tenant details here</p>
+              </div>
+              <div className='flex gap-1'>
+                  <AlertDialog open={openEditTenant} onOpenChange={setOpenEditTenant}>
+                      <AlertDialogTrigger asChild>
+                        <Button variant={'outline'} className='bg-light'><Plus/> Edit Profile</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-2xl p-0 w-[300px] md:w-[500px] gap-0 max-h-[95%] overflow-y-auto">
+                          <form>
+                              <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                                  <AlertDialogTitle className="text-sm">Edit Tenant</AlertDialogTitle>
+                                  <AlertDialogCancel className='bg-background-light border-0 shadow-none'><X className='text-2xl'/></AlertDialogCancel>
+                              </AlertDialogHeader>
+                              <AlertDialogDescription className="w-full bg-light px-4 py-4 flex flex-col items-center justify-center gap-3">
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="firstname" className='text-accent-foreground'>First name</Label>
+                                      <Input id="firstname" value={editForm.first_name} onChange={(e: any) => setEditForm({ ...editForm, first_name: e.target.value})} placeholder="Enter here"/>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="lastname" className='text-accent-foreground'>Last name</Label>
+                                      <Input id="lastname" value={editForm.last_name} onChange={(e: any) => setEditForm({ ...editForm, last_name: e.target.value})}placeholder="Enter here"/>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="email" className='text-accent-foreground'>Email address</Label>
+                                      <Input id="email" type="email" value={editForm.email} onChange={(e: any) => setEditForm({ ...editForm, email: e.target.value})} placeholder="Enter here" />
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="Phone" className='text-accent-foreground'>Phone no.</Label>
+                                      <Input id="Phone" type="number" value={editForm.phone} onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value})} placeholder="Enter here"/>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="Purpose" className='text-accent-foreground'>Occupancy Date</Label>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "justify-start text-left font-normal bg-light",
+                                                !date && "text-muted-foreground"
+                                            )}
+                                            >
+                                            <CalendarIcon />
+                                            {editForm.move_in ? format(new Date(editForm.move_in), "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="flex w-auto flex-col space-y-2 p-2">
+                                            <Select
+                                                onValueChange={(value) => {
+                                                    const newDate = addDays(new Date(), parseInt(value));
+                                                    setEditForm((prev) => ({
+                                                        ...prev,
+                                                        move_in: newDate.toISOString(),
+                                                    }));
+                                                }}
+                                            >
+                                            <SelectTrigger className='w-full'>
+                                                <SelectValue placeholder="Select" />
+                                            </SelectTrigger>
+                                            <SelectContent position="popper">
+                                                <SelectItem value="-1">Yesterday</SelectItem>
+                                                <SelectItem value="0">Today</SelectItem>
+                                                <SelectItem value="1">Tomorrow</SelectItem>
+                                            </SelectContent>
+                                            </Select>
+                                            <div className="rounded-md border">
+                                                <Calendar mode="single" selected={editForm.move_in ? new Date(editForm.move_in) : undefined} onSelect={(date) => {
+                                                    setEditForm((prev) => ({
+                                                        ...prev,
+                                                        move_in: date?.toISOString() ?? "",
+                                                }))}}/>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="amount" className='text-accent-foreground'>Renewal Date</Label>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "justify-start text-left font-normal bg-light",
+                                                !date && "text-muted-foreground"
+                                            )}
+                                            >
+                                            <CalendarIcon />
+                                            {editForm.renewal_date ? format(new Date(editForm.renewal_date), "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="flex w-auto flex-col space-y-2 p-2">
+                                            <Select
+                                                onValueChange={(value) => {
+                                                    const newDate = addDays(new Date(), parseInt(value));
+                                                    setEditForm((prev) => ({
+                                                        ...prev,
+                                                        renewal_date: newDate.toISOString(),
+                                                    }));
+                                                }}
+                                            >
+                                            <SelectTrigger className='w-full'>
+                                                <SelectValue placeholder="Select" />
+                                            </SelectTrigger>
+                                            <SelectContent position="popper">
+                                                <SelectItem value="180">6 months from today</SelectItem>
+                                                <SelectItem value="365">1 year from today</SelectItem>
+                                                <SelectItem value="730">2 years from today</SelectItem>
+                                                <SelectItem value="1095">3 years from today</SelectItem>
+                                                <SelectItem value="1460">4 years from today</SelectItem> 
+                                                <SelectItem value="1825">5 years from today</SelectItem> 
+                                            </SelectContent>
+                                            </Select>
+                                            <div className="rounded-md border">
+                                                <Calendar mode="single" selected={editForm.renewal_date ? new Date(editForm.renewal_date) : undefined} onSelect={(date) => {
+                                                    setEditForm((prev) => ({
+                                                        ...prev,
+                                                        renewal_date: date?.toISOString() ?? "",
+                                                }))}}/>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                    <Label htmlFor="Property-name" className='text-accent-foreground'>Tenant Status</Label>
+                                    <Select value={String(editForm.active_tenant)} onValueChange={(value) =>
+                                        setEditForm((prev) => ({
+                                            ...prev,
+                                            active_tenant: value === "true"
+                                        }))
+                                    }>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Select a property" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                            <SelectLabel>Tenant currently {editForm.active_tenant ? "Active" : "In Active"}</SelectLabel>
+                                              <SelectItem value={"true"}>Active</SelectItem>
+                                              <SelectItem value={"false"}>In Active</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                  </span>
+                              </AlertDialogDescription>
+                              <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                                  <Button type="button" className='w-full' onClick={confirmEditTenant}>
+                                    Update Tenant
+                                  </Button>
+                              </AlertDialogFooter>
+                          </form>
+                      </AlertDialogContent>
+                  </AlertDialog>
+                  <AlertDialog open={openInvoice} onOpenChange={setOpenInvoice}>
+                      <AlertDialogTrigger asChild>
+                        <Button>Send Invoice</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-2xl p-0 w-[300px] md:w-[500px] gap-0 max-h-[95%] overflow-y-auto">
+                          <form onSubmit={sendInvoice}>
+                              <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                                  <AlertDialogTitle className="text-sm">Send invoice</AlertDialogTitle>
+                                  <AlertDialogCancel className='bg-background-light border-0 shadow-none'><X className='text-2xl'/></AlertDialogCancel>
+                              </AlertDialogHeader>
+                              <AlertDialogDescription className="w-full bg-light px-4 py-4 flex flex-col items-center justify-center gap-3">
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="firstname" className='text-accent-foreground'>First name</Label>
+                                      <Input id="firstname" className='bg-background-light' value={tenant?.full_name ? tenant.full_name.split(" ")[0] : ""} placeholder="Enter here" disabled/>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="lastname" className='text-accent-foreground'>Last name</Label>
+                                      <Input id="lastname" className='bg-background-light' value={tenant?.full_name ? tenant?.full_name.split(" ").slice(1).join(" ") : ""} placeholder="Enter here" disabled/>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="Property-name" className='text-accent-foreground'>Property name</Label>
+                                      <Input id="Property-name" className='bg-background-light' value={tenant?.property_name ?? ""} placeholder="Enter here" disabled/>
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="Purpose" className='text-accent-foreground'>Purpose for invoice</Label>
+                                      <Input id="Purpose" type="text" value={invoiceForm.purpose_of_invoice ?? ""} onChange={(e: any) => setInvoiceForm({ ...invoiceForm, purpose_of_invoice: e.target.value})} placeholder="Enter here" />
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="email" className='text-accent-foreground'>Email address</Label>
+                                      <Input id="email" className='bg-background-light' value={tenant?.email ?? ""} placeholder="Enter here" disabled />
+                                  </span>
+                                  <span className='grid gap-2 w-full'>
+                                      <Label htmlFor="amount" className='text-accent-foreground'>Enter amount</Label>
+                                      <Input id="amount" type="number" value={invoiceForm.amount ?? ""} onChange={(e: any) => setInvoiceForm({ ...invoiceForm, amount: e.target.value})} placeholder="Enter amount here" />
+                                  </span>
+                              </AlertDialogDescription>
+                              <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                                  <Button loading={loadingInvoice} disabled={loadingInvoice} type="submit" className='w-full'>
+                                      {loadingInvoice ? "Sending Invoice..." : "Send Invoice"}
+                                  </Button>
+                              </AlertDialogFooter>
+                          </form>
+                      </AlertDialogContent>
+                  </AlertDialog>
+              </div>
+          </div>
 
-         <AlertDialog open={openConfirmModal} onOpenChange={setOpenConfirmModal}>
-            <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
-                <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
-                    <AlertDialogTitle className="text-sm">Confirm Edit</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
-                    <span>You are about to submit an updated infomation of your tenant. Please ensure that the new edited fields are correct before proceeding.</span>
-                </AlertDialogDescription>
-                <AlertDialogFooter className='flex flex-row items-center justify-between w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
-                    <AlertDialogCancel className='w-[47%] bg-light'>Cancel</AlertDialogCancel>
-                    <Button loading={submittingTenant} disabled={submittingTenant} onClick={handleEditTenantSubmit} type="button" className='max-w-48'>
-                        {submittingTenant ? "Updating..." : "Update Tenant"}
-                    </Button>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+          <AlertDialog open={openConfirmModal} onOpenChange={setOpenConfirmModal}>
+              <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
+                  <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                      <AlertDialogTitle className="text-sm">Confirm Edit</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
+                      <span>You are about to submit an updated infomation of your tenant. Please ensure that the new edited fields are correct before proceeding.</span>
+                  </AlertDialogDescription>
+                  <AlertDialogFooter className='flex flex-row items-center justify-between w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                      <AlertDialogCancel className='w-[47%] bg-light'>Cancel</AlertDialogCancel>
+                      <Button loading={submittingTenant} disabled={submittingTenant} onClick={handleEditTenantSubmit} type="button" className='max-w-48'>
+                          {submittingTenant ? "Updating..." : "Update Tenant"}
+                      </Button>
+                  </AlertDialogFooter>
+              </AlertDialogContent>
+          </AlertDialog>
 
-        <div className='bg-light p-4 rounded-2xl border space-y-4'>
-            <Card className='shadow-none'>
-                <CardContent>               
-                    <div className='flex flex-col gap-4 items-center justify-center'>
-                        <Avatar className='size-32'>
-                          <AvatarImage src={'/photo.png'} alt="@Tivro" />
-                        </Avatar>
-                        <div className='flex flex-col items-center justify-center gap-2'>
-                            <p className="text-2xl font-medium leading-none text-center">{tenant?.full_name}</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className='shadow-none'>
-                <CardContent>               
-                    <div>
-                        <div className='grid md:grid-cols-2 gap-4'>
-                          <div>
-                            <p className="text-sm font-medium leading-none">First name</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.full_name ? tenant.full_name.split(" ")[0] : ""}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Last name</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.full_name ? tenant?.full_name.split(" ").slice(1).join(" ") : ""}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Email</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.email}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Phone No</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.phone}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Occupancy date</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.move_in ? format(new Date(tenant.move_in), "dd MMM yyyy") : "N/A"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Renewal date</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.move_in ? format(new Date(tenant?.renewal_date), "dd MMM yyyy") : "N/A"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Selected property</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.property_name}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium leading-none">Property Location</p>
-                            <p className="text-sm text-muted-foreground">{tenant?.address}</p>
+          <div className='bg-light p-4 rounded-2xl border space-y-4'>
+              <Card className='shadow-none'>
+                  <CardContent>               
+                      <div className='flex flex-col gap-4 items-center justify-center'>
+                          <Avatar className='size-32'>
+                            <AvatarImage src={'/photo.png'} alt="@Tivro" />
+                          </Avatar>
+                          <div className='flex flex-col items-center justify-center gap-2'>
+                              <p className="text-2xl font-medium leading-none text-center">{tenant?.full_name}</p>
                           </div>
                       </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                  </CardContent>
+              </Card>
 
-        <div className='bg-light p-4 rounded-2xl border space-y-4'>
+              <Card className='shadow-none'>
+                  <CardContent>               
+                      <div>
+                          <div className='grid md:grid-cols-2 gap-4'>
+                            <div>
+                              <p className="text-sm font-medium leading-none">First name</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.full_name ? tenant.full_name.split(" ")[0] : ""}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Last name</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.full_name ? tenant?.full_name.split(" ").slice(1).join(" ") : ""}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Email</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.email}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Phone No</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.phone}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Occupancy date</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.move_in ? format(new Date(tenant.move_in), "dd MMM yyyy") : "N/A"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Renewal date</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.move_in ? format(new Date(tenant?.renewal_date), "dd MMM yyyy") : "N/A"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Selected property</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.property_name}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium leading-none">Property Location</p>
+                              <p className="text-sm text-muted-foreground">{tenant?.address}</p>
+                            </div>
+                        </div>
+                      </div>
+                  </CardContent>
+              </Card>
+          </div>
+          </div>
+        )}
+
+        {loadingHistory ? (
+            <div className="mt-8">
+                <div className='w-full h-72 bg-white rounded-sm shadow flex'>
+                    <div className='p-4 grid w-full gap-2'>
+                    {tableList.map((_, index) => (
+                        <TableSkeleton key={index}/>
+                    ))}
+                    </div>
+                </div>
+            </div>
+        ) : (
+          <div className='bg-light p-4 rounded-2xl border space-y-4'>
             <div className='flex items-center gap-2 mb-6'>
                 <p className="text-lg font-medium leading-none">History</p>
             </div>
@@ -619,7 +645,7 @@ const Page = () => {
             </Table>
 
             {history.length === 0 &&
-               <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
+              <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
                 <NotFound imageStyle='size-14' title='No data found' desc='No history added yet'/>
               </div>
             }
@@ -654,8 +680,10 @@ const Page = () => {
             </div>
               )
             }
+          </div>
         </div>
-        </div>
+      )}
+        
     </div>
   )
 }
