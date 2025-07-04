@@ -50,6 +50,8 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { z } from 'zod'
 import { Textarea } from '@/components/ui/textarea'
+import ReduceTextLength from '@/utils/ReduceTextLength'
+import { format } from 'date-fns'
 
 const requests = [
     {
@@ -164,7 +166,7 @@ const Page = () => {
         setLoadingHistory(true)
         
         const response = await axiosClient.get(`/property/${id}/tenants/`)
-        setHistory(response.data.items || [])
+        setHistory(response.data.tenants || [])
   
       } catch (error: any) {
         toast.error(error.response?.data?.message);
@@ -396,34 +398,30 @@ const Page = () => {
               <TableHeader>
                 <TableRow className="bg-muted">
                   <TableHead className="rounded-tl-xl capitalize">Full name</TableHead>
+                  <TableHead className="rounded-tl-xl capitalize">Contact</TableHead>
                   <TableHead className='capitalize'>Occupancy date</TableHead>
                   <TableHead className='capitalize'>Renewal date</TableHead>
                   <TableHead className='capitalize'>Action</TableHead>
                 </TableRow>
               </TableHeader>
               {
-              requests.length !== 0 &&
+              history.length !== 0 &&
                 (
                   <TableBody>
-                    {requests.map((request, index) => (
+                    {history.map((item, index) => (
                       <TableRow key={index}>
                         <TableCell className='capitalize'>
-                          <div className="flex items-center">
-                            <Avatar className="-mx-2">
-                              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
-                              <AvatarFallback className="bg-white">CN</AvatarFallback>
-                            </Avatar>
-                            <div className="ml-3">
-                              {request.fullName}
-                            </div>
-                          </div>
+                          {ReduceTextLength(item?.full_name, 20)}
                         </TableCell>
                         <TableCell className='capitalize'>
-                          {request.occupancyDate}
+                          {item?.phone}
                         </TableCell>
-                        <TableCell className='capitalize'>{request.renewalDate}</TableCell>
+                        <TableCell className='capitalize'>
+                          {item?.move_in && format(new Date(item?.move_in), "dd MMM yyyy")}
+                        </TableCell>
+                        <TableCell className='capitalize'>{item?.renewal_date && format(new Date(item?.renewal_date), "dd MMM yyyy")}</TableCell>
                         <TableCell className='capitalize text-center bg-muted/30'>
-                            <Link href={`/dashboard/tenant-management/tenant-info/${request.id}`}>
+                            <Link href={`/dashboard/tenant-management/tenant-info/${item?.tenant_id}`}>
                                 <Button variant={'ghost'} className='bg-light'>View Profile</Button>
                             </Link>
                         </TableCell>
@@ -435,14 +433,14 @@ const Page = () => {
               
             </Table>
 
-            {requests.length === 0 &&
+            {history.length === 0 &&
                <div className='flex flex-col items-center justify-center min-h-[58vh] w-full'>
                 <NotFound imageStyle='size-14' title='No data found' desc='No history added yet'/>
               </div>
             }
 
             {
-              requests.length !== 0 &&
+              history.length !== 0 &&
               (
                 <div className='flex gap-2 items-center justify-between w-full my-2'>
                   <div className='flex gap-2 items-center justify-between'>

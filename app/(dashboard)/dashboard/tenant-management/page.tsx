@@ -422,8 +422,8 @@ export default function Page() {
                               {ReduceTextLength(tenant?.full_name, 15)}
                             </TableCell>
                             <TableCell className='capitalize'>{tenant?.phone}</TableCell>
-                            <TableCell className='capitalize'>{format(new Date(tenant?.move_in), "dd MMM yyyy")}</TableCell>
-                            <TableCell className='capitalize'>{format(new Date(tenant?.renewal_date), "dd MMM yyyy")}</TableCell>
+                            <TableCell className='capitalize'>{tenant?.move_in && format(new Date(tenant?.move_in), "dd MMM yyyy")}</TableCell>
+                            <TableCell className='capitalize'>{tenant?.renewal_date && format(new Date(tenant?.renewal_date), "dd MMM yyyy")}</TableCell>
                             <TableCell className='capitalize'><TenentStatus status={tenant?.Active_tenant}/></TableCell>
                             <TableCell className='capitalize text-center bg-muted/30'>
                                 <Link href={`/dashboard/tenant-management/tenant-info/${tenant?.tenant_id}`}>
