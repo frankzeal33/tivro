@@ -437,7 +437,7 @@ export default function Page() {
                               <div>
                                 <div className="grid gap-2 mb-5">
                                   <Label htmlFor="code">Enter Coupon Code</Label>
-                                  <Input id="code" type="number" value={couponCode} onChange={(e: any) => setCouponCode(e.target.value)} placeholder="Enter code here" />
+                                  <Input id="code" type="text" value={couponCode} onChange={(e: any) => setCouponCode(e.target.value)} placeholder="Enter code here" />
                                 </div>
                                 <div className="w-full flex items-center justify-center">
                                   <Button disabled={couponCode.length < 3} onClick={handleSubscription}>Continue</Button>
@@ -686,7 +686,6 @@ export default function Page() {
                     <TableRow className="bg-muted">
                       <TableHead className="rounded-tl-xl capitalize">Request ID</TableHead>
                       <TableHead className='capitalize'>Full name</TableHead>
-                      <TableHead className='capitalize'>Email address</TableHead>
                       <TableHead className='capitalize'>ID check</TableHead>
                       <TableHead className='capitalize'>Credit check</TableHead>
                       <TableHead className='capitalize'>Employment check</TableHead>
@@ -715,7 +714,6 @@ export default function Page() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className='capitalize'>{request?.email}</TableCell>
                             <TableCell className='capitalize'><StatusBoolean status={request?.identity_check}/></TableCell>
                             <TableCell className='capitalize'><Status status={request?.credit_check}/></TableCell>
                             <TableCell className='capitalize'><Status status={request?.employment_check}/></TableCell>

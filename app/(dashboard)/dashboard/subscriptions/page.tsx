@@ -305,7 +305,7 @@ const Page = () => {
                                             <div>
                                             <div className="grid gap-2 mb-5">
                                                 <Label htmlFor="code">Enter Coupon Code</Label>
-                                                <Input id="code" type="number" value={couponCode} onChange={(e: any) => setCouponCode(e.target.value)} placeholder="Enter code here" />
+                                                <Input id="code" type="text" value={couponCode} onChange={(e: any) => setCouponCode(e.target.value)} placeholder="Enter code here" />
                                             </div>
                                             <div className="w-full flex items-center justify-center">
                                                 <Button disabled={couponCode.length < 3} onClick={handleSubscription}>Continue</Button>

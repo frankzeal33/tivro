@@ -58,6 +58,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from '@/lib/utils'
+import SkeletonFull from '@/components/SkeletonFull'
 
 
 type tenantType = {
