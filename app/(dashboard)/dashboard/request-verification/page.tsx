@@ -87,24 +87,36 @@ const Page = () => {
             toast.error(Object.values(fieldErrors)[0]);
             return
         }
+
+        const removeFirstZero = form.phone.startsWith("0") ? form.phone.slice(1) : form.phone;
+        const phoneNo = "234" + removeFirstZero;
+
+        const data = {
+            ...form,
+            phone: phoneNo
+        }
+
             
         try {
 
             setIsSubmitting(true)
             
-            const result = await axiosClient.post("/request/verification/", form)
-            toast.success(result.data.message);
+            const result = await axiosClient.post("/request/verification/", data)
 
-            setForm({
-                first_name: "",
-                last_name: "",
-                phone: "",
-                email: "",
-                address: ""
-            })
-
-            toast.success("Request Sent")
-            setOpen(false)
+            if(result.data?.status === 500){
+                toast.error(result.data?.message)
+                setOpen(false)
+            }else{
+                toast.success("Request Sent")
+                setOpen(false)
+                setForm({
+                    first_name: "",
+                    last_name: "",
+                    phone: "",
+                    email: "",
+                    address: ""
+                })
+            }
 
         } catch (error: any) {
             toast.error(error.response?.data?.message);

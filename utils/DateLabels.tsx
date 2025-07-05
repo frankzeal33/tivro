@@ -19,5 +19,5 @@ export const DateLabels = (date: any) => {
     return `Yesterday at ${format(inputDate, 'hh:mm a')}`; // e.g. "Yesterday at 09:15 AM"
   }
 
-  return format(inputDate, 'dd MMM yyyy [at] hh:mm a'); // e.g. "22 Sep 2024 at 02:30 PM"
+  return format(inputDate, "dd MMM yyyy 'at' hh:mm a"); // e.g. "22 Sep 2024 at 02:30 PM"
 };
