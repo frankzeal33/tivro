@@ -106,7 +106,7 @@ const Page = () => {
             if(result.data?.status === 500){
                 toast.error(result.data?.message)
                 setOpen(false)
-            }else{
+            }else if(result.data?.status === 200){
                 toast.success("Request Sent")
                 setOpen(false)
                 setForm({
@@ -116,6 +116,9 @@ const Page = () => {
                     email: "",
                     address: ""
                 })
+            }else{
+                toast.error(result.data?.message)
+                setOpen(false)
             }
 
         } catch (error: any) {
