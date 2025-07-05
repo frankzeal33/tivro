@@ -622,9 +622,9 @@ const Page = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted">
-                  <TableHead className='capitalize'>Purpose of Invoice</TableHead>
+                  <TableHead className='rounded-tl-xl capitalize'>Purpose of Invoice</TableHead>
                   <TableHead className='capitalize'>Amount</TableHead>
-                  <TableHead className='capitalize'>Date Sent</TableHead>
+                  <TableHead className='rounded-tr-xl capitalize'>Date Sent</TableHead>
                 </TableRow>
               </TableHeader>
               {

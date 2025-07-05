@@ -481,7 +481,7 @@ export default function Page() {
                             ) : (
                               <div className="grid md:grid-cols-3">
                                 {plansData.map((item, index) => (
-                                  <div key={index} className={`flex flex-col gap-4 p-4 ${index === 0 ? 'border rounded-l-2xl md:rounded-l-2xl' : index === 1 ? 'border-x md:border-y' : 'border border-b-2xl md:rounded-r-2xl'}`}>
+                                  <div key={index} className={`flex flex-col gap-4 p-4 ${index === 0 ? 'border rounded-tl-2xl rounded-tr-2xl md:rounded-tr-none md:rounded-bl-2xl' : index === 1 ? 'border-x md:border-y' : 'border rounded-bl-2xl rounded-br-2xl md:rounded-bl-none md:rounded-tr-2xl'}`}>
                                     <div className="flex flex-col gap-1">
                                       <div className="size-12 rounded-full bg-muted flex items-center justify-center">
                                         <HiBadgeCheck size={30} className="text-primary"/>
