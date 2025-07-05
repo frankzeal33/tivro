@@ -12,6 +12,7 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -58,6 +59,7 @@ import ReduceTextLength from "@/utils/ReduceTextLength"
 import { StatusBoolean } from "@/components/StatusBoolean"
 import { DateLabels } from "@/utils/DateLabels"
 import { debounce } from "lodash"
+import { z } from "zod"
 
 type verificationType = {
   id: number;
@@ -93,6 +95,11 @@ type BVNType = {
   customer_phone?: string;
   [key: string]: any; // allow flexible shape
 };
+
+const BVNSchema = z
+  .string()
+  .min(1, "ID Number is required")
+  .regex(/^\d{11}$/, "BVN must be exactly 11 digits");
 
 //  {
 //         title: "Diamond",
@@ -137,6 +144,7 @@ export default function Page() {
     status: "",
     plan: ""
   })
+  const [open, setOpen] = useState(false)
   const [openBVNModal, setOpenBVNModal] = useState(false)
   const [BVN, setBVN] = useState("")
   const [loadingBVN, setloadingBVN] = useState(false)
@@ -274,6 +282,17 @@ export default function Page() {
     } 
   }
 
+  const ConfirmBVNFirst = () => {
+    const result = BVNSchema.safeParse(BVN);
+
+    if (!result.success) {
+      const errorMessage = result.error.format()._errors[0] || "Invalid input";
+      return toast.error(errorMessage);
+    }
+
+    setOpen(true)
+  }
+
   const sendBVNOTP = async () => {
      try {
 
@@ -283,6 +302,7 @@ export default function Page() {
       setBVNDetails(response.data)
 
       toast.success("OTP Sent");
+      setOpen(false)
       setShowOTPInput(true)
 
     } catch (error: any) {
@@ -658,14 +678,32 @@ export default function Page() {
                           <Input id="bvn" type="number" value={BVN} onChange={(e: any) => setBVN(e.target.value)} placeholder="Enter BVN here" />
                         </div>
                         <div className="w-full flex items-center justify-center">
-                          <Button disabled={BVN.length < 11 || sendingBVNOTP} loading={sendingBVNOTP} onClick={sendBVNOTP} className="min-w-32">
-                            {sendingBVNOTP ? "Verifying..." : "Continue"}
+                          <Button disabled={BVN.length < 11} onClick={ConfirmBVNFirst} className="min-w-32">
+                            Continue
                           </Button>
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={open} onOpenChange={setOpen}>
+              <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
+                  <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                      <AlertDialogTitle className="text-sm">Confirm your BVN</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
+                      <span>Please confirm that the BVN you’ve provided is correct before proceeding.</span>
+                      <span className="text-lg text-secondary-foreground">{BVN}</span>
+                  </AlertDialogDescription>
+                  <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                      <AlertDialogCancel className='w-[50%] bg-light'>Cancel</AlertDialogCancel>
+                      <Button loading={sendingBVNOTP} disabled={sendingBVNOTP} onClick={sendBVNOTP} type="button" className='w-[50%]'>
+                          {sendingBVNOTP ? "Loading..." : "Proceed"}
+                      </Button>
+                  </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
 

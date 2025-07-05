@@ -177,7 +177,7 @@ return (
                             </AlertDialogHeader>
                             <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
                                 <span>Please confirm that the BVN you’ve provided is correct before proceeding.</span>
-                                <h2 className="text-lg text-secondary-foreground">{form.IdNumber}</h2>
+                                <span className="text-lg text-secondary-foreground">{form.IdNumber}</span>
                             </AlertDialogDescription>
                             <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
                                 <AlertDialogCancel className='w-[50%] bg-light'>Cancel</AlertDialogCancel>
@@ -186,7 +186,7 @@ return (
                                 </Button>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog>
+                     </AlertDialog>
                       
                   </div>
               </CardContent>
