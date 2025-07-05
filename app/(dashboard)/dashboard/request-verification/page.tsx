@@ -88,20 +88,20 @@ const Page = () => {
             return
         }
 
-        const removeFirstZero = form.phone.startsWith("0") ? form.phone.slice(1) : form.phone;
-        const phoneNo = "234" + removeFirstZero;
+        // const removeFirstZero = form.phone.startsWith("0") ? form.phone.slice(1) : form.phone;
+        // const phoneNo = "234" + removeFirstZero;
 
-        const data = {
-            ...form,
-            phone: phoneNo
-        }
+        // const data = {
+        //     ...form,
+        //     phone: phoneNo
+        // }
 
             
         try {
 
             setIsSubmitting(true)
             
-            const result = await axiosClient.post("/request/verification/", data)
+            const result = await axiosClient.post("/request/verification/", form)
 
             if(result.data?.status === 500){
                 toast.error(result.data?.message)
