@@ -387,7 +387,7 @@ export default function Page() {
             <TabsContent value="Tenants">
               {loadingTenantTable || loadingTenantSearch ? (
                 <div>
-                  <div className='w-full h-80 bg-white rounded-md shadow flex'>
+                  <div className='w-full h-80 bg-light rounded-md shadow flex'>
                     <div className='p-4 grid w-full gap-2'>
                       {tableList.map((_, index) => (
                         <TableSkeleton key={index}/>
@@ -484,7 +484,7 @@ export default function Page() {
             <TabsContent value="Properties">
               {loadingPropertyTable || loadingPropertySearch ? (
                 <div>
-                  <div className='w-full h-80 bg-white rounded-md shadow flex'>
+                  <div className='w-full h-80 bg-light rounded-md shadow flex'>
                     <div className='p-4 grid w-full gap-2'>
                       {tableList.map((_, index) => (
                         <TableSkeleton key={index}/>

@@ -86,7 +86,7 @@ const Page = () => {
 
         {loadingMessages ? (
             <div className="mt-8">
-                <div className='w-full h-[60vh] bg-white rounded-sm shadow flex'>
+                <div className='w-full h-[60vh] bg-light rounded-sm shadow flex'>
                     <div className='p-4 grid w-full gap-2'>
                         {tableList.map((_, index) => (
                             <TableSkeleton key={index}/>

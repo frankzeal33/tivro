@@ -396,7 +396,7 @@ export default function Page() {
             ))}
           </div>
           <div className="mt-8">
-            <div className='w-full h-80 bg-white rounded-sm shadow flex'>
+            <div className='w-full h-80 bg-light rounded-sm shadow flex'>
               <div className='p-4 grid w-full gap-2'>
                 {tableList.map((_, index) => (
                   <TableSkeleton key={index}/>
@@ -671,7 +671,7 @@ export default function Page() {
 
             {loadingVerification || loadingSearch ? (
               <div>
-                <div className='w-full h-80 bg-white rounded-md shadow flex'>
+                <div className='w-full h-80 bg-light rounded-md shadow flex'>
                   <div className='p-4 grid w-full gap-2'>
                     {tableList.map((_, index) => (
                       <TableSkeleton key={index}/>

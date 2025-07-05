@@ -461,7 +461,7 @@ const Page = () => {
 
         {loadingSubscription ? (
             <div className="mt-8">
-                <div className='w-full h-72 bg-white rounded-sm shadow flex'>
+                <div className='w-full h-72 bg-light rounded-sm shadow flex'>
                     <div className='p-4 grid w-full gap-2'>
                     {tableList.map((_, index) => (
                         <TableSkeleton key={index}/>

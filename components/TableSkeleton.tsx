@@ -6,11 +6,11 @@ const TableSkeleton = () => {
 
   return (
     <div className='flex gap-3 w-full'>
-        <p className='font-medium p-1 bg-gray-100 w-full animate-pulse rounded-md'></p>
-        <p className='line-through p-1 bg-gray-100 w-full animate-pulse rounded-md'></p>
-        <p className='line-through p-1 bg-gray-100 w-full animate-pulse rounded-md'></p>
-        <p className='line-through p-1 bg-gray-100 w-full animate-pulse rounded-md'></p>
-        <p className='line-through p-1 bg-gray-100 w-full animate-pulse rounded-md'></p>
+        <p className='font-medium p-1 bg-muted w-full animate-pulse rounded-md'></p>
+        <p className='line-through p-1 bg-muted w-full animate-pulse rounded-md'></p>
+        <p className='line-through p-1 bg-muted w-full animate-pulse rounded-md'></p>
+        <p className='line-through p-1 bg-muted w-full animate-pulse rounded-md'></p>
+        <p className='line-through p-1 bg-muted w-full animate-pulse rounded-md'></p>
     </div>
   )
 }
