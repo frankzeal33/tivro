@@ -33,6 +33,8 @@ import { Button } from "../ui/button"
 import { useAuthStore } from "@/store/AuthStore"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Skeleton from "../Skeleton"
+import LightSkeleton from "../LightSkeleton"
 
 
 const data = { 
@@ -149,7 +151,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavBar items={data.navHeader} />
         <NavBar items={data.navFooter} className="mt-auto" onLogout={handleLogout} />
         {loadingUpgrade ? (
-          <Loading />
+          // <Loading />
+          <LightSkeleton/>
         ) : (
           (Object.keys(subData).length === 0 ||
             (
