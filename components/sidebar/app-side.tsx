@@ -151,7 +151,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavBar items={data.navHeader} />
         <NavBar items={data.navFooter} className="mt-auto" onLogout={handleLogout} />
         {loadingUpgrade ? (
-          // <Loading />
           <LightSkeleton/>
         ) : (
           (Object.keys(subData).length === 0 ||

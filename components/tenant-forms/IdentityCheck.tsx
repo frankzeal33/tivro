@@ -20,10 +20,25 @@ import { toast } from "react-toastify"
 import { z } from "zod"
 import { axiosClient } from "@/GlobalApi"
 import { useTenantStore } from "@/store/TenantStore"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from "../ui/button"
 
 const IdSchema = z.object({
   IdType: z.string().min(1, "Select Identity Method"),
-  IdNumber: z.string().min(1, "ID Number is required"),
+  IdNumber: z
+    .string()
+    .min(1, "ID Number is required")
+    .regex(/^\d{11}$/, "BVN must be exactly 11 digits"),
 })
 
 type IdFormValues = z.infer<typeof IdSchema>
@@ -47,17 +62,34 @@ const  IdentityCheck = () => {
     IdType: "",
     IdNumber: "",
   })
+  const [open, setOpen] = useState(false)
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+      const openModal = () => {
+        const result = IdSchema.safeParse(form)
+              
+        if (!result.success) {
+          const fieldErrors: Partial<Record<keyof IdFormValues, string>> = {};
+          result.error.errors.forEach((err) => {
+              const field = err.path[0] as keyof IdFormValues
+              fieldErrors[field] = err.message
+          })
+          toast.error(Object.values(fieldErrors)[0]);
+          return
+        }
+
+        setOpen(true)
+      }
+  
+
+  const handleSubmit = async () => {
 
     const result = IdSchema.safeParse(form)
               
       if (!result.success) {
           const fieldErrors: Partial<Record<keyof IdFormValues, string>> = {};
           result.error.errors.forEach((err) => {
-              const field = err.path[0] as keyof IdFormValues
-              fieldErrors[field] = err.message
+            const field = err.path[0] as keyof IdFormValues
+            fieldErrors[field] = err.message
           })
           toast.error(Object.values(fieldErrors)[0]);
           return
@@ -93,7 +125,12 @@ const  IdentityCheck = () => {
           toast.success(result.data?.message);
 
       } catch (error: any) {
-        toast.error(error.response?.data?.message);
+        
+        if(error.response.status === 500){
+          toast.error("check bvn or contact support");
+        }else{
+          toast.error(error.response?.data?.message);
+        }
 
         if(error.response.status === 404 && error.response.data?.message === "No credit data available for user"){
           setCurrentSection("employment-check")
@@ -104,14 +141,15 @@ const  IdentityCheck = () => {
         }
 
       } finally {
-          setIsSubmitting(false)
+        setIsSubmitting(false)
+        setOpen(false)
       } 
   }
   
 return (
   <div className="shadow-none max-w-96">
           <FormCardHeader title="Identity check" desc="We request a user’s Bank Verification Number (BVN) for verification, credit check and security purposes."/>
-          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-6">
               <CardContent className="px-4 py-2">
                   <div className="grid gap-6">
                       <div className='grid gap-6'>
@@ -139,10 +177,28 @@ return (
                               {/* <p className="text-xs text-negative">Incorrect BVN. Try again!</p> */}
                           </div>
                       </div>
+
+                      <AlertDialog open={open} onOpenChange={setOpen}>
+                        <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
+                            <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                                <AlertDialogTitle className="text-sm">Confirm your BVN</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
+                                <span>Please confirm that the BVN you’ve provided is correct before proceeding.</span>
+                                <h2 className="text-lg text-secondary-foreground">{form.IdNumber}</h2>
+                            </AlertDialogDescription>
+                            <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                                <AlertDialogCancel className='w-[50%] bg-light'>Cancel</AlertDialogCancel>
+                                <Button loading={isSubmitting} disabled={isSubmitting} onClick={handleSubmit} type="button" className='w-[50%]'>
+                                    {isSubmitting ? "Loading..." : "Proceed"}
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                       
                   </div>
               </CardContent>
-              <FormCardFooter text="Proceed" loading={isSubmitting}/>
+              <FormCardFooter type="button" text="Proceed" handleClick={openModal}/>
           </form>
         </div>
 )
