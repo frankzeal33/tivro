@@ -128,20 +128,19 @@ export function RegisterForm({
     } catch (error: any) {
       toast.error(error.response?.data?.message);
 
-      // if(error.response.data.status === 409){
-      //   router.push("/(onboarding)/SignIn")
+      if(error.response.data.message === "This email exists and it's verified. Kindly login" || error.response.data.message === "An account with this phone number already exists"){
+        router.push("/login")
+      }else if(error.response.data.message === "This email exists and it's not verified. Kindly verify the email"){
+        try {
+          const response = await axiosClient.post("/resend/token/", { email: form.email })
 
-      //     setForm({
-      //       firstname: '',
-      //       lastname: '',
-      //       phoneNumber: '',
-      //       email: '',
-      //       country: '',
-      //       password: '',
-      //       confirmPassword: '',
-      //       referral: ''
-      //     })
-      // }
+          toast.success(response.data.message)
+          router.push(`/register/verify-email?email=${encodeURIComponent(form.email)}`)
+        } catch (error: any) {
+          toast.error(error.response?.data?.message)
+        }
+        
+      }
 
     } finally {
       setIsSubmitting(false)

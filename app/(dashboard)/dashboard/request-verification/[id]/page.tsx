@@ -21,7 +21,7 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 import { Status } from '@/components/Status'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { axiosClient } from '@/GlobalApi'
 import { toast } from 'react-toastify'
 import { format } from 'date-fns'
@@ -36,6 +36,7 @@ const Page = () => {
     const [resending, setResending] = useState(false)
     const [verification, setVerification] = useState<any>()
      const arrayList = new Array(2).fill(null)
+     const router = useRouter()
 
     const getVerification = async () => {
         
@@ -72,7 +73,7 @@ const Page = () => {
           setResending(false)
         } 
     }
-
+    
   return (
     <div className='my-container'>
         {loadingInfo ? (
@@ -86,10 +87,10 @@ const Page = () => {
              <div className='space-y-4'>
                 <div  className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
                     <div>
-                        <Link href={'/dashboard/certificates'} className="text-sm mb-6 flex gap-1 items-center">
+                        <button onClick={() => router.back()} className="text-sm mb-6 flex gap-1 items-center">
                             <ArrowLeft size={16} className="text-normal"/>
                             Back
-                        </Link>
+                        </button>
                         <h2 className='font-bold text-2xl'>Issued certificate</h2>
                         <p className='text-muted-foreground'>{verification?.Bio_data?.["created date"] ? format(new Date(verification?.Bio_data?.["created date"]), "dd MMM yyyy, hh:mm a") : "N/A"}</p>
                     </div>

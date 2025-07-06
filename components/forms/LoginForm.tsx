@@ -103,7 +103,19 @@ export function LoginForm({
         })
 
       } catch (error: any) {
-        toast.error(error.response?.data?.error);
+        toast.error(error.response?.data?.error || error.response?.data?.message);
+
+        if(error.response.data.message === "Your account is not verified"){
+          try {
+            const response = await axiosClient.post("/resend/token/", { email: form.email })
+  
+            toast.success(response.data.message)
+            router.push(`/register/verify-email?email=${encodeURIComponent(form.email)}`)
+          } catch (error: any) {
+            toast.error(error.response?.data?.message)
+          }
+          
+        }
 
       } finally {
         setIsSubmitting(false)
