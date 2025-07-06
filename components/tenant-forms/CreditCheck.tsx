@@ -57,18 +57,12 @@ const  CreditCheck = () => {
         
         const response = await axiosClient.post(`/credit_check/otp/`, data)
 
-        if(response.data?.status === 500 && response.data?.data === "expired token"){
-          toast.error(response.data?.data);
-        }else if(response.data?.status === 200 && response.data?.data === "User is verified, proceed to employment verification"){
-          toast.success(response.data?.data);
-          setOtp("")
-          setCurrentSection("employment-check")
-          setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
-          setOtp({...otp, completed: true,  iscurrentForm: false})
-          setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
-        }else {
-          toast.error(response.data?.data);
-        }
+        setOtp("")
+        setCurrentSection("employment-check")
+        setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
+        setOtp({...otp, completed: true,  iscurrentForm: false})
+        setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
+        toast.success(response.data?.data);
 
       } catch (error: any) {
         toast.error(error.response?.data?.detail || error.response?.data?.message);
