@@ -68,7 +68,7 @@ type verificationType = {
   phone: string;
   email: string;
   request_id: string;
-  identity_check: boolean;
+  identity_check: string;
   credit_check: string;
   employment_check: string;
   status: string;
@@ -752,7 +752,7 @@ export default function Page() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell className='capitalize'><StatusBoolean status={request?.identity_check}/></TableCell>
+                            <TableCell className='capitalize'><Status status={request?.identity_check}/></TableCell>
                             <TableCell className='capitalize'><Status status={request?.credit_check}/></TableCell>
                             <TableCell className='capitalize'><Status status={request?.employment_check}/></TableCell>
                             <TableCell className='capitalize'><Status status={request?.status}/></TableCell>
