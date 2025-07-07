@@ -78,7 +78,7 @@ const Page = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-4 pb-2">
-              <CardDescription className="text-center font-medium text-secondary-foreground">
+              <CardDescription className="text-center font-medium text-xl text-secondary-foreground">
                 {names && `${names.split("_")[0]} ${names.split("_")[1]}`}
               </CardDescription>
             </CardContent>
