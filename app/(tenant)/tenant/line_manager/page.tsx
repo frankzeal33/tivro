@@ -14,7 +14,7 @@ import {
   Avatar,
   AvatarImage,
 } from "@/components/ui/avatar"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { FormEvent, useCallback, useEffect, useState } from "react"
 import { axiosClient } from "@/GlobalApi"
 import { toast } from "react-toastify"
@@ -24,43 +24,42 @@ import { useTenantStore } from "@/store/TenantStore"
 const Page = () => {
 
   const router = useRouter()
-  const params = useParams();
-  const token = params.token as string;
-  const [loading, setLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const verify_token = searchParams.get("verify_token")
+  const token = searchParams.get("token")
 
-  const tenantInfo = useTenantStore((state) => state.setTenantInfo)
-
-   // Debounced validation
-   
+  const [loadingYes, setLoadingYes] = useState(false) 
+  const [loadingNo, setLoadingNo] = useState(false) 
 
   useEffect(() => {
-    // if (!token) {
-    //   router.replace("/")
-    // }
-  }, [token])
+    if (!token || !verify_token) {
+      router.replace("/")
+    }
+  }, [token, verify_token])
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (option: string) => {
 
-    // try {
+    try {
     
-    //   setLoading(true)
+      if(option === "yes"){
+        setLoadingYes(true)
+      }else{
+        setLoadingNo(true)
+      }
       
-    //   const response = await axiosClient.get(`/tenant/?token=${token}&pin=${pin}`)
+      const response = await axiosClient.post(`/line_manager/?verify_token=${verify_token}&token=${token}&answer=${option}`)
 
-    //   if(response.data?.status === 500){
-    //     toast.error(response.data?.message)
-    //   }else{
-    //     tenantInfo(response.data)
-    //     toast.success("Verification Started")
-    //     router.push('/tenant/start-verification')
-    //   }
+      toast.success(response.data?.message)
 
-    // } catch (error: any) {
-    //   toast.error(error.response?.data?.detail);
-    // } finally {
-    //   setLoading(false)
-    // } 
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      if(option === "yes"){
+        setLoadingYes(false)
+      }else{
+        setLoadingNo(false)
+      }
+    } 
 
   }
   
@@ -74,21 +73,17 @@ const Page = () => {
               </Avatar>
               <CardTitle className="text-lg">Line Manager Verification</CardTitle>
               <CardDescription>
-                Confirm that you are the line manager of this tenant.
+                Confirm that you are the line manager of a tenant.
               </CardDescription>
             </CardHeader>
-            <form onSubmit={handleSubmit}>
-              
-              <CardFooter className="flex gap-5 p-4 border-t items-center justify-center">
-                <Button loading={loading} disabled={loading} type="submit">
-                  {loading ? "Loading..." : "Yes"}
-                </Button>
-                <Button loading={loading} disabled={loading} type="submit">
-                  {loading ? "Loading..." : "No"}
-                </Button>
-              </CardFooter>
-            </form>
-            
+            <CardFooter className="flex gap-5 p-4 border-t items-center justify-center">
+              <Button loading={loadingYes} disabled={loadingYes || loadingNo} type="button" onClick={() => handleSubmit("yes")}>
+                {loadingYes ? "" : "Yes"}
+              </Button>
+              <Button loading={loadingNo} disabled={loadingNo || loadingYes} type="button" onClick={() => handleSubmit("no")}>
+                {loadingNo ? "" : "No"}
+              </Button>
+            </CardFooter>
           </Card>
       </div>
     </div>
