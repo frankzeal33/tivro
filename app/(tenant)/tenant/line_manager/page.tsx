@@ -74,11 +74,13 @@ const Page = () => {
               </Avatar>
               <CardTitle className="text-lg">Line Manager Verification</CardTitle>
               <CardDescription>
-                Confirm that you are the line manager of this tenant below.
+                Confirm that you are the line manager of the tenant below.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-4 pb-2">
-              <p className="text-center font-medium">{names && `${names.split("_")[0]} ${names.split("_")[1]}`}</p>
+              <CardDescription className="text-center font-medium text-secondary-foreground">
+                {names && `${names.split("_")[0]} ${names.split("_")[1]}`}
+              </CardDescription>
             </CardContent>
             <CardFooter className="flex gap-5 p-4 border-t items-center justify-center">
               <Button loading={loadingYes} disabled={loadingYes || loadingNo} type="button" onClick={() => handleSubmit("yes")}>

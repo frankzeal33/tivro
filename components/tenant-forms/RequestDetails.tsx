@@ -16,7 +16,6 @@ import { axiosClient } from "@/GlobalApi"
 const tenantSchema = z.object({
   first_name: z.string().min(1, "first name is required"),
   last_name: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
   phone: z
   .string()
   .regex(/^\d+$/, "Phone number must contain only digits")
@@ -26,8 +25,7 @@ const tenantSchema = z.object({
   }, {
     message: "Phone number must be 11 digits if it starts with 0, otherwise 10 digits",
   })
-  .transform((val) => (val.startsWith("0") ? val.slice(1) : val)),
-  address: z.string().min(1, "Address is required"),
+  .transform((val) => (val.startsWith("0") ? val.slice(1) : val))
 })
 
 type TenantFormValues = z.infer<typeof tenantSchema>
@@ -47,7 +45,7 @@ const RequestDetails = () => {
 
     const tenantInfo = useTenantStore((state) => state.tenantInfo)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [form, setForm] = useState<TenantFormValues>({
+    const [form, setForm] = useState({
         first_name: tenantInfo?.first_name,
         last_name: tenantInfo?.last_name,
         phone: tenantInfo.phone,
@@ -76,7 +74,9 @@ const RequestDetails = () => {
             setIsSubmitting(true)
 
             const data = {
-                ...form,
+                first_name: form?.first_name,
+                last_name: form?.last_name,
+                phone: form.phone,
                 token: tenantInfo?.user_token
             }
             
@@ -117,7 +117,7 @@ const RequestDetails = () => {
                         <div className='grid gap-6'>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email address</Label>
-                                <Input id="email" type="email" placeholder="Enter email address" value={form.email} onChange={(e: any) => setForm({ ...form, email: e.target.value})} />
+                                <Input id="email" type="email" placeholder="Enter email address" value={form.email} className="bg-background" disabled />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="phone">Phone number</Label>
@@ -125,7 +125,7 @@ const RequestDetails = () => {
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="address">Apartment address</Label>
-                                <Input id="address" type="text" placeholder="Enter apartment address" value={form.address} onChange={(e: any) => setForm({ ...form, address: e.target.value})} />
+                                <Input id="address" type="text" placeholder="Enter apartment address" value={form.address} className="bg-background" disabled />
                             </div>
                         </div>
                         
