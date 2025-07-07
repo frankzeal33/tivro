@@ -27,12 +27,13 @@ const Page = () => {
   const searchParams = useSearchParams()
   const verify_token = searchParams.get("verify_token")
   const token = searchParams.get("token")
+  const names = searchParams.get("names")
 
   const [loadingYes, setLoadingYes] = useState(false) 
   const [loadingNo, setLoadingNo] = useState(false) 
 
   useEffect(() => {
-    if (!token || !verify_token) {
+    if (!token || !verify_token || !names) {
       router.replace("/")
     }
   }, [token, verify_token])
@@ -73,9 +74,12 @@ const Page = () => {
               </Avatar>
               <CardTitle className="text-lg">Line Manager Verification</CardTitle>
               <CardDescription>
-                Confirm that you are the line manager of a tenant.
+                Confirm that you are the line manager of this tenant below.
               </CardDescription>
             </CardHeader>
+            <CardContent className="px-4 pb-2">
+              <p className="text-center font-medium">{names && `${names.split("_")[0]} ${names.split("_")[1]}`}</p>
+            </CardContent>
             <CardFooter className="flex gap-5 p-4 border-t items-center justify-center">
               <Button loading={loadingYes} disabled={loadingYes || loadingNo} type="button" onClick={() => handleSubmit("yes")}>
                 {loadingYes ? "" : "Yes"}
