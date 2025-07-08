@@ -107,22 +107,25 @@ const  IdentityCheck = () => {
           const result = await axiosClient.post("/credit/check/", data)
 
           if(result.status === 200){
+            toast.success(result.data?.message);
+
             setCurrentSection("credit-check")
             setFormProgress(51)
             setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
             setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
             setOtp({...otp,  iscurrentForm: true})
-          }
+          }else if(result.status === 201){
+            toast.success(result.data?.message);
 
-          if(result.status === 201){
             setCurrentSection("employment-check")
             setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
             setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
             setOtp({...otp, completed: true,  iscurrentForm: false})
             setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
+          }else{
+            toast.error(result.data?.message);
+            setCurrentSection("Begin tenant verification")
           }
-
-          toast.success(result.data?.message);
 
       } catch (error: any) {
         

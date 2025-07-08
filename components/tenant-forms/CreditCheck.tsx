@@ -22,13 +22,19 @@ const otpSchema = z.object({
 const  CreditCheck = () => {
 
     const {
-        setCurrentSection,
-        otp,
-        employmentInfo,
-        formProgress,
-        setFormProgress,
-        setEmploymentInfo,
-        setOtp
+      setCurrentSection,
+      otp,
+      employmentInfo,
+      formProgress,
+      setFormProgress,
+      setEmploymentInfo,
+      setOtp,
+      apartmentInspection,
+      setApartmentInspection,
+      requestDetails,
+      setRequestDetails,
+      identityCheck,
+      setIdentityCheck
     } = useGlobalContext();
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [pin, setPin] = useState("")
@@ -55,14 +61,32 @@ const  CreditCheck = () => {
           token: tenantInfo?.user_token
         }
         
-        const response = await axiosClient.post(`/credit_check/otp/`, data)
+        const result = await axiosClient.post(`/credit_check/otp/`, data)
 
-        setOtp("")
-        setCurrentSection("employment-check")
-        setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
-        setOtp({...otp, completed: true,  iscurrentForm: false})
-        setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
-        toast.success(response.data?.data);
+         if(result.status === 200){
+            toast.success(result.data?.data || result.data?.message?.data);
+
+            setOtp("")
+            setCurrentSection("employment-check")
+            setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
+            setOtp({...otp, completed: true,  iscurrentForm: false})
+            setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
+
+          }else if(result.status === 201){
+            toast.success(result.data?.message);
+
+            setCurrentSection("verify-apartment")
+            setFormProgress({...formProgress, fraction: "5/6",  percent: 90})
+            setEmploymentInfo({...employmentInfo, completed: true,  iscurrentForm: false})
+            setApartmentInspection({...apartmentInspection, iscurrentForm: true})
+
+          }else{
+            toast.error(result.data?.message);
+            setCurrentSection("Identity check")
+            setFormProgress({...formProgress, fraction: "2/6",  percent: 34})
+            setRequestDetails({...requestDetails, completed: true,  iscurrentForm: false})
+            setIdentityCheck({...identityCheck,  iscurrentForm: true})
+          }
 
       } catch (error: any) {
         toast.error(error.response?.data?.detail || error.response?.data?.message);

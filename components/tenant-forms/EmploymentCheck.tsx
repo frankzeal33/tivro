@@ -72,6 +72,12 @@ const  EmploymentCheck = () => {
     setFormProgress,
     employmentInfo,
     setEmploymentInfo,
+    identityCheck,
+    otp,
+    certificate,
+    setOtp,
+    setIdentityCheck,
+    setCertificate
   } = useGlobalContext();
 
   const tenantInfo = useTenantStore((state) => state.tenantInfo)
@@ -457,8 +463,7 @@ const  EmploymentCheck = () => {
 
       const response = await axiosClient.post(`/employed/status/`, employedData)
 
-      toast.success(response.data?.message)
-      gotoNext()
+      gotoNext(response)
       
     } catch (error: any) {
       toast.error(error.response?.data?.detail);
@@ -487,8 +492,7 @@ const  EmploymentCheck = () => {
 
       const response = await axiosClient.post(`/selfemployed/status/`, selfEmployedData)
 
-      toast.success(response.data?.message)
-      gotoNext()
+      gotoNext(response.status)
       
     } catch (error: any) {
       toast.error(error.response?.data?.detail);
@@ -516,8 +520,7 @@ const  EmploymentCheck = () => {
 
       const response = await axiosClient.post(`/unemployed/status/`, unEmployedData)
 
-      toast.success(response.data?.message)
-      gotoNext()
+      gotoNext(response.status)
       
     } catch (error: any) {
       toast.error(error.response?.data?.detail);
@@ -545,8 +548,7 @@ const  EmploymentCheck = () => {
 
       const response = await axiosClient.post(`/freelancer/status/`,freelanceData)
 
-      toast.success(response.data?.message)
-      gotoNext()
+      gotoNext(response.status)
       
     } catch (error: any) {
       toast.error(error.response?.data?.detail);
@@ -574,8 +576,7 @@ const  EmploymentCheck = () => {
 
       const response = await axiosClient.post(`/student/status/`,studentData)
 
-      toast.success(response.data?.message)
-      gotoNext()
+      gotoNext(response.status)
       
     } catch (error: any) {
       toast.error(error.response?.data?.detail);
@@ -584,11 +585,30 @@ const  EmploymentCheck = () => {
     } 
   }
 
-  const gotoNext = () => {
-    setCurrentSection("verify-apartment")
-    setFormProgress({...formProgress, fraction: "5/6",  percent: 90})
-    setEmploymentInfo({...employmentInfo, completed: true,  iscurrentForm: false})
-    setApartmentInspection({...apartmentInspection, iscurrentForm: true})
+  const gotoNext = (response: any) => {
+    if(response.status === 200){
+      toast.success(response.data?.message);
+
+      setCurrentSection("verify-apartment")
+      setFormProgress({...formProgress, fraction: "5/6",  percent: 90})
+      setEmploymentInfo({...employmentInfo, completed: true,  iscurrentForm: false})
+      setApartmentInspection({...apartmentInspection, iscurrentForm: true})
+    }else if(response.status === 201){
+      toast.success(response.data?.message);
+
+      setCurrentSection("certificates")
+      setFormProgress({...formProgress, fraction: "6/6",  percent: 100})
+      setApartmentInspection({...apartmentInspection, completed: true,  iscurrentForm: false})
+      setCertificate({...certificate,  completed: true, iscurrentForm: true})
+
+    }else{
+      toast.error(response.data?.message);
+      setCurrentSection("credit-check")
+      setFormProgress(51)
+      setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
+      setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
+      setOtp({...otp,  iscurrentForm: true})
+    }
   }
 
 return (

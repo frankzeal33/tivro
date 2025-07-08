@@ -21,10 +21,14 @@ const  VerifyApartment = () => {
     setCurrentSection,
     apartmentInspection,
     setApartmentInspection,
+    otp,
+    employmentInfo,
     setFormProgress,
     formProgress,
     certificate,
+    setOtp,
     setCertificate,
+    setEmploymentInfo
   } = useGlobalContext();
 
   const [loading, setLoading] = useState(false)
@@ -39,14 +43,23 @@ const  VerifyApartment = () => {
       setLoading(true)
 
 
-      const response = await axiosClient.post(`/apartment/verification/consent/?token=${tenantInfo?.user_token}&consent=no`)
+      const result = await axiosClient.post(`/apartment/verification/consent/?token=${tenantInfo?.user_token}&consent=no`)
 
-      toast.success(response.data?.message)
+      if(result.status === 200){
+        toast.success(result.data?.message)
 
-      setCurrentSection("certificates")
-      setFormProgress({...formProgress, fraction: "6/6",  percent: 100})
-      setApartmentInspection({...apartmentInspection, completed: true,  iscurrentForm: false})
-      setCertificate({...certificate,  completed: true, iscurrentForm: true})
+        setCurrentSection("certificates")
+        setFormProgress({...formProgress, fraction: "6/6",  percent: 100})
+        setApartmentInspection({...apartmentInspection, completed: true,  iscurrentForm: false})
+        setCertificate({...certificate,  completed: true, iscurrentForm: true})
+
+      }else{
+        toast.error(result.data?.message);
+        setCurrentSection("employment-check")
+        setFormProgress({...formProgress, fraction: "4/6",  percent: 68})
+        setOtp({...otp, completed: true,  iscurrentForm: false})
+        setEmploymentInfo({...employmentInfo,  iscurrentForm: true})
+      }
 
     } catch (error: any) {
       toast.error(error.response?.data?.detail);

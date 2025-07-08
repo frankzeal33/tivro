@@ -12,6 +12,7 @@ import { z } from "zod"
 import { toast } from "react-toastify"
 import { useTenantStore } from "@/store/TenantStore"
 import { axiosClient } from "@/GlobalApi"
+import { useRouter } from "next/navigation"
 
 const tenantSchema = z.object({
   first_name: z.string().min(1, "first name is required"),
@@ -38,8 +39,10 @@ const RequestDetails = () => {
         identityCheck,
         setIdentityCheck,
         setRequestDetails,
+        otp,
         formProgress,
         setFormProgress,
+        setOtp,
         handleRequestDetailsChange
     } = useGlobalContext();
 
@@ -52,6 +55,7 @@ const RequestDetails = () => {
         email: tenantInfo.email,
         address: tenantInfo.address
     })
+    const router = useRouter()
 
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -81,12 +85,27 @@ const RequestDetails = () => {
             }
             
             const result = await axiosClient.post("/update/tenant/", data)
-            toast.success(result.data.message);
 
-            setCurrentSection("Identity check")
-            setFormProgress({...formProgress, fraction: "2/6",  percent: 34})
-            setRequestDetails({...requestDetails, completed: true,  iscurrentForm: false})
-            setIdentityCheck({...identityCheck,  iscurrentForm: true})
+            if(result.status === 200){
+                toast.success(result.data.message);
+
+                setCurrentSection("Identity check")
+                setFormProgress({...formProgress, fraction: "2/6",  percent: 34})
+                setRequestDetails({...requestDetails, completed: true,  iscurrentForm: false})
+                setIdentityCheck({...identityCheck,  iscurrentForm: true})
+            }else if(result.status === 201){
+                toast.success(result.data.message);
+
+                setCurrentSection("credit-check")
+                setFormProgress(51)
+                setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
+                setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
+                setOtp({...otp,  iscurrentForm: true})
+            }else{
+                
+                toast.error(result.data?.message);
+                router.replace(`/tenant/${tenantInfo?.user_token}`)
+            }    
 
         } catch (error: any) {
             toast.error(error.response?.data?.message);
