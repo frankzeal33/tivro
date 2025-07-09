@@ -16,7 +16,7 @@ type EmptyProps ={
 const NotFound = ({image, title, desc, showButton, buttonTitle, imageStyle, otherStyles, handleClick}: EmptyProps) => {
   return (
     <div className={`flex flex-col gap-1 items-center justify-center max-w-96 text-center ${otherStyles}`}>
-        <Image src={image ? image : '/empty1.png'} alt="" width={100} height={100} className={`${imageStyle}`}/>
+        <Image src={image ? image : '/next-assets/empty1.png'} alt="" width={100} height={100} className={`${imageStyle}`}/>
         <h1 className='text-lg font-semibold'>{title}</h1>
         <p className='text-muted-foreground text-sm'>{desc}</p>
         {showButton && 

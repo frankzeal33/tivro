@@ -115,7 +115,7 @@ return (
                           <Button variant={'outline'} type="button" onClick={pay} className="bg-light" loading={loadingPayment} disabled={loadingPayment}>{loadingPayment ? "Loading..." : "Yes, proceed"}</Button>
                         </div>
                         <div className="hidden lg:flex">
-                          <Image src={'/inspect.png'} width={100} height={100} alt="" className="w-full h-full rounded-2xl"/>
+                          <Image src={'/next-assets/inspect.png'} width={100} height={100} alt="" className="w-full h-full rounded-2xl"/>
                         </div>
                       </Card>
 

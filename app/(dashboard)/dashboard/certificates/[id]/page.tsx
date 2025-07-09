@@ -114,7 +114,7 @@ const Page = () => {
                                         <div className='flex items-center flex-wrap justify-center gap-1'>
                                             <p className="text-base text-center text-muted-foreground">Certificate of verification presented by</p>
                                             <div className="flex items-center">
-                                                <Image src={'/tivro.png'} width={16} height={20} alt=""/>
+                                                <Image src={'/next-assets/tivro.png'} width={16} height={20} alt=""/>
                                                 <h2 className="font-bold text-base">ivro</h2>
                                             </div>
                                         </div>

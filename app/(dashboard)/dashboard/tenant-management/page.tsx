@@ -597,7 +597,7 @@ export default function Page() {
                       <Button onClick={() => handlePayment('flutterwave')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
                         <span className="flex gap-2 items-center justify-center">
                           <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
-                          <Image src={'/flutterwave.png'} width={40} height={40} alt=""/>
+                          <Image src={'/next-assets/flutterwave.png'} width={40} height={40} alt=""/>
                           </span>
                           <h4 className="text-accent-foreground font-semibold">Flutterwave</h4>
                         </span>
@@ -607,7 +607,7 @@ export default function Page() {
                       <Button onClick={() => handlePayment('nomba')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
                         <span className="flex gap-2 items-center justify-center">
                           <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
-                          <Image src={'/nomba.png'} width={20} height={20} alt=""/>
+                          <Image src={'/next-assets/nomba.png'} width={20} height={20} alt=""/>
                           </span>
                           <h4 className="text-accent-foreground font-semibold">Nomba</h4>
                         </span>

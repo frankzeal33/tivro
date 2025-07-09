@@ -10,7 +10,7 @@ export default function OnBoarding({formComponent, image}: {formComponent: React
           <Link href={'/'} className="flex items-center gap-2 font-medium">
               <div>
                 <div className="flex items-center gap-0.5">
-                  <Image src={"/tivro.png"} width={20} height={100} className="size-5" alt="Tivro"/>
+                  <Image src={"/next-assets/tivro.png"} width={20} height={100} className="size-5" alt="Tivro"/>
                   <h2 className="font-bold text-2xl">ivro</h2>
                 </div>
               </div>
@@ -26,7 +26,7 @@ export default function OnBoarding({formComponent, image}: {formComponent: React
         <Image
           width={1000}
           height={1000}
-          src={image}
+          src={`/next-assets${image}`}
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

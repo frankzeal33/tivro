@@ -30,7 +30,7 @@ export function SiteHeader() {
       <div className="flex h-[4rem] w-full items-center gap-2 px-4">
         <div>
           <div className="flex items-center">
-            <Image src={"/tivro.png"} width={30} height={90} className="size-6" alt="Tivro"/>
+            <Image src={"/next-assets/tivro.png"} width={30} height={90} className="size-6" alt="Tivro"/>
             <h2 className="font-bold text-2xl">IVRO</h2>
           </div>
         </div>

@@ -436,7 +436,7 @@ export default function Page() {
                 subData.completed_verification === 0
               )) && (
                 <div className={`flex flex-col gap-3 items-center justify-center max-w-96 text-center min-h-[70vh]`}>
-                    <Image src={"/empty1.png"} alt="" width={100} height={100} className="w-fit"/>
+                    <Image src={"/next-assets/empty1.png"} alt="" width={100} height={100} className="w-fit"/>
                     <h1 className='text-xl font-semibold'>You’ve not made any requests yet</h1>
                     <p className='text-ring'>Subscribe to a package to be able to make your first verification request</p>
                     {/* coupon */}
@@ -536,7 +536,7 @@ export default function Page() {
                                                 <Button onClick={() => handlePayment('flutterwave')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
                                                   <span className="flex gap-2 items-center justify-center">
                                                     <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
-                                                    <Image src={'/flutterwave.png'} width={40} height={40} alt=""/>
+                                                    <Image src={'/next-assets/flutterwave.png'} width={40} height={40} alt=""/>
                                                     </span>
                                                     <h4 className="text-accent-foreground font-semibold">Flutterwave</h4>
                                                   </span>
@@ -546,7 +546,7 @@ export default function Page() {
                                                 <Button onClick={() => handlePayment('nomba')} className="rounded-full p-2 min-h-16 min-w-[250px] flex items-center justify-between bg-background-light">
                                                   <span className="flex gap-2 items-center justify-center">
                                                     <span className="size-12 rounded-full bg-primary-foreground p-2 flex items-center justify-center">
-                                                    <Image src={'/nomba.png'} width={20} height={20} alt=""/>
+                                                    <Image src={'/next-assets/nomba.png'} width={20} height={20} alt=""/>
                                                     </span>
                                                     <h4 className="text-accent-foreground font-semibold">Nomba</h4>
                                                   </span>

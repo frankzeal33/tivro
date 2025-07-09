@@ -4,8 +4,8 @@ import { Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
 import Lottie from "lottie-react";
-import paymentCheck from '@/public/payment-check.json';
-import paymentError from '@/public/payment-error.json';
+import paymentCheck from '@/public/next-assets/payment-check.json';
+import paymentError from '@/public/next-assets/payment-error.json';
 
 const VerifyNombaFund = () => {
   const [loading, setLoading] = useState(true)
