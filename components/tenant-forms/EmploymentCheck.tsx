@@ -30,6 +30,18 @@ import { z } from "zod"
 import { tenantValidationForm } from "@/utils/tenantValidationForm"
 import ReduceTextLength from "@/utils/ReduceTextLength"
 import { useTenantStore } from "@/store/TenantStore"
+import { Loader2 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const generalSchema = z.object({
   employment_status: z.string().min(1, "Select Employment Status"),
@@ -83,6 +95,9 @@ const  EmploymentCheck = () => {
   const tenantInfo = useTenantStore((state) => state.tenantInfo)
   const [activeTab, setActiveTab] = useState("Employment status");
   const [loading, setLoading] = useState(false);
+  const [loadingCAC, setLoadingCAC] = useState(false);
+  const [CACStatus, setCACStatus] = useState(true);
+  const [open, setOpen] = useState(false)
 
   const [generalForm, setGeneralForm] = useState({
     employment_status: "employed",
@@ -101,9 +116,16 @@ const  EmploymentCheck = () => {
   //self employed
   const [selfEmployedBusinessDetails, setSelfEmployedBusinessDetails] = useState({
     business_name: "",
-    business_address: "",
-    cac_no: "",
+    business_address: ""
   })
+
+  //self employed CAC
+  const [selfEmployedCAC, setSelfEmployedCAC] = useState({
+    registration_status: "registered",
+    company_registration_number: "",
+    company_registration_type: ""
+  })
+
   const [selfEmployedProofOfBus, setSelfEmployedProofOfBus] = useState<File | null>(null)
 
   //unemployed
@@ -143,8 +165,12 @@ const  EmploymentCheck = () => {
     //self employed
     setSelfEmployedBusinessDetails({
       business_name: "",
-      business_address: "",
-      cac_no: "",
+      business_address: ""
+    })
+    setSelfEmployedCAC({
+      registration_status: "registered",
+      company_registration_number: "",
+      company_registration_type: ""
     })
     setSelfEmployedProofOfBus(null)
 
@@ -169,6 +195,22 @@ const  EmploymentCheck = () => {
     })
     setStudentID(null)
 
+  }
+
+  const handleCACStatusChange = (value: any) => {
+    setSelfEmployedCAC({...selfEmployedCAC, registration_status: value, company_registration_number: "", company_registration_type: ""})
+
+    //self employed
+    setSelfEmployedBusinessDetails({
+      business_name: "",
+      business_address: ""
+    })
+    setSelfEmployedProofOfBus(null)
+
+  }
+
+  const handleRegTypeChange = (value: any) => {
+    setSelfEmployedCAC({...selfEmployedCAC, company_registration_type: value})
   }
 
   const handleEmployedCIDCardChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -326,8 +368,17 @@ const  EmploymentCheck = () => {
 
       }else if(generalForm.employment_status === "self-employed"){
 
-        const details = tenantValidationForm(selfEmployedBDetailsSchema, selfEmployedBusinessDetails, "employment-form-error");
-        if (!details.success) return;
+        if(selfEmployedCAC.registration_status === "registered"){
+
+          if(!selfEmployedBusinessDetails.business_name || !selfEmployedBusinessDetails.business_address){
+            return toast.error("Input and Verify CAC to Continue", {toastId: "employment-form-error"})
+          }
+
+        }else{
+          const details = tenantValidationForm(selfEmployedBDetailsSchema, selfEmployedBusinessDetails, "employment-form-error");
+          if (!details.success) return;
+        }
+
 
       }else if(generalForm.employment_status === "unemployed"){
 
@@ -360,9 +411,17 @@ const  EmploymentCheck = () => {
 
         }else if(generalForm.employment_status === "self-employed"){
 
-          const details = tenantValidationForm(selfEmployedBDetailsSchema, selfEmployedBusinessDetails);
-          if (!details.success) return;
+          if(selfEmployedCAC.registration_status === "registered"){
 
+            if(!selfEmployedBusinessDetails.business_name || !selfEmployedBusinessDetails.business_address){
+              return toast.error("Input and Verify CAC to Continue")
+            }
+
+          }else{
+            const details = tenantValidationForm(selfEmployedBDetailsSchema, selfEmployedBusinessDetails);
+            if (!details.success) return;
+          }
+          
         }else if(generalForm.employment_status === "unemployed"){
 
           const details = tenantValidationForm(unEmployedSchema, unEmployedDetails);
@@ -484,7 +543,6 @@ const  EmploymentCheck = () => {
       selfEmployedData.set('employment_type', generalForm.employment_type)
       selfEmployedData.set('company_name', selfEmployedBusinessDetails.business_name)
       selfEmployedData.set('company_address', selfEmployedBusinessDetails.business_address)
-      selfEmployedData.set('cac_no', selfEmployedBusinessDetails.cac_no)
       
       if (selfEmployedProofOfBus) {
         selfEmployedData.set('proof_of_business', selfEmployedProofOfBus);
@@ -611,6 +669,51 @@ const  EmploymentCheck = () => {
     }
   }
 
+  const confirmCAC = () => {
+
+    if(!selfEmployedCAC.company_registration_type){
+      return toast.error("Select Registration Type");
+    }
+
+    if(!selfEmployedCAC.company_registration_type){
+      return toast.error("Input Registration Number");
+    }
+
+    setOpen(true)
+  }
+
+  const verifyCAC = async () => {
+
+    try {
+    
+      setLoadingCAC(true)
+
+      const CACData = {
+        company_registration_number: selfEmployedCAC.company_registration_number,
+        company_registration_type: selfEmployedCAC.company_registration_type
+      }
+
+      const response = await axiosClient.post(`/cac/status/`, CACData)
+
+      setSelfEmployedBusinessDetails({
+        ...selfEmployedBusinessDetails,
+        business_name: response.data?.company_name,
+        business_address: response.data?.company_address
+      })
+
+    } catch (error: any) {
+      toast.error(error.response?.data?.message);
+      setSelfEmployedCAC({
+        ...selfEmployedCAC,
+        registration_status: "not-registered"
+      })
+    } finally {
+      setLoadingCAC(false)
+      setOpen(false)
+      setCACStatus(false)
+    } 
+  }
+
 return (
   <div className="shadow-none max-w-96">
           <FormCardHeader title="Employment information" desc="Kindly provide your verification details below"/>
@@ -698,23 +801,88 @@ return (
                               <div className="grid gap-2">
                                   <Label htmlFor="email">Line manager email</Label>
                                   <Input id="email" type="email" placeholder="e.g. example@gmail.com" value={employedFormCompanydetails.line_manager_email} onChange={(e: any) => setEmployedFormCompanydetails({ ...employedFormCompanydetails, line_manager_email: e.target.value})} />
-                                  {/* <p className="text-xs text-negative">Employer’s email isn’t valid. Try again!</p> */}
                               </div>
                             </div>
                           ) : generalForm.employment_status === "self-employed" ? (
                             <div className='grid gap-6'>
-                              <div className="grid gap-2">
-                                  <Label htmlFor="cname">Business name</Label>
-                                  <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" value={selfEmployedBusinessDetails.business_name} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, business_name: e.target.value})} />
-                              </div>
-                              <div className="grid gap-2">
-                                  <Label htmlFor="address">Business address</Label>
-                                  <Input id="address" type="text" placeholder="e.g. 5 toyin road, Ikeja, Lagos, Nigeria" value={selfEmployedBusinessDetails.business_address} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, business_address: e.target.value})} />
-                              </div>
-                              <div className="grid gap-2">
-                                  <Label htmlFor="address">CAC No. (Optional)</Label>
-                                  <Input id="address" type="text" placeholder="e.g. 123456" value={selfEmployedBusinessDetails.cac_no} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, cac_no: e.target.value})} />
-                              </div>
+                              {CACStatus && (
+                                <div className="grid gap-2">
+                                    <Label>Registration status*</Label>
+                                    <Select value={selfEmployedCAC.registration_status} onValueChange={handleCACStatusChange}>
+                                      <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="---Select---" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectGroup>
+                                          <SelectItem value="registered">Registered</SelectItem>
+                                          <SelectItem value="not-registered">Not Registered</SelectItem>
+                                        </SelectGroup>
+                                      </SelectContent>
+                                    </Select>
+                                </div>
+                              )}
+                              {selfEmployedCAC.registration_status === "registered" ? (
+                                <>
+                                  <div className="grid gap-2">
+                                    <Label>Registration Type</Label>
+                                    <Select value={selfEmployedCAC.company_registration_type} onValueChange={handleRegTypeChange}>
+                                      <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="---Select---" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectGroup>
+                                          <SelectItem value="BUSINESS_NAME">BUSINESS_NAME</SelectItem>
+                                          <SelectItem value="COMPANY">COMPANY</SelectItem>
+                                          <SelectItem value="INCORPORATED_TRUSTESS">INCORPORATED TRUSTESS</SelectItem>
+                                          <SelectItem value="LIMITED_PARTNERSHIP">LIMITED PARTNERSHIP</SelectItem>
+                                          <SelectItem value="LIMITED_LIABILITY_PARTNERSHIP">LIMITED LIABILITY PARTNERSHIP</SelectItem>
+                                        </SelectGroup>
+                                      </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                  <Label htmlFor="cac">CAC No.</Label>
+                                  <div className="relative">
+                                    <Input id="cac" type="number" placeholder="e.g. 123456" value={selfEmployedCAC.company_registration_number} onChange={(e: any) => setSelfEmployedCAC({ ...selfEmployedCAC, company_registration_number: e.target.value})} />
+                                    {selfEmployedCAC.company_registration_number.length > 3 && (
+                                      <button
+                                        type="button"
+                                        className="absolute top-1.5 right-1.5 text-white font-semibold text-xs px-2 py-1 rounded-sm bg-primary"
+                                        onClick={confirmCAC}
+                                      >
+                                       Verify
+                                      </button>
+                                    )}
+                                  </div>
+                                  {selfEmployedBusinessDetails.business_name && (
+                                    <p className="text-xs text-green-600">Successful</p>
+                                  )}
+                                </div>
+                                {selfEmployedBusinessDetails.business_name && (
+                                  <>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="cname">Business name</Label>
+                                        <Input id="cname" type="text" value={selfEmployedBusinessDetails.business_name} className="bg-background" disabled/>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="address">Business address</Label>
+                                        <Input id="address" type="text" value={selfEmployedBusinessDetails.business_address} className="bg-background" disabled/>
+                                    </div>
+                                  </>
+                                )}
+                                </>
+                              ) : (
+                                <div className='grid gap-6'>
+                                  <div className="grid gap-2">
+                                      <Label htmlFor="cname">Business name</Label>
+                                      <Input id="cname" type="text" placeholder="e.g. Tivro Logistics" value={selfEmployedBusinessDetails.business_name} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, business_name: e.target.value})} />
+                                  </div>
+                                  <div className="grid gap-2">
+                                      <Label htmlFor="address">Business address</Label>
+                                      <Input id="address" type="text" placeholder="e.g. 5 toyin road, Ikeja, Lagos, Nigeria" value={selfEmployedBusinessDetails.business_address} onChange={(e: any) => setSelfEmployedBusinessDetails({ ...selfEmployedBusinessDetails, business_address: e.target.value})} />
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           ) : generalForm.employment_status === "unemployed" ? (
                             <div className='grid gap-6'>
@@ -835,6 +1003,24 @@ return (
                   <Button loading={activeTab === "Uploads" && loading} disabled={activeTab === "Uploads" && loading} className="w-[48%]" type="button" onClick={() => handletoggle('next')}>Next</Button>
                 </CardFooter >
               )}
+
+              <AlertDialog open={open} onOpenChange={setOpen}>
+                <AlertDialogContent className="rounded-2xl p-0 w-[300px] gap-0">
+                    <AlertDialogHeader className="bg-background-light rounded-t-2xl p-4 flex flex-row items-center justify-between gap-2">
+                        <AlertDialogTitle className="text-sm">Confirm your CAC</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogDescription className="bg-light px-4 py-6 flex flex-col items-center justify-center gap-3">
+                        <span>Please confirm that the CAC Number you’ve provided is correct before proceeding. Please Note that this is a one time check.</span>
+                        <span className="text-lg text-secondary-foreground">{selfEmployedCAC.company_registration_number}</span>
+                    </AlertDialogDescription>
+                    <AlertDialogFooter className='flex items-center justify-center w-full gap-2 rounded-b-2xl bg-light border-t p-4'>
+                        <AlertDialogCancel className='w-[50%] bg-light'>Cancel</AlertDialogCancel>
+                        <Button loading={loadingCAC} disabled={loadingCAC} onClick={verifyCAC} type="button" className='w-[50%]'>
+                            {loadingCAC ? "Verifying..." : "Proceed"}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               
           </form>
         </div>
