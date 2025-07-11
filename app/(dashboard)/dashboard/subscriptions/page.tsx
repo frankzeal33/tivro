@@ -63,22 +63,22 @@ import { FaCircleCheck } from 'react-icons/fa6'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-const frameworks = [
+const subStatus = [
     {
-      value: "passed",
-      label: "Passed",
+      value: "all",
+      label: "All",
+    },
+    {
+      value: "initiate",
+      label: "Initiate",
+    },
+    {
+      value: "successful",
+      label: "Successful",
     },
     {
       value: "failed",
       label: "Failed",
-    },
-    {
-      value: "pending",
-      label: "Pending",
-    },
-    {
-      value: "ongoing",
-      label: "Ongoing",
     }
   ]
 
@@ -509,20 +509,20 @@ const Page = () => {
                                     <CommandList>
                                         <CommandEmpty>No status found.</CommandEmpty>
                                         <CommandGroup>
-                                        {frameworks.map((framework) => (
+                                        {subStatus.map((status) => (
                                             <CommandItem
-                                            key={framework.value}
-                                            value={framework.value}
+                                            key={status.value}
+                                            value={status.value}
                                             onSelect={(currentValue) => {
                                                 setValue(currentValue === value ? "" : currentValue)
                                                 setOpen(false)
                                             }}
                                             >
-                                            {framework.label}
+                                            {status.label}
                                             <Check
                                                 className={cn(
                                                 "ml-auto",
-                                                value === framework.value ? "opacity-100" : "opacity-0"
+                                                value === status.value ? "opacity-100" : "opacity-0"
                                                 )}
                                             />
                                             </CommandItem>

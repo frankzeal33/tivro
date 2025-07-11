@@ -45,7 +45,11 @@ import ReduceTextLength from '@/utils/ReduceTextLength'
 import { format } from 'date-fns'
 
 
-const frameworks = [
+const certStatus = [
+  {
+    value: "all",
+    label: "All",
+  },
   {
     value: "passed",
     label: "Passed",
@@ -79,7 +83,9 @@ const Page = () => {
   const [value, setValue] = useState("")
   const [loadingPage, setLoadingPage] = useState(false)
   const [certificates, setCeretificates] = useState<CertType>([])
+  const [formerCertificates, setFormerCeretificates] = useState<CertType>([])
   const tableList = new Array(8).fill(null)
+  const [statusFilter, setStatusFilter] = useState("")
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
@@ -92,6 +98,7 @@ const Page = () => {
         
         const response = await axiosClient.get("/certificate/list/")
         setCeretificates(response.data || [])
+        setFormerCeretificates(response.data || [])
   
       } catch (error: any) {
         toast.error(error.response?.data?.message);
@@ -103,6 +110,21 @@ const Page = () => {
     useEffect(() => {
       getCert()
     }, [page, pageSize])
+
+    useEffect(() => {
+      if(value === "all"){
+        setCeretificates(formerCertificates)
+      }else{
+        const filteredCertificates = formerCertificates.filter(cert => {
+          return cert?.status === value;
+        });
+
+        if(filteredCertificates.length !== 0){
+          setCeretificates(filteredCertificates)
+        }
+      }
+     
+    }, [value])
 
   return (
     <div className='my-container'>
@@ -148,20 +170,20 @@ const Page = () => {
                             <CommandList>
                               <CommandEmpty>No status found.</CommandEmpty>
                               <CommandGroup>
-                                {frameworks.map((framework) => (
+                                {certStatus.map((status) => (
                                   <CommandItem
-                                    key={framework.value}
-                                    value={framework.value}
+                                    key={status.value}
+                                    value={status.value}
                                     onSelect={(currentValue) => {
                                       setValue(currentValue === value ? "" : currentValue)
                                       setOpen(false)
                                     }}
                                   >
-                                    {framework.label}
+                                    {status.label}
                                     <Check
                                       className={cn(
                                         "ml-auto",
-                                        value === framework.value ? "opacity-100" : "opacity-0"
+                                        value === status.value ? "opacity-100" : "opacity-0"
                                       )}
                                     />
                                   </CommandItem>
