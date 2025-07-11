@@ -58,7 +58,6 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from '@/lib/utils'
-import SkeletonFull from '@/components/SkeletonFull'
 import Skeleton from '@/components/Skeleton'
 import TableSkeleton from '@/components/TableSkeleton'
 
@@ -151,6 +150,10 @@ const Page = () => {
   const arrayList = new Array(2).fill(null)
   const tableList = new Array(6).fill(null)
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [count, setCount] = useState(0)
+
   const getTenant = async () => {
     
     try {
@@ -173,8 +176,9 @@ const Page = () => {
 
       setLoadingHistory(true)
       
-      const response = await axiosClient.get(`/total/invoice/?id_tenant=${tenant?.id}`)
+      const response = await axiosClient.get(`/total/invoice/?id_tenant=${tenant?.id}&page=${page}&page_size=${pageSize}`)
       setHistory(response.data.items || [])
+      setCount(response.data?.count || 0)
 
     } catch (error: any) {
       toast.error(error.response?.data?.message);
@@ -191,7 +195,7 @@ const Page = () => {
     if(tenant?.id) {
       getHistory()
     }
-  }, [tenant?.id])
+  }, [tenant?.id, page, pageSize])
 
   useEffect(() => {
     if (tenant) {
@@ -615,7 +619,7 @@ const Page = () => {
         ) : (
           <div className='bg-light p-4 rounded-2xl border space-y-4'>
             <div className='flex items-center gap-2 mb-6'>
-                <p className="text-lg font-medium leading-none">History</p>
+              <p className="text-lg font-medium leading-none">History({count})</p>
             </div>
 
             <div className="w-full p-2 rounded-2xl bg-light border min-h-[68vh] flex flex-col items-center justify-between">
@@ -655,17 +659,18 @@ const Page = () => {
               (
                 <div className='flex gap-2 items-center justify-between w-full my-2'>
                   <div className='flex gap-2 items-center justify-between'>
-                      <Select>
+                      <Select value={pageSize.toString()} onValueChange={(val) => {
+                        setPageSize(Number(val)); 
+                        setPage(1)
+                      }}>
                         <SelectTrigger className="w-[75px]">
                           <SelectValue placeholder="10" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="apple">10</SelectItem>
-                            <SelectItem value="banana">20</SelectItem>
-                            <SelectItem value="blueberry">50</SelectItem>
-                            <SelectItem value="grapes">70</SelectItem>
-                            <SelectItem value="pineapple">100</SelectItem>
+                            {[10, 20, 50, 70, 100].map((size) => (
+                                <SelectItem key={size} value={size.toString()}>{size}</SelectItem>
+                            ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -673,9 +678,21 @@ const Page = () => {
                   </div>
                     
                   <div className='flex gap-2 items-center justify-between'>
-                    <Link href={"#"}><ChevronLeft size={20}/></Link>
-                    <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                    <Link href={"#"}><ChevronRight size={20}/></Link>
+                    <Button
+                        variant={'ghost'}
+                        disabled={page <= 1}
+                        onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                    >
+                        <ChevronLeft size={20} />
+                    </Button>
+                    <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>{page}</Button>
+                    <Button
+                        variant={'ghost'}
+                        disabled={page >= Math.ceil(count / pageSize)}
+                        onClick={() => setPage(prev => prev + 1)}
+                    >
+                        <ChevronRight size={20} />
+                    </Button>
                   </div>
             </div>
               )

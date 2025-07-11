@@ -139,6 +139,10 @@ const Page = () => {
     const [submittingPayment, setSubmittingPayment] = useState(false)
     const [plansData, setPlansData] = useState<plansType[]>([])
 
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+
+
     const getPlan = async () => {
     
         try {
@@ -194,10 +198,13 @@ const Page = () => {
 
     useEffect(() => {
         getPlan()
-        getSubscription()
         getPlans()
     }, [])
 
+    useEffect(() => {
+        getSubscription()
+    }, [page, pageSize])
+    
     const handleSubscription = () => {
         setOpenSubModal(true)
     }

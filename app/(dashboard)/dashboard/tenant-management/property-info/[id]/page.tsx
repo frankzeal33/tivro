@@ -143,6 +143,10 @@ const Page = () => {
       number_of_flats: "",
       property_description: ""
     })
+
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+    const [count, setCount] = useState(0)
   
     const getProperty = async () => {
       
@@ -177,8 +181,11 @@ const Page = () => {
     
     useEffect(() => {
       getProperty()
-      getHistory()
     }, [id])
+
+    useEffect(() => {
+      getHistory()
+    }, [id, page, pageSize])
 
     useEffect(() => {
       if (property) {

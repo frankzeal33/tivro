@@ -12,8 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { Check, ChevronLeft, ChevronRight, ChevronsUpDown, X } from "lucide-react" 
+import { ChevronLeft, ChevronRight, X } from "lucide-react" 
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Status } from '@/components/Status'
 import NotFound from '@/components/NotFound'
 import { axiosClient } from '@/GlobalApi'
 import { toast } from 'react-toastify'
@@ -57,6 +55,9 @@ const Page = () => {
   const [count, setCount] = useState(0)
    const tableList = new Array(8).fill(null)
 
+   const [page, setPage] = useState(1)
+   const [pageSize, setPageSize] = useState(10)
+
 
    const getMessages = async () => {
     
@@ -64,7 +65,7 @@ const Page = () => {
   
         setLoadingMessages(true)
         
-        const response = await axiosClient.get("/notification/")
+        const response = await axiosClient.get(`/notification/?page=${page}&page_size=${pageSize}`)
         setMessages(response.data?.items || [])
         setCount(response.data?.count || 0)
   
@@ -77,7 +78,7 @@ const Page = () => {
   
     useEffect(() => {
       getMessages()
-    }, [])
+    }, [page, pageSize])
 
 
   return (
@@ -157,17 +158,18 @@ const Page = () => {
                     (
                         <div className='flex gap-2 items-center justify-between w-full my-2'>
                         <div className='flex gap-2 items-center justify-between'>
-                            <Select>
+                            <Select value={pageSize.toString()} onValueChange={(val) => {
+                                    setPageSize(Number(val)); 
+                                    setPage(1)
+                                }}>
                                 <SelectTrigger className="w-[75px]">
-                                <SelectValue placeholder="10" />
+                                    <SelectValue placeholder="10" />
                                 </SelectTrigger>
                                 <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="apple">10</SelectItem>
-                                    <SelectItem value="banana">20</SelectItem>
-                                    <SelectItem value="blueberry">50</SelectItem>
-                                    <SelectItem value="grapes">70</SelectItem>
-                                    <SelectItem value="pineapple">100</SelectItem>
+                                    {[10, 20, 50, 70, 100].map((size) => (
+                                        <SelectItem key={size} value={size.toString()}>{size}</SelectItem>
+                                    ))}
                                 </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -175,9 +177,21 @@ const Page = () => {
                         </div>
                             
                         <div className='flex gap-2 items-center justify-between'>
-                            <Link href={"#"}><ChevronLeft size={20}/></Link>
-                            <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                            <Link href={"#"}><ChevronRight size={20}/></Link>
+                            <Button
+                                variant={'ghost'}
+                                disabled={page <= 1}
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                            >
+                                <ChevronLeft size={20} />
+                            </Button>
+                            <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>{page}</Button>
+                            <Button
+                                variant={'ghost'}
+                                disabled={page >= Math.ceil(count / pageSize)}
+                                onClick={() => setPage(prev => prev + 1)}
+                            >
+                                <ChevronRight size={20} />
+                            </Button>
                         </div>
                     </div>
                     )

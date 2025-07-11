@@ -109,6 +109,14 @@ export default function Page() {
   const [formerTenantTable, setFormerTenantTable] = useState<tenantType>([]);
   const [formerPropertyTable, setFormerPropertyTable] = useState<propertyType>([]);
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [count, setCount] = useState(0)
+
+  const [propertyPage, setPropertyPage] = useState(1)
+  const [propertyPageSize, setPropertyPageSize] = useState(10)
+  const [propertyCount, setPropertyCount] = useState(0)
+
   const getOVerview = async () => {
   
     try {
@@ -131,8 +139,9 @@ export default function Page() {
 
       setLoadingTenantTable(true)
       
-      const response = await axiosClient.get("/tenants/")
+      const response = await axiosClient.get(`/tenants/?page=${page}&page_size=${pageSize}`)
       setTenantTable(response.data.items || [])
+      setCount(response.data?.count || 0)
       setFormerTenantTable(response.data.items || [])
 
     } catch (error: any) {
@@ -148,8 +157,9 @@ export default function Page() {
 
       setLoadingPropertyTable(true)
       
-      const response = await axiosClient.get("/properties/")
+      const response = await axiosClient.get(`/properties/?page=${propertyPage}&page_size=${propertyPageSize}`)
       setPropertyTable(response.data.items || [])
+      setPropertyCount(response.data?.count || 0)
       setFormerPropertyTable(response.data.items || [])
 
     } catch (error: any) {
@@ -161,9 +171,15 @@ export default function Page() {
 
   useEffect(() => {
     getOVerview()
-    getTenants()
-    getProperties()
   }, [])
+
+  useEffect(() => {
+    getTenants()
+  }, [ page, pageSize])
+
+  useEffect(() => {
+    getProperties()
+  }, [ propertyPage, propertyPageSize])
 
   const handlePayment = async (paymentMethod: string) => {
 
@@ -218,7 +234,7 @@ export default function Page() {
   
       try {
   
-        const response = await axiosClient.get(`/tenants/?page=1&page_size=4&search=${searchTerm}`)
+        const response = await axiosClient.get(`/tenants/?page=1&page_size=${pageSize}&search=${searchTerm}`)
   
         setTenantTable(response.data.items || [])
   
@@ -254,7 +270,7 @@ export default function Page() {
   
       try {
   
-        const response = await axiosClient.get(`/properties/?page=1&page_size=4&search=${searchTerm}`)
+        const response = await axiosClient.get(`/properties/?page=1&${propertyPageSize}=4&search=${searchTerm}`)
   
         setPropertyTable(response.data.items || [])
   
@@ -449,21 +465,22 @@ export default function Page() {
                 }
 
                 {
-                  TenantTable.length !== 0 &&
+                  TenantTable.length !== 0 && !searchTenants &&
                   (
                     <div className='flex gap-2 items-center justify-between w-full my-2'>
                       <div className='flex gap-2 items-center justify-between'>
-                          <Select>
+                          <Select value={pageSize.toString()} onValueChange={(val) => {
+                            setPageSize(Number(val)); 
+                            setPage(1)
+                          }}>
                             <SelectTrigger className="w-[75px]">
                               <SelectValue placeholder="10" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="apple">10</SelectItem>
-                                <SelectItem value="banana">20</SelectItem>
-                                <SelectItem value="blueberry">50</SelectItem>
-                                <SelectItem value="grapes">70</SelectItem>
-                                <SelectItem value="pineapple">100</SelectItem>
+                                {[10, 20, 50, 70, 100].map((size) => (
+                                    <SelectItem key={size} value={size.toString()}>{size}</SelectItem>
+                                ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -471,9 +488,21 @@ export default function Page() {
                       </div>
                         
                       <div className='flex gap-2 items-center justify-between'>
-                        <Link href={"#"}><ChevronLeft size={20}/></Link>
-                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                        <Link href={"#"}><ChevronRight size={20}/></Link>
+                        <Button
+                            variant={'ghost'}
+                            disabled={page <= 1}
+                            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                        >
+                            <ChevronLeft size={20} />
+                        </Button>
+                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>{page}</Button>
+                        <Button
+                            variant={'ghost'}
+                            disabled={page >= Math.ceil(count / pageSize)}
+                            onClick={() => setPage(prev => prev + 1)}
+                        >
+                            <ChevronRight size={20} />
+                        </Button>
                       </div>
                 </div>
                   )
@@ -544,31 +573,44 @@ export default function Page() {
                 }
 
                 {
-                  PropertyTable.length !== 0 &&
+                  PropertyTable.length !== 0 && !searchProperties &&
                   (
                     <div className='flex gap-2 items-center justify-between w-full my-2'>
                       <div className='flex gap-2 items-center justify-between'>
-                          <Select>
+                          <Select value={propertyPageSize.toString()} onValueChange={(val) => {
+                            setPropertyPageSize(Number(val)); 
+                            setPropertyPage(1)
+                          }}>
                             <SelectTrigger className="w-[75px]">
                               <SelectValue placeholder="10" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="apple">10</SelectItem>
-                                <SelectItem value="banana">20</SelectItem>
-                                <SelectItem value="blueberry">50</SelectItem>
-                                <SelectItem value="grapes">70</SelectItem>
-                                <SelectItem value="pineapple">100</SelectItem>
+                                {[10, 20, 50, 70, 100].map((size) => (
+                                    <SelectItem key={size} value={size.toString()}>{size}</SelectItem>
+                                ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
                           <span className='text-muted-foreground'>Per Page</span>
                       </div>
                         
-                      <div className='flex gap-2 items-center justify-between'>
-                        <Link href={"#"}><ChevronLeft size={20}/></Link>
-                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                        <Link href={"#"}><ChevronRight size={20}/></Link>
+                       <div className='flex gap-2 items-center justify-between'>
+                        <Button
+                            variant={'ghost'}
+                            disabled={propertyPage <= 1}
+                            onClick={() => setPropertyPage(prev => Math.max(prev - 1, 1))}
+                        >
+                            <ChevronLeft size={20} />
+                        </Button>
+                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>{propertyPage}</Button>
+                        <Button
+                            variant={'ghost'}
+                            disabled={propertyPage >= Math.ceil(propertyCount / propertyPageSize)}
+                            onClick={() => setPropertyPage(prev => prev + 1)}
+                        >
+                            <ChevronRight size={20} />
+                        </Button>
                       </div>
                 </div>
                   )

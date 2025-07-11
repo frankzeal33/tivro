@@ -157,6 +157,10 @@ export default function Page() {
   const arrayList = new Array(3).fill(null)
   const tableList = new Array(6).fill(null)
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [count, setCount] = useState(0)
+
   const [search, setSearch] = useState("")
   const [loadingSearch, setLoadingSearch] = useState(false)
   const [formerVerifications, setFormerVerifications] = useState<verificationType>([])
@@ -204,6 +208,10 @@ export default function Page() {
     getPlans()
     getVerifications()
   }, [])
+
+  useEffect(() => {
+    getVerifications()
+  }, [page, pageSize])
 
   const handlePayment = async (paymentMethod: string) => {
 
@@ -354,8 +362,9 @@ export default function Page() {
 
       setLoadingVerification(true)
       
-      const response = await axiosClient.get("/verifications/")
+      const response = await axiosClient.get(`/verifications/?page=${page}&page_size=${pageSize}`)
       setVerification(response.data?.verifications || [])
+      setCount(response.data?.total_items || 0)
       setFormerVerifications(response.data?.verifications || [])
 
     } catch (error: any) {
@@ -372,7 +381,7 @@ export default function Page() {
     try {
 
       console.log("searchterm=",searchTerm)
-      const result = await axiosClient.get(`/search/verifications/?page=1&page_size=4&search=${searchTerm}`)
+      const result = await axiosClient.get(`/search/verifications/?page=1&page_size=${pageSize}&search=${searchTerm}`)
 
       setVerification(result.data?.verifications || [])
 
@@ -780,21 +789,22 @@ export default function Page() {
                 }
 
                 {
-                  verification.length !== 0 &&
+                  verification.length !== 0 && !search &&
                   (
                     <div className='flex gap-2 items-center justify-between w-full my-2'>
                       <div className='flex gap-2 items-center justify-between'>
-                          <Select>
+                          <Select value={pageSize.toString()} onValueChange={(val) => {
+                            setPageSize(Number(val)); 
+                            setPage(1)
+                          }}>
                             <SelectTrigger className="w-[75px]">
                               <SelectValue placeholder="10" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                <SelectItem value="apple">10</SelectItem>
-                                <SelectItem value="banana">20</SelectItem>
-                                <SelectItem value="blueberry">50</SelectItem>
-                                <SelectItem value="grapes">70</SelectItem>
-                                <SelectItem value="pineapple">100</SelectItem>
+                                {[10, 20, 50, 70, 100].map((size) => (
+                                    <SelectItem key={size} value={size.toString()}>{size}</SelectItem>
+                                ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -802,9 +812,21 @@ export default function Page() {
                       </div>
                         
                       <div className='flex gap-2 items-center justify-between'>
-                        <Link href={"#"}><ChevronLeft size={20}/></Link>
-                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>1</Button>
-                        <Link href={"#"}><ChevronRight size={20}/></Link>
+                        <Button
+                            variant={'ghost'}
+                            disabled={page <= 1}
+                            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                        >
+                            <ChevronLeft size={20} />
+                        </Button>
+                        <Button variant={'ghost'} className='bg-red-500/10 text-red-700 border-0 font-semibold'>{page}</Button>
+                        <Button
+                            variant={'ghost'}
+                            disabled={page >= Math.ceil(count / pageSize)}
+                            onClick={() => setPage(prev => prev + 1)}
+                        >
+                            <ChevronRight size={20} />
+                        </Button>
                       </div>
                 </div>
                   )

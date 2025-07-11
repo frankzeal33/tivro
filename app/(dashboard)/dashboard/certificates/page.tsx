@@ -81,6 +81,9 @@ const Page = () => {
   const [certificates, setCeretificates] = useState<CertType>([])
   const tableList = new Array(8).fill(null)
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
   const getCert = async () => {
     
       try {
@@ -99,7 +102,7 @@ const Page = () => {
   
     useEffect(() => {
       getCert()
-    }, [])
+    }, [page, pageSize])
 
   return (
     <div className='my-container'>
