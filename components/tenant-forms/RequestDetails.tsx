@@ -86,21 +86,13 @@ const RequestDetails = () => {
             
             const result = await axiosClient.post("/update/tenant/", data)
 
-            if(result.status === 200){
+            if(result.status === 200 || result.status === 201){
                 toast.success(result.data.message);
 
                 setCurrentSection("Identity check")
                 setFormProgress({...formProgress, fraction: "2/6",  percent: 34})
                 setRequestDetails({...requestDetails, completed: true,  iscurrentForm: false})
                 setIdentityCheck({...identityCheck,  iscurrentForm: true})
-            }else if(result.status === 201){
-                toast.success(result.data.message);
-
-                setCurrentSection("credit-check")
-                setFormProgress(51)
-                setFormProgress({...formProgress, fraction: "3/6",  percent: 51})
-                setIdentityCheck({...identityCheck, completed: true,  iscurrentForm: false})
-                setOtp({...otp,  iscurrentForm: true})
             }else{
                 
                 toast.error(result.data?.message);
