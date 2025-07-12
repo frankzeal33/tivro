@@ -823,50 +823,57 @@ return (
                               )}
                               {selfEmployedCAC.registration_status === "registered" ? (
                                 <>
-                                  <div className="grid gap-2">
-                                    <Label>Registration Type</Label>
-                                    <Select value={selfEmployedCAC.company_registration_type} onValueChange={handleRegTypeChange}>
-                                      <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="---Select---" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectGroup>
-                                          <SelectItem value="BUSINESS_NAME">BUSINESS_NAME</SelectItem>
-                                          <SelectItem value="COMPANY">COMPANY</SelectItem>
-                                          <SelectItem value="INCORPORATED_TRUSTESS">INCORPORATED TRUSTESS</SelectItem>
-                                          <SelectItem value="LIMITED_PARTNERSHIP">LIMITED PARTNERSHIP</SelectItem>
-                                          <SelectItem value="LIMITED_LIABILITY_PARTNERSHIP">LIMITED LIABILITY PARTNERSHIP</SelectItem>
-                                        </SelectGroup>
-                                      </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-2">
-                                  <Label htmlFor="cac">CAC No.</Label>
-                                  <div className="relative">
-                                    <Input id="cac" type="number" placeholder="e.g. 123456" value={selfEmployedCAC.company_registration_number} onChange={(e: any) => setSelfEmployedCAC({ ...selfEmployedCAC, company_registration_number: e.target.value})} />
-                                    {selfEmployedCAC.company_registration_number.length > 3 && (
-                                      <button
-                                        type="button"
-                                        className="absolute top-1.5 right-1.5 text-white font-semibold text-xs px-2 py-1 rounded-sm bg-primary"
-                                        onClick={confirmCAC}
-                                      >
-                                       Verify
-                                      </button>
-                                    )}
-                                  </div>
-                                  {selfEmployedBusinessDetails.business_name && (
-                                    <p className="text-xs text-green-600">Successful</p>
-                                  )}
-                                </div>
+                                {(!selfEmployedBusinessDetails.business_name || !selfEmployedBusinessDetails.business_address) && (
+                                  <>
+                                    <div className="grid gap-2">
+                                      <Label>Registration Type</Label>
+                                      <Select value={selfEmployedCAC.company_registration_type} onValueChange={handleRegTypeChange}>
+                                        <SelectTrigger className="w-full">
+                                          <SelectValue placeholder="---Select---" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectGroup>
+                                            <SelectItem value="BUSINESS_NAME">BUSINESS_NAME</SelectItem>
+                                            <SelectItem value="COMPANY">COMPANY</SelectItem>
+                                            <SelectItem value="INCORPORATED_TRUSTESS">INCORPORATED TRUSTESS</SelectItem>
+                                            <SelectItem value="LIMITED_PARTNERSHIP">LIMITED PARTNERSHIP</SelectItem>
+                                            <SelectItem value="LIMITED_LIABILITY_PARTNERSHIP">LIMITED LIABILITY PARTNERSHIP</SelectItem>
+                                          </SelectGroup>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="grid gap-2">
+                                      <Label htmlFor="cac">CAC No.</Label>
+                                      <div className="relative">
+                                        <Input id="cac" type="number" placeholder="e.g. 123456" value={selfEmployedCAC.company_registration_number} onChange={(e: any) => setSelfEmployedCAC({ ...selfEmployedCAC, company_registration_number: e.target.value})} />
+                                        {selfEmployedCAC.company_registration_number.length > 3 && (
+                                          <button
+                                            type="button"
+                                            className="absolute top-1.5 right-1.5 text-white font-semibold text-xs px-2 py-1 rounded-sm bg-primary"
+                                            onClick={confirmCAC}
+                                          >
+                                          Verify
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
                                 {selfEmployedBusinessDetails.business_name && (
                                   <>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="cname">Business name</Label>
-                                        <Input id="cname" type="text" value={selfEmployedBusinessDetails.business_name} className="bg-background" disabled/>
+                                      <Label htmlFor="cname">Business name</Label>
+                                      <Input id="cname" type="text" value={selfEmployedBusinessDetails.business_name} className="bg-background" disabled/>
+                                      {selfEmployedBusinessDetails.business_name && (
+                                        <p className="text-xs text-green-600">Successful</p>
+                                      )}
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="address">Business address</Label>
-                                        <Input id="address" type="text" value={selfEmployedBusinessDetails.business_address} className="bg-background" disabled/>
+                                      <Label htmlFor="address">Business address</Label>
+                                      <Input id="address" type="text" value={selfEmployedBusinessDetails.business_address} className="bg-background" disabled/>
+                                      {selfEmployedBusinessDetails.business_name && (
+                                        <p className="text-xs text-green-600">Successful</p>
+                                      )}
                                     </div>
                                   </>
                                 )}
